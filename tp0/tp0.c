@@ -42,8 +42,8 @@ int comparar(int vector1[], int n1, int vector2[], int n2) {
 	
 	int n3, i, vector_mayor = 0;
 		
-	seleccion(vector1, n1);
-	seleccion(vector2, n2);
+	//seleccion(vector1, n1);
+	//seleccion(vector2, n2);
 	
 	n3 = (n1 <= n2) ? n1 : n2;
 
@@ -84,7 +84,7 @@ void seleccion(int vector[], int n) {
 	}
 }
 
-
+/*
 //PRUEBA INTERNA (LUEGO SE USA tp0_pruebas.c)
 int main(void) {
 	
@@ -110,11 +110,34 @@ int main(void) {
 	
 	////////////////////////////////////////////////////////////////
 	
+	
 	int a[] = {1,2,3,4,5,6};
 	int b[] = {1,2,3,4,5};
 	
 	int c = comparar(a, len(a), b, len(b));
 	printf("\n\n\n%d", c);
+
+	////////////////////////////////////////////////
+
+	int vec3[] = { 5, 8, 9 };
+	int vec4[] = { 5, 8, 9, 10, 3};
+
+	int c2 = comparar(vec3, len(vec3), vec4, len(vec4));
+
+	int i;
+	printf("\n");
+	for(i=0; i<len(vec4); i++) {
+		printf("%d\t", vec3[i]);
+	}
+	printf("\n");
+	for(i=0; i<len(vec4); i++) {
+		printf("%d\t", vec4[i]);
+	}
+
+	printf("\n\n\n%d", c2);
+
+
 	
 	return 0;
 }
+*/
