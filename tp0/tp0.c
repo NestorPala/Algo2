@@ -1,6 +1,6 @@
 #include "tp0.h"
 #include <stdio.h>
-#define len(x) (sizeof(x) / sizeof(x[0]))
+
 
 /* *****************************************************************
  *                     FUNCIONES A COMPLETAR                       *
@@ -15,9 +15,32 @@ void swap(int *x, int *y) {
 	*y = aux;
 }
 
+/*
+int maximo_2(int vector[], int inicio, int final) {
+
+	int medio, a, b, max;
+
+	if (inicio == final) {
+		return vector[inicio];
+	}
+
+	medio = (inicio + final) / 2;
+
+	a = maximo_2(vector, 0, medio);
+	b = maximo_2(vector, medio + 1, final);
+	
+	max = (a > b) ? a : b;
+
+	return max;
+}
+*/
 
 int maximo(int vector[], int n) {
 	
+	/*
+	if (n == 0) return -1;
+	return maximo_2(vector, 0, n);*/
+
 	int maximo, posicion_maximo, i;
 	
 	if (n != 0) {
@@ -41,9 +64,6 @@ int maximo(int vector[], int n) {
 int comparar(int vector1[], int n1, int vector2[], int n2) {
 	
 	int n3, i, vector_mayor = 0;
-		
-	//seleccion(vector1, n1);
-	//seleccion(vector2, n2);
 	
 	n3 = (n1 <= n2) ? n1 : n2;
 
@@ -83,6 +103,7 @@ void seleccion(int vector[], int n) {
 		}
 	}
 }
+
 
 /*
 //PRUEBA INTERNA (LUEGO SE USA tp0_pruebas.c)
@@ -139,5 +160,15 @@ int main(void) {
 
 	
 	return 0;
+}
+*/
+
+
+/*
+int main(void) {
+
+	int pepe[] = {4, 3, 99, 22222, 6, 0, -9};
+	printf("\n\n%d", maximo(pepe, 7));
+	
 }
 */
