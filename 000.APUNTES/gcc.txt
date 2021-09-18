@@ -12,4 +12,4 @@ TPS:
 
 2)   ./pruebas
 
-3)   valgrind ./ejecutable
+3)  valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./pruebas

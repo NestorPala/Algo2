@@ -1,8 +1,9 @@
 Valgrind (usamos memcheck)
 
-CON PROGRAMA COMPILADO CON "-g":
-gcc -g pepe.c -o salida
-valgrind ./ejecutable
+gcc -g -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -o pruebas *.c
+valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./pruebas
+
+-----------------------------------------------------------------------------------------
 
 Notas:
 - printf() aloja y libera su propia memoria (alloc, free)
