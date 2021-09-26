@@ -4,29 +4,16 @@
 #include <stdlib.h> //rand()
 #include <stdio.h> //printf()
 
-/*
-pila_t *pila_crear(void);
-bool pila_esta_vacia(const pila_t *pila);
-bool pila_apilar(pila_t *pila, void *valor);
-void *pila_ver_tope(const pila_t *pila);
-void *pila_desapilar(pila_t *pila);
-void pila_destruir(pila_t *pila);
-*/
 
-/*
-void prueba_apilar_desapilar_uno() {
-    pila_t* pila = pila_crear();
-    pila_destruir(pila);
-}
-*/
-
-void prueba_null_valido() {
+bool prueba_null_valido() {
 
     pila_t* pila = pila_crear();
     bool hay_null = false;
 
     int num_a = rand() % 1001;
 
+    // Insertamos en la pila 520 elementos int, luego un NULL, y luego otros 520 enteros
+    /*************************************************/
     for (size_t i=0; i<520; i++) {
         pila_apilar(pila, &num_a);
     }
@@ -38,7 +25,9 @@ void prueba_null_valido() {
     for (size_t i=0; i<520; i++) {
         pila_apilar(pila, &num_b);
     }
-
+    /*************************************************/
+    
+    // Desapilamos los elementos y comprobamos que el NULL esté en la pila
     for (size_t i = 0; i < 1040; i++)
     {
         if (pila_desapilar(pila) == NULL) {
@@ -46,10 +35,9 @@ void prueba_null_valido() {
         }
     }
 
-    printf("\nAPILAR ELEMENTOS 'NULL' y NO 'NULL' EN LA PILA");
-    print_test("\nSe pueden insertar elementos 'null' en la pila:  ", hay_null);
-    
     pila_destruir(pila);
+
+    return hay_null;
 }
 
 
@@ -283,7 +271,9 @@ void pruebas_pila_estudiante() {
 
 
     //Comprobamos que insertar NULL en cualquier posición de la pila sea válido
-    prueba_null_valido();
+    bool prueba5 = prueba_null_valido();
+    printf("\nAPILAR ELEMENTOS 'NULL' y NO 'NULL' EN LA PILA");
+    print_test("\n\nSe pueden insertar elementos 'null' en la pila:  ", prueba5);
 
 
     printf("\n-------------------------------------------------------------------------------------\n");

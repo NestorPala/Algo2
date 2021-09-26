@@ -68,40 +68,22 @@ int comparar(int vector1[], int n1, int vector2[], int n2) {
 
 
 void seleccion(int vector[], int n) {
+	/* Tuvimos que implementar seleccion al revés (desde el final hacia el principio del vector)
+	   para poder usar la función maximo(), ya que los elementos más grandes se colocarán al final*/
 
-	int indice_minimo;
+	int indice_maximo;
 
-	for (int i=0; i<n-1; i++) {
+	for (int i=n-1; i>=0; i--) {
 
-		indice_minimo = i;
+		indice_maximo = i;
+		int maximo_vector_aux[i + 1]; 
 
-		for (int j=indice_minimo+1; j<n; j++) {
-
-			if (vector[j] < vector[indice_minimo]) {
-				indice_minimo = j;
-			}
-
+		for (int j=0; j<=indice_maximo; j++) {
+			maximo_vector_aux[j] = vector[j];
 		}
 
-		swap(&vector[i], &vector[indice_minimo]);
+		indice_maximo = maximo(maximo_vector_aux, i+1);
+
+		swap(&vector[i], &vector[indice_maximo]);
 	}
 }
-
-
-/*
-//PRUEBAS INTERNAS
-int main() {
-
-	int vec1[] = {3, 5, 4, 2, 1}, vec1_ord[] = {1, 2, 3, 4, 5};
-	int vec2[] = {4, 8, 15, 16, 23, 42}, vec2_ord[] = {4, 8, 15, 16, 23, 42};
-	int vec3[] = {-38, -46, -65, -78}, vec3_ord[] = {-78, -65, -46, -38};
-
-	seleccion(vec3, 4);
-
-	for (int i=0; i<4; i++) {
-		printf("%d\t", vec3[i]);
-	}
-
-	return 0;
-}
-*/
