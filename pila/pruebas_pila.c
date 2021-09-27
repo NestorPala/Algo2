@@ -3,41 +3,87 @@
 #include <stddef.h>  //NULL
 #include <stdlib.h> //rand()
 #include <stdio.h> //printf()
+#include <time.h> //srand()
 
 
-bool prueba_null_valido() {
+bool auxiliar_prueba_null_2(pila_t* pila) {
 
-    pila_t* pila = pila_crear();
-    bool hay_null = false;
+    bool prueba_null = false;
 
-    int num_a = rand() % 1001;
+    srand((unsigned int)time(0));
 
-    // Insertamos en la pila 520 elementos int, luego un NULL, y luego otros 520 enteros
+
+    // Insertamos en la pila 520 elementos int, luego un NULL, y luego otros 519 enteros
     /*************************************************/
+    int num_a = 0;
+
     for (size_t i=0; i<520; i++) {
+        num_a = rand() % 1001;
         pila_apilar(pila, &num_a);
     }
 
     pila_apilar(pila, NULL);
 
-    int num_b = rand() % 1001;
+    int num_b = 0;
 
-    for (size_t i=0; i<520; i++) {
+    for (size_t i=0; i<519; i++) {
+        num_b = rand() % 1001;
         pila_apilar(pila, &num_b);
     }
     /*************************************************/
-    
+
+
     // Desapilamos los elementos y comprobamos que el NULL esté en la pila
     for (size_t i = 0; i < 1040; i++)
     {
         if (pila_desapilar(pila) == NULL) {
-            hay_null = true;
+            prueba_null = true;
         }
+    }
+
+
+    return prueba_null;
+}
+
+
+bool auxiliar_prueba_null_1(pila_t* pila) {
+
+    bool prueba_null = true;
+
+
+    // Insertamos en la pila 1040 elementos NULL
+    for (size_t i=0; i<1040; i++) {
+        pila_apilar(pila, NULL);
+    }
+
+
+    // Desapilamos los elementos y comprobamos todos los NULL estén en la pila
+    for (size_t i = 0; i < 1040; i++)
+    {
+        if (pila_desapilar(pila) != NULL) {
+            prueba_null = false;
+        }
+    }
+
+
+    return prueba_null;
+}
+
+
+bool prueba_null_valido(bool solo_elementos_null) {
+
+    pila_t* pila = pila_crear();
+    bool prueba_null = false;
+
+    if (solo_elementos_null) {
+        prueba_null = auxiliar_prueba_null_1(pila);
+    } else {
+        prueba_null = auxiliar_prueba_null_2(pila);
     }
 
     pila_destruir(pila);
 
-    return hay_null;
+    return prueba_null;
 }
 
 
@@ -59,7 +105,8 @@ static void prueba_pila_vacia(pila_t* pila) {
 bool desapilar(pila_t* pila, size_t cantidad_veces, int** punteros_num) {
 
     bool desapilar_ok = true;
-    int copia_tope_desapilar = 0, tope = 0, numero_original = 0;
+    int tope_antes_desapilar = 0, tope_despues_desapilar = 0, numero_original = 0;
+
 
     // Mostraremos los elementos desapilados
     // (No para números grandes, para no marear al corrector cuando vea la consola)
@@ -67,20 +114,43 @@ bool desapilar(pila_t* pila, size_t cantidad_veces, int** punteros_num) {
         printf("\nLos elementos que se están desapilando son: \n");
     }
 
-    for (size_t i=0; i<cantidad_veces; i++) {
 
-        tope = *(int*)pila_ver_tope(pila);
-        numero_original = *punteros_num[cantidad_veces - 1 - i];
+    for (int i=0; i<cantidad_veces; i++) {
 
-        if (tope != numero_original) {
+
+        /* Esta variable sirve para comprobar que no se acceda a una posición negativa de punteros_num[] 
+           a la hora de comparar el número desapilado con el que se encontraba en punteros_num[].
+           Por ende, necesito que pueda ser negativa. */
+
+        int aux_comparar = (int)cantidad_veces;
+
+
+        // Comprobamos el tope ANTES de desapilar
+        /******************************************************************/
+        tope_antes_desapilar = *(int*)pila_ver_tope(pila);
+        numero_original = *punteros_num[aux_comparar - 1 - i];
+
+        if (tope_antes_desapilar != numero_original) {
             desapilar_ok = false;
         }
+        /******************************************************************/
 
-        copia_tope_desapilar = *(int*)pila_desapilar(pila);
 
-        if (cantidad_veces < 22) {
-            printf("%d\t", copia_tope_desapilar);
+        // Comprobamos el tope DESPUÉS de desapilar
+        /******************************************************************/
+        tope_despues_desapilar = *(int*)pila_desapilar(pila);
+
+        if (aux_comparar-1-i  >=  0) {
+            numero_original = *punteros_num[aux_comparar - 1 - i]; ///
         }
+
+        if (tope_despues_desapilar != numero_original) {
+            desapilar_ok = false;
+        }
+        else if (cantidad_veces < 22) {
+            printf("%d\t", tope_despues_desapilar);
+        }
+        /******************************************************************/
     }
 
     printf("\n");
@@ -92,7 +162,7 @@ bool desapilar(pila_t* pila, size_t cantidad_veces, int** punteros_num) {
 bool apilar(pila_t* pila, size_t cantidad_veces, int** punteros_num) {
 
     bool apilar_ok = true;
-    int copia_tope_apilar = 0;
+    int tope_apilar = 0;
 
     // Mostraremos los elementos apilados
     // (No para números grandes, para no marear al corrector cuando vea la consola)
@@ -104,15 +174,13 @@ bool apilar(pila_t* pila, size_t cantidad_veces, int** punteros_num) {
 
         pila_apilar(pila, punteros_num[i]);
 
-        copia_tope_apilar = *(int*)pila_ver_tope(pila);
+        tope_apilar = *(int*)pila_ver_tope(pila);
 
-        if (cantidad_veces < 22) {
-            printf("%d\t", copia_tope_apilar);
-        }
-
-        if (copia_tope_apilar != *punteros_num[i]) {
+        if (tope_apilar != *punteros_num[i]) {
             apilar_ok = false;
-        }    
+        } else if (cantidad_veces < 22) {
+            printf("%d\t", tope_apilar);
+        }   
     }
 
     printf("\n");
@@ -123,6 +191,8 @@ bool apilar(pila_t* pila, size_t cantidad_veces, int** punteros_num) {
 
 int** obtener_numeros(size_t cantidad_veces, int* lista_numeros) {
     
+    srand((unsigned int)time(0));
+
     // Asignamos los números aleatorios
     for (size_t i=0; i<cantidad_veces; i++) {
         lista_numeros[i] = rand() % 101;
@@ -219,7 +289,6 @@ void prueba_torturar_pila() {
 }
 
 
-
 void pruebas_pila_estudiante() {
 
     printf("\nLA CANTIDAD BASE DE ELEMENTOS DE UNA PILA SE ESTABLECIÓ EN 20\n\n");
@@ -270,10 +339,15 @@ void pruebas_pila_estudiante() {
     printf("\n-------------------------------------------------------------------------------------\n");
 
 
-    //Comprobamos que insertar NULL en cualquier posición de la pila sea válido
-    bool prueba5 = prueba_null_valido();
     printf("\nAPILAR ELEMENTOS 'NULL' y NO 'NULL' EN LA PILA");
+
+    //Comprobamos que insertar NULL en cualquier posición de la pila sea válido
+    bool prueba5 = prueba_null_valido(false);
     print_test("\n\nSe pueden insertar elementos 'null' en la pila:  ", prueba5);
+
+    //Comprobamos que insertar sólo elementos NULL en la pila sea válido
+    bool prueba6 = prueba_null_valido(true);
+    print_test("\nSe pueden insertar sólo elementos 'null' en la pila:  ", prueba6);
 
 
     printf("\n-------------------------------------------------------------------------------------\n");

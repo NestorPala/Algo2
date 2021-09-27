@@ -3,6 +3,9 @@
 #include <stddef.h>  //AGREGADO PARA PERMITIR COMPARACIÓN CON "NULL"
 
 
+const size_t PILA_TAMANIO_INICIAL = 20;
+
+
 /* Definición del struct pila proporcionado por la cátedra.
  */
 struct pila {
@@ -18,15 +21,13 @@ struct pila {
 
 pila_t *pila_crear(void) {
 
-    pila_t* pepe = malloc(sizeof(pila_t));
+    pila_t* pila = malloc(sizeof(pila_t));
 
-    size_t tamanio_inicial = 20;
+    pila -> datos = malloc(PILA_TAMANIO_INICIAL * sizeof(void*));
+    pila -> cantidad = 0;
+    pila -> capacidad = PILA_TAMANIO_INICIAL;
 
-    pepe -> datos = malloc(tamanio_inicial * sizeof(void*));
-    pepe -> cantidad = 0;
-    pepe -> capacidad = tamanio_inicial;
-
-    return pepe;
+    return pila;
 }
 
 
@@ -43,12 +44,32 @@ void pila_destruir(pila_t *pila) {
 
 bool pila_esta_vacia(const pila_t *pila) {
 
-    if (pila == NULL || pila -> capacidad == 0 || pila -> cantidad == 0) {
+    if (pila == NULL || pila -> cantidad == 0) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
+}
+
+
+bool pila_redimensionar(pila_t* pila, size_t nueva_capacidad) {
+
+    // Uso un puntero auxiliar por si falla el realloc()
+    void** pila_redim_aux = realloc(pila -> datos, nueva_capacidad * sizeof(void*));
+
+
+    // Chequeo que se halla hecho el realloc correctamente
+    if (pila_redim_aux == NULL) {
+
+        // Si el realloc() no se hizo correctamente, los datos originales nunca se ven afectados
+        return false;
+    }
+
+    // Asigno los datos nuevos
+    pila -> datos = pila_redim_aux;
+    pila -> capacidad = nueva_capacidad;
+
+    return true;
 }
 
 
@@ -58,21 +79,22 @@ bool pila_apilar(pila_t *pila, void *valor) {
         return false;
     }
 
-    //En caso de que el usuario quiera apilar en una PILA con tamaño cero.
-    if (pila -> capacidad == 0) {
-        pila -> capacidad = 20;
+
+    // Redimensionamos la pila cuando sea necesario
+    if (pila -> cantidad  ==  pila -> capacidad) {
+
+        if (!pila_redimensionar(pila, pila -> capacidad * 2)) {
+            return false;
+        }
     }
 
-    //Insertamos el elemento en la pila
+
+    // Insertamos el elemento en la pila
     pila -> datos[pila -> cantidad] = valor;
 
-    //Agrandamos la pila
+    // Indicamos que la pila se agrandó
     pila -> cantidad  =  pila -> cantidad  +  1;
-    
-    if (pila -> cantidad  ==  pila -> capacidad) {
-        pila -> datos  =  realloc(pila -> datos, pila -> capacidad * 2 * sizeof(void*));
-        pila -> capacidad  =  pila -> capacidad  *  2;
-    }
+
 
     return true;
 }
@@ -94,13 +116,13 @@ void *pila_desapilar(pila_t *pila) {
         return NULL;
     }
 
-    pila -> cantidad  =  pila -> cantidad  -  1;
-
+    // Redimensionamos la pila cuando sea necesario
     if (pila -> cantidad * 4  <=  pila -> capacidad) {
-        
-        pila -> capacidad  =  pila -> capacidad  /  2;
-        pila -> datos  =  realloc(pila -> datos,  pila -> capacidad  *  sizeof(void*));
+
+        pila_redimensionar(pila, pila -> capacidad / 2);
     }
+
+    pila -> cantidad  =  pila -> cantidad - 1;
 
     return pila -> datos[pila -> cantidad];
 }

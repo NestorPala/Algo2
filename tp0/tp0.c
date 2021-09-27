@@ -74,15 +74,8 @@ void seleccion(int vector[], int n) {
 	int indice_maximo;
 
 	for (int i=n-1; i>=0; i--) {
-
-		indice_maximo = i;
-		int maximo_vector_aux[i + 1]; 
-
-		for (int j=0; j<=indice_maximo; j++) {
-			maximo_vector_aux[j] = vector[j];
-		}
-
-		indice_maximo = maximo(maximo_vector_aux, i+1);
+		
+		indice_maximo = maximo(vector, i+1);
 
 		swap(&vector[i], &vector[indice_maximo]);
 	}
