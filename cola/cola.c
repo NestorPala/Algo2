@@ -83,7 +83,7 @@ bool cola_encolar(cola_t *cola, void *valor) {
         cola -> primer_elemento = nodo_nuevo;
         cola -> ultimo_elemento = nodo_nuevo;
 
-        return true; //(revisar luego)
+        return true;
     }
 
 

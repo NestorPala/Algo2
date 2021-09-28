@@ -8,7 +8,7 @@
 
 
 // Cantidad masiva de pruebas
-const size_t N = 100;
+const size_t N = 1000;
 
 
 
@@ -37,27 +37,12 @@ demás de las pruebas obligatorias análogas a las pedidas para la pila, tambié
 
 
 
-void prueba_basica_1_int() {
-
-    cola_t* cola = cola_crear();
-    int num1 = 112;
-
-    print_test("La cola está vacía:  ", cola_esta_vacia(cola));
-    print_test("Se puede encolar el primer elemento en la cola:  ", cola_encolar(cola, &num1));
-    print_test("La cola ahora NO está vacía:  ", !cola_esta_vacia(cola));
-    print_test("El primer elemento de la cola es 112:  ", *(int*)cola_ver_primero(cola) == 112);
-    print_test("Se pudo desencolar el primer elemento de la cola:  ", *(int*)cola_desencolar(cola) == 112);
-    print_test("La cola ahora está vacía:  ", cola_esta_vacia(cola));
-    print_test("El elemento '112' no está más en la cola:  ", cola_ver_primero(cola) == NULL);
-    cola_destruir(cola, NULL);
-}
-
-
-
 // Obtener muchos números para pruebas masivas
-int** obtener_numeros(size_t cantidad_num, int* lista_numeros) {
+int** obtener_numeros(size_t cantidad_num) {
     
     srand((unsigned int)time(0));
+
+    int* lista_numeros = malloc(cantidad_num * sizeof(int));
 
     // Asignamos los números aleatorios
     for (size_t i=0; i<cantidad_num; i++) {
@@ -77,34 +62,78 @@ int** obtener_numeros(size_t cantidad_num, int* lista_numeros) {
 
 
 
-void prueba_basica_muchos_int() {
+void prueba_cola_1_int() {
 
     cola_t* cola = cola_crear();
-    int* lista_numeros = malloc(N * sizeof(int));
-    int** punteros_num = obtener_numeros(N, lista_numeros);
+    int num1 = 112;
 
     print_test("La cola está vacía:  ", cola_esta_vacia(cola));
+    print_test("Se puede encolar el primer elemento en la cola:  ", cola_encolar(cola, &num1));
+    print_test("La cola ahora NO está vacía:  ", !cola_esta_vacia(cola));
+    print_test("El primer elemento de la cola es 112:  ", *(int*)cola_ver_primero(cola) == 112);
+    print_test("Se pudo desencolar el primer elemento de la cola:  ", *(int*)cola_desencolar(cola) == 112);
+    print_test("La cola ahora está vacía:  ", cola_esta_vacia(cola));
+    print_test("El elemento '112' no está más en la cola:  ", cola_ver_primero(cola) == NULL);
+    
+    cola_destruir(cola, NULL);
+}
 
+
+
+void prueba_cola_muchos_int() {
+
+
+    cola_t* cola = cola_crear();
+    int** punteros_num = obtener_numeros(N);
+
+
+    print_test("La cola está vacía:  ", cola_esta_vacia(cola));
+    print_test("No se puede ver el primer elemento de la cola vacía:  ", cola_ver_primero(cola) == NULL);
+    print_test("No se puede desencolar la cola vacía:  ", cola_desencolar(cola) == NULL);
+
+
+    /******************************************************************************/
     bool muchos_encolados = true;
 
     for (size_t i=0; i<N; i++) {
         if (!cola_encolar(cola, punteros_num[i])) {
             muchos_encolados = false;
         }
-        printf("%d\t", *(int*)cola_ver_primero(cola));
+        
+        printf("%d\t", *punteros_num[i]);
     }
 
-    print_test("Se pudieron encolar muchos elementos", muchos_encolados);
-    printf("\n");
+    print_test("\nSe pudieron encolar muchos elementos", muchos_encolados);
+    printf("\n\n");
+    /******************************************************************************/
 
-    for (size_t i=0; i<N; i++) {  //probar con N-1
-        printf("%d\t", *(int*)cola_desencolar(cola));
+
+    /******************************************************************************/
+    bool muchos_desencolados = true;
+
+    for (size_t i=0; i<N; i++) {
+        int aux = *(int*)cola_desencolar(cola);
+
+        if (aux != *punteros_num[i]) {
+            muchos_desencolados = false;
+        }
+
+        printf("%d\t", aux);
     }
 
-    print_test("La cola ahora está vacía", cola_esta_vacia(cola));
+    print_test("\nSe pudieron desencolar todos los elementos:  ", muchos_desencolados);
+
+    print_test("La cola ahora está vacía:  ", cola_esta_vacia(cola));
+
+    print_test("No se puede ver el primer elemento de la cola vacía:  ", cola_ver_primero(cola) == NULL);
+
+    print_test("No se puede desencolar la cola vacía:  ", cola_desencolar(cola) == NULL);
+    
+    /******************************************************************************/
+
 
     cola_destruir(cola, NULL);
-    free(lista_numeros);
+    free(punteros_num[0]);
     free(punteros_num);
 }
 
@@ -114,10 +143,10 @@ void pruebas_pila_estudiante() {
 
     printf("\n-----------------------------------------------------------------------------------\n");
     printf("\nPRUEBA BÁSICA DE TODAS LAS FUNCIONES CON 1 SOLO ENTERO\n\n");
-    prueba_basica_1_int();
+    prueba_cola_1_int();
     printf("\n-----------------------------------------------------------------------------------\n");
     printf("\nPRUEBA DE TODAS LAS FUNCIONES CON MUCHOS ENTEROS\n\n");
-    prueba_basica_muchos_int();
+    prueba_cola_muchos_int();
     printf("\n-----------------------------------------------------------------------------------\n");
 }
     
