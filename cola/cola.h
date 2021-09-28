@@ -53,6 +53,7 @@ void *cola_ver_primero(const cola_t *cola);
 void *cola_desencolar(cola_t *cola);
 
 
+
 /* *****************************************************************
  *                      PRUEBAS UNITARIAS
  * *****************************************************************/

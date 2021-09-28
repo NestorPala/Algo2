@@ -23,8 +23,6 @@ struct cola {
 
 
 
-// Crea una cola.
-// Post: devuelve una nueva cola vacía.
 cola_t *cola_crear(void) {
 
     cola_t* cola = malloc(sizeof(cola_t));
@@ -37,35 +35,17 @@ cola_t *cola_crear(void) {
 
 
 
-// Destruye la cola. Si se recibe la función destruir_dato por parámetro,
-// para cada uno de los elementos de la cola llama a destruir_dato.
-// Pre: la cola fue creada. destruir_dato es una función capaz de destruir
-// los datos de la cola, o NULL en caso de que no se la utilice.
-// Post: se eliminaron todos los elementos de la cola.
-void cola_destruir(cola_t *cola, void (*destruir_dato)(void *)) {
-
-    if (cola == NULL) {
-        return;
-    }
-
-    if (destruir_dato == NULL)
-    {
-        free(cola); //CAMBIAR LUEGO
-    }
-}
-
-
-
 // Uso interno
-bool cola_unico_elemento(const cola_t* cola) {
+bool cola_unico_elemento(cola_t* cola) {
 
-    return  cola -> primer_elemento  ==  cola -> ultimo_elemento;
+    return
+    cola -> primer_elemento  ==  cola -> ultimo_elemento
+    &&
+    cola -> primer_elemento != NULL;
 }
 
 
 
-// Devuelve verdadero si la cola no tiene elementos encolados, false en caso contrario.
-// Pre: la cola fue creada.
 bool cola_esta_vacia(const cola_t *cola) {
 
     if (cola == NULL) {
@@ -77,10 +57,6 @@ bool cola_esta_vacia(const cola_t *cola) {
 
 
 
-// Agrega un nuevo elemento a la cola. Devuelve falso en caso de error.
-// Pre: la cola fue creada.
-// Post: se agregó un nuevo elemento a la cola, valor se encuentra al final
-// de la cola.
 bool cola_encolar(cola_t *cola, void *valor) {
 
 
@@ -106,6 +82,8 @@ bool cola_encolar(cola_t *cola, void *valor) {
 
         cola -> primer_elemento = nodo_nuevo;
         cola -> ultimo_elemento = nodo_nuevo;
+
+        return true; //(revisar luego)
     }
 
 
@@ -121,10 +99,6 @@ bool cola_encolar(cola_t *cola, void *valor) {
 
 
 
-// Obtiene el valor del primer elemento de la cola. Si la cola tiene
-// elementos, se devuelve el valor del primero, si está vacía devuelve NULL.
-// Pre: la cola fue creada.
-// Post: se devolvió el primer elemento de la cola, cuando no está vacía.
 void *cola_ver_primero(const cola_t *cola) {
 
     if (cola == NULL  ||  cola_esta_vacia(cola)) {
@@ -136,11 +110,6 @@ void *cola_ver_primero(const cola_t *cola) {
 
 
 
-// Saca el primer elemento de la cola. Si la cola tiene elementos, se quita el
-// primero de la cola, y se devuelve su valor, si está vacía, devuelve NULL.
-// Pre: la cola fue creada.
-// Post: se devolvió el valor del primer elemento anterior, la cola
-// contiene un elemento menos, si la cola no estaba vacía.
 void *cola_desencolar(cola_t *cola) {
 
 
@@ -150,19 +119,55 @@ void *cola_desencolar(cola_t *cola) {
 
 
     // Obtengo el valor del nodo que voy a quitar
-    void* tope_anterior_cola  =  cola -> primer_elemento -> dato;
-
-    cola -> primer_elemento  =  cola -> primer_elemento -> siguiente_nodo;
-    
-
-    free(cola -> primer_elemento);
+    void* tope_anterior_cola  =  cola -> primer_elemento -> dato; //
 
 
+    // Compruebo caso borde de 1 solo elemento
     if (cola_unico_elemento(cola)) {
+
+        free(cola -> primer_elemento);
         cola -> primer_elemento = NULL;
         cola -> ultimo_elemento = NULL;
+
+    } else {
+
+        // Utilizo puntero a nodo auxiliar para no perder la referencia al siguiente elemento
+        nodo_t* puntero_siguiente  =  cola -> primer_elemento -> siguiente_nodo;
+
+        // Borro el elemento desencolado
+        free(cola -> primer_elemento);
+
+        // Recupero la referencia del elemento siguiente (ahora, primer elemento)
+        cola -> primer_elemento  =  puntero_siguiente;
     }
-    
+
 
     return tope_anterior_cola;
+}
+
+
+
+void cola_destruir(cola_t *cola, void (*destruir_dato)(void *)) {
+
+
+    if (cola == NULL) {
+        return;
+    }
+
+
+    if (destruir_dato != NULL) //CAMBIAR LUEGO, NO ES NULL LO QUE USAMOS
+    {
+        //...
+        return;
+    }
+
+
+    void* aux;
+
+    do {
+        aux = cola_desencolar(cola);
+    } while (aux != NULL);
+    
+
+    free(cola); //CAMBIAR LUEGO
 }
