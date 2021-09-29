@@ -15,16 +15,6 @@ const size_t MOSTRAR_MAX = 100;
 
 
 
-/*
-HACER PRUEBAS SIMILARES A LAS DE PILA
-
-ADEMÁS:
-
-demás de las pruebas obligatorias análogas a las pedidas para la pila, también tienen que incluir unas pruebas para probar la destrucción con y sin funciones de destrucción de los elementos.
-*/
-
-
-
 void desencolar_enteros(cola_t* cola, int** lista_numeros, size_t cant_enteros, int contenido_null) {
 
 
@@ -111,7 +101,6 @@ void encolar_enteros(cola_t* cola, int** lista_numeros, size_t cant_enteros, int
 
 
 // Obtener muchos números para pruebas masivas
-// contenido_null  -->>  0: no hay NULL; 1: todos son NULL; 2: hay algunos NULL 
 int** obtener_numeros(size_t cantidad_num, int* container_numeros, int contenido_null) {
     
     srand((unsigned int)time(0));
@@ -157,7 +146,7 @@ void encolar_desencolar_enteros(cola_t* cola, size_t cant_enteros, int contenido
 
 
 
-void prueba_vaciedad_cola(cola_t* cola) {
+void pruebas_vaciedad_cola(cola_t* cola) {
 
     print_test("\nLa cola está vacía:  ", cola_esta_vacia(cola));
     print_test("No se puede ver el primer elemento de la cola vacía:  ", cola_ver_primero(cola) == NULL);
@@ -166,16 +155,16 @@ void prueba_vaciedad_cola(cola_t* cola) {
 }
 
 
-
-void prueba_encolar_desencolar(size_t cantidad_elementos, int contenido_null) {
+// contenido_null  -->>  0: no hay NULL; 1: todos son NULL; 2: hay algunos NULL 
+void pruebas_encolar_desencolar(size_t cantidad_elementos, int contenido_null) {
 
     cola_t* cola = cola_crear();
 
     printf("ENCOLAR Y DESENCOLAR   %zu   ELEMENTOS\n\n", cantidad_elementos);
 
-    prueba_vaciedad_cola(cola);
+    pruebas_vaciedad_cola(cola);
     encolar_desencolar_enteros(cola, cantidad_elementos, contenido_null);
-    prueba_vaciedad_cola(cola);
+    pruebas_vaciedad_cola(cola);
 
     cola_destruir(cola, NULL);
 
@@ -184,8 +173,8 @@ void prueba_encolar_desencolar(size_t cantidad_elementos, int contenido_null) {
 
 
 
-//todos_null -->> 0: se encolan solo elementos NULL; 1: se encolan algunos elementos no nulos
-void prueba_encolar_desencolar_null(size_t cantidad_elementos, bool todos_null) {
+//todos_null  -->>  0: se encolan solo elementos NULL; 1: se encolan algunos elementos no nulos
+void pruebas_encolar_desencolar_null(size_t cantidad_elementos, bool todos_null) {
 
     if (todos_null) {
         printf("\nPRUEBA DEL TDA INSERTANDO >>> SOLAMENTE <<< ELEMENTOS NULL\n");
@@ -193,16 +182,16 @@ void prueba_encolar_desencolar_null(size_t cantidad_elementos, bool todos_null) 
         printf("\nPRUEBA DEL TDA INSERTANDO >>> ALGUNOS <<< ELEMENTOS NULL\n");
     }
 
-    prueba_encolar_desencolar(cantidad_elementos, (todos_null) ? 1 : 2);
+    pruebas_encolar_desencolar(cantidad_elementos, (todos_null) ? 1 : 2);
     printf("\n-----------------------------------------------------------------------------------\n");
 }
 
 
 
-void prueba_null(size_t cantidad_elementos) {
+void pruebas_null(size_t cantidad_elementos) {
 
-    prueba_encolar_desencolar_null(cantidad_elementos, false);
-    prueba_encolar_desencolar_null(cantidad_elementos, true);
+    pruebas_encolar_desencolar_null(cantidad_elementos, false);
+    pruebas_encolar_desencolar_null(cantidad_elementos, true);
 }
 
 
@@ -213,17 +202,17 @@ void pruebas_pila_estudiante() {
     printf("PRUEBA DE TODAS LAS PRIMITIVAS DEL TDA COLA");
     printf("\n\n-----------------------------------------------------------------------------------\n");
 
-    prueba_encolar_desencolar(1, 0);
-    prueba_encolar_desencolar(10, 0);
-    prueba_encolar_desencolar(MOSTRAR_MAX, 0);
-    prueba_encolar_desencolar(1000, 0);
-    prueba_encolar_desencolar(N, 0);
+    pruebas_encolar_desencolar(1, 0);
+    pruebas_encolar_desencolar(10, 0);
+    pruebas_encolar_desencolar(MOSTRAR_MAX, 0);
+    pruebas_encolar_desencolar(1000, 0);
+    pruebas_encolar_desencolar(N, 0);
 
-    prueba_null(1);
-    prueba_null(10);
-    prueba_null(MOSTRAR_MAX);
-    prueba_null(1000);
-    prueba_null(N);
+    pruebas_null(1);
+    pruebas_null(10);
+    pruebas_null(MOSTRAR_MAX);
+    pruebas_null(1000);
+    pruebas_null(N);
 }
     
 
