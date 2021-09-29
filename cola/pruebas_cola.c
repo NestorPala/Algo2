@@ -11,7 +11,7 @@
 const size_t N = 100000;
 
 // Cantidad máxima de elementos a mostrar
-const size_t MOSTRAR_MAX = 100;
+const size_t MOSTRAR_MAX = 50;
 
 
 
@@ -196,7 +196,7 @@ void pruebas_null(size_t cantidad_elementos) {
 
 
 
-void pruebas_pila_estudiante() {
+void pruebas_cola_estudiante() {
 
     printf("\n-----------------------------------------------------------------------------------\n\n");
     printf("PRUEBA DE TODAS LAS PRIMITIVAS DEL TDA COLA");
@@ -225,7 +225,7 @@ void pruebas_pila_estudiante() {
 
 int main(void) {
 
-    pruebas_pila_estudiante();
+    pruebas_cola_estudiante();
     return failure_count() > 0;  // Indica si falló alguna prueba.
 }
 
