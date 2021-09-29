@@ -1,6 +1,6 @@
 #include "cola.h"
 #include <stdlib.h>
-#include <stddef.h>  //AGREGADO PARA PERMITIR COMPARACIÓN CON "NULL"
+#include <stddef.h>
 
 
 
@@ -15,7 +15,6 @@ struct cola {
     nodo_t* primer_elemento;
     nodo_t* ultimo_elemento;
 };
-
 
 
 
@@ -38,31 +37,19 @@ cola_t *cola_crear(void) {
 // Uso interno
 bool cola_unico_elemento(cola_t* cola) {
 
-    return
-    cola -> primer_elemento  ==  cola -> ultimo_elemento
-    &&
-    cola -> primer_elemento != NULL;
+    return (cola -> primer_elemento == cola -> ultimo_elemento) && (cola -> primer_elemento != NULL);
 }
 
 
 
 bool cola_esta_vacia(const cola_t *cola) {
 
-    if (cola == NULL) {
-        return true;
-    }
-
-    return (cola -> primer_elemento == NULL) && (cola -> ultimo_elemento == NULL); //verificar luego si esto es correcto
+    return (cola -> primer_elemento == NULL) && (cola -> ultimo_elemento == NULL);
 }
 
 
 
 bool cola_encolar(cola_t *cola, void *valor) {
-
-
-    if (cola == NULL) {
-        return false;
-    }
 
 
     nodo_t* nodo_nuevo = malloc(sizeof(nodo_t));
@@ -101,7 +88,7 @@ bool cola_encolar(cola_t *cola, void *valor) {
 
 void *cola_ver_primero(const cola_t *cola) {
 
-    if (cola == NULL  ||  cola_esta_vacia(cola)) {
+    if (cola_esta_vacia(cola)) {
         return NULL;
     }
 
@@ -113,13 +100,13 @@ void *cola_ver_primero(const cola_t *cola) {
 void *cola_desencolar(cola_t *cola) {
 
 
-    if (cola == NULL  ||  cola_esta_vacia(cola)) {
+    if (cola_esta_vacia(cola)) {
         return NULL;
     }
 
 
     // Obtengo el valor del nodo que voy a quitar
-    void* tope_anterior_cola  =  cola -> primer_elemento -> dato; //
+    void* tope_anterior_cola  =  cola -> primer_elemento -> dato;
 
 
     // Compruebo caso borde de 1 solo elemento
@@ -150,24 +137,17 @@ void *cola_desencolar(cola_t *cola) {
 void cola_destruir(cola_t *cola, void (*destruir_dato)(void *)) {
 
 
-    if (cola == NULL) {
-        return;
-    }
-
-
-    if (destruir_dato != NULL) //CAMBIAR LUEGO, NO ES NULL LO QUE USAMOS
+    if (destruir_dato != NULL) //CAMBIAR LUEGO
     {
         //...
         return;
     }
 
 
-    void* aux;
-
     do {
-        aux = cola_desencolar(cola);
-    } while (aux != NULL);
+        cola_desencolar(cola);
+    } while (!cola_esta_vacia(cola));
     
 
-    free(cola); //CAMBIAR LUEGO
+    free(cola);
 }
