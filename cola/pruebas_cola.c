@@ -8,10 +8,7 @@
 
 
 // Cantidad masiva de pruebas
-const size_t N = 100000;
-
-// Cantidad máxima de elementos a mostrar
-const size_t MOSTRAR_MAX = 50;
+const size_t N = 1000;
 
 
 
@@ -35,9 +32,7 @@ void desencolar_enteros(cola_t* cola, int** lista_numeros, size_t cant_enteros, 
                 muchos_desencolados = false;
             }
 
-            if (cant_enteros <= MOSTRAR_MAX) {
-                printf("%d\t", aux);
-            }
+            printf("%d\t", aux);
 
         }
         else {
@@ -51,10 +46,7 @@ void desencolar_enteros(cola_t* cola, int** lista_numeros, size_t cant_enteros, 
                 muchos_desencolados = false;
             }
 
-            if (cant_enteros <= MOSTRAR_MAX) {
-                printf("NULL\t");
-            }
-
+            printf("NULL\t");
 
         }
     }
@@ -89,9 +81,7 @@ void encolar_enteros(cola_t* cola, int** lista_numeros, size_t cant_enteros, int
             muchos_encolados = false;
         }
 
-        if (cant_enteros <= MOSTRAR_MAX) {
-            imprimir_entero(lista_numeros[i], contenido_null);
-        }
+        imprimir_entero(lista_numeros[i], contenido_null);
     }
 
     print_test("\nSe pudieron encolar todos los elementos:  ", muchos_encolados);
@@ -204,13 +194,13 @@ void pruebas_cola_estudiante() {
 
     pruebas_encolar_desencolar(1, 0);
     pruebas_encolar_desencolar(10, 0);
-    pruebas_encolar_desencolar(MOSTRAR_MAX, 0);
+    pruebas_encolar_desencolar(100, 0);
     pruebas_encolar_desencolar(1000, 0);
     pruebas_encolar_desencolar(N, 0);
 
     pruebas_null(1);
     pruebas_null(10);
-    pruebas_null(MOSTRAR_MAX);
+    pruebas_null(100);
     pruebas_null(1000);
     pruebas_null(N);
 }
