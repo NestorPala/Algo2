@@ -116,13 +116,13 @@ void *cola_desencolar(cola_t *cola) {
 
 void cola_destruir(cola_t *cola, void (*destruir_dato)(void *)) {
 
-    do {
+    while (!cola_esta_vacia(cola)) {
+
         if (destruir_dato != NULL) {  
             destruir_dato(cola -> primer_elemento -> dato);
         }
         cola_desencolar(cola);
-
-    } while (!cola_esta_vacia(cola));
+    }
     
     free(cola);
 }
