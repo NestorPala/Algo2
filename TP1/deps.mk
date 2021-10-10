@@ -1,0 +1,1 @@
+fixcol: fixcol.o
