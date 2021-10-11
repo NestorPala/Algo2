@@ -4,6 +4,12 @@
 #include <stdbool.h>
 #include <stddef.h> //NULL
 #include <ctype.h> //isdigit()
+#include <string.h> //strstr()
+
+
+/*
+The C library function char *fgets(char *str, int n, FILE *stream) reads a line from the specified stream and stores it into the string pointed to by str. It stops when either (n-1) characters are read, the newline character is read, or the end-of-file is reached, whichever comes first.
+*/
 
 
 void fixcol(char** argv, FILE* archivo) {
@@ -12,7 +18,22 @@ void fixcol(char** argv, FILE* archivo) {
     char linea[tamanio_buffer];
 
     while (fgets(linea, tamanio_buffer, archivo) != NULL) {
-        fprintf(stdout, "%s\n", linea);
+
+
+
+        /*
+        if (strstr(linea, "\n") == NULL) {
+            fprintf(stdout, "%s\n", linea);
+        } else {
+            fprintf(stdout, "%s", linea);
+        }
+        */
+
+        for(size_t i=0; i<tamanio_buffer-1; i++) {
+            if (linea[i] != '\n' && linea[i] != '\0') printf(" [ '%c' ] ", linea[i]);
+        }
+
+        printf("\n");
     }
 }
 
@@ -67,7 +88,7 @@ bool cheq_err_parametros(char** argv) {
     // Verifico que no hayan 0 parámetros, y luego, si hay al menos uno, que el primero sea un número
 
     if ( argv[1] == NULL || !es_numero(argv[1]) || (argv[2] == NULL && stdin_vacio()) ) {
-        fprintf(stderr, "%s", "Error: Cantidad erronea de parametros.\n");
+        fprintf(stderr, "%s", "Error: Cantidad erronea de parametros");
         return false;
     }
 
@@ -85,7 +106,7 @@ int main(int argc, char** argv) {
     FILE* archivo = obtener_archivo(argv);
 
     if (archivo == NULL) {
-        fprintf(stderr, "%s", "Error: Error: archivo fuente inaccesible.");
+        fprintf(stderr, "%s", "Error: archivo fuente inaccesible");
         return -2;
     }
 
