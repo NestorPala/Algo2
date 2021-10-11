@@ -19,21 +19,13 @@ void fixcol(char** argv, FILE* archivo) {
 
     while (fgets(linea, tamanio_buffer, archivo) != NULL) {
 
-
-
-        /*
-        if (strstr(linea, "\n") == NULL) {
-            fprintf(stdout, "%s\n", linea);
-        } else {
-            fprintf(stdout, "%s", linea);
-        }
-        */
-
-        for(size_t i=0; i<tamanio_buffer-1; i++) {
-            if (linea[i] != '\n' && linea[i] != '\0') printf(" [ '%c' ] ", linea[i]);
+        if (linea[strlen(linea) - 1] == '\n') {
+            linea[strlen(linea) - 1] = '\0';
         }
 
-        printf("\n");
+        if (linea[0] != '\0') {
+            printf("%s\n", linea);
+        }
     }
 }
 
