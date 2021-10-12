@@ -7,11 +7,6 @@
 #include <string.h> //strstr()
 
 
-/*
-The C library function char *fgets(char *str, int n, FILE *stream) reads a line from the specified stream and stores it into the string pointed to by str. It stops when either (n-1) characters are read, the newline character is read, or the end-of-file is reached, whichever comes first.
-*/
-
-
 void fixcol(char** argv, FILE* archivo) {
 
     int tamanio_buffer  =  atoi(argv[1]) + 1;
@@ -48,18 +43,6 @@ FILE* obtener_archivo(char** argv) {
 }
 
 
-bool stdin_vacio() {
-
-    fseek(stdin, 0, SEEK_SET);
-
-    if (ftell(stdin) == EOF) {
-        return true;
-    }
-
-    return false;
-}
-
-
 bool es_numero(char* param) {
 
     // Recorro el string caracter a caracter preguntando si ese caracter es un número
@@ -79,7 +62,7 @@ bool cheq_err_parametros(char** argv) {
     
     // Verifico que no hayan 0 parámetros, y luego, si hay al menos uno, que el primero sea un número
 
-    if ( argv[1] == NULL || !es_numero(argv[1]) || (argv[2] == NULL && stdin_vacio()) ) {
+    if (argv[1] == NULL || !es_numero(argv[1])) {
         fprintf(stderr, "%s", "Error: Cantidad erronea de parametros");
         return false;
     }
