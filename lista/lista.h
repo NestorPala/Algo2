@@ -2,6 +2,7 @@
 #define LISTA_H
 
 #include <stdbool.h>
+#include <stddef.h> //size_t
 
 
 

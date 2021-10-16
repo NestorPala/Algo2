@@ -16,6 +16,7 @@ struct lista {
     size_t largo;
 };
 
+// Iterador externo
 struct lista_iter {
     //...
 };
@@ -71,10 +72,6 @@ void lista_iterar(lista_t *lista, bool visitar(void *dato, void *extra), void *e
 
 /***************************************************************************************************/
 //Primitivas del iterador externo
-
-
-typedef struct lista_iter lista_iter_t {
-}
 
 
 lista_iter_t *lista_iter_crear(lista_t *lista) {
