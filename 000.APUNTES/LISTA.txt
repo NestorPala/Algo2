@@ -1,0 +1,12 @@
+TDA LISTA
+
+
+implementamos el iterador externo y el interno
+
+los iteradores van a ser orientados a listas (optimizados para)
+
+podemos reutilizar partes de código del TDA cola (NO hacer include cola.h)
+
+incluir pre y post condiciones para cada primitiva (en el lista.h)
+
+el iterador interno es uno solo, el externo se compone de varias primitivas

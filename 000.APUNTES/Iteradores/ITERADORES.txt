@@ -1,0 +1,15 @@
+ITERADORES
+
+el iterador interno no se crea ni se destruye, es una primitiva del TDA que lo recorre
+
+el iterador externo se crea, se usa y se destruye
+
+La función visitar() la crea "Bárbara" (el usuario), porque depende de lo que él/ella quiera hacer con el TDA iterable
+
+"Bárbara" sí puede controlar hasta donde va el iterador interno
+
+No se pueden usar las primitivas del iterador externo para implementar el iterador interno (porque se produce una dependencia ciclica)
+
+El iterador interno no puede agregar elementos ni borrarlos (no puede modificar la estructura del TDA)
+
+El iterador externo sí puede modificar la estructura del TDA
