@@ -1,0 +1,13 @@
+HASH consideraciones
+
+la clave tiene que ser si o si un char*
+la clave la tenemos que pasar como literal y no como variable
+la copia de la clave (el literal) la deberíamos pasar como memoria dinámica (eso dijo el profe, no sé)
+las claves NO se repiten, si se repiten se pisan
+redimensionamos para achicar y para agrandar (recomendado agrandar a X2)
+(dijo el profe que) una cadena vacía '' sirve como clave
+
+
+hash cerrado:
+para insertar y para borrar primero hay que hacer una busqueda
+en el peor de los casos la búsqueda cuesta O(n) (si la función de hashing es muy mala)
