@@ -1,0 +1,56 @@
+hash->tabla[indice].dato = dato
+Hash cerrado: arreglo de campos
+Hash abierto: arreglo de listas que contienen campos
+---------------------------------------
+
+ÁRBOLES BINARIOS DE BÚSQUEDA
+
+
+* El árbol binario (común) sirve como diccionario? NO, porque es más complicado que una lista y encima siempre cuesta O(N) acceder a los elementos.
+
+
+* Para implementar un diccionario usaremos un Árbol Binario de Búsqueda o (ABB), o Binary Search Tree (BST) en inglés. Seguimos usando hash para normalizar las claves.
+
+
+* Recorrer un ABB usando inorder() SIEMPRE arroja una salida ORDENADA debido la naturaleza de la inserción de los datos en los ABB y del recorrido inorder.
+---
+ABB: En cada nodo, todo el ABB a su izquierda es mayor y todo el ABB a su derecha es menor
+---
+INORDER: En cada nodo iterado, mostramos lo que está a la izquierda, luego el propio nodo, y luego a la derecha.
+
+
+* La búsqueda en un ABB es similar a búsqueda binaria, por lo tanto su orden es O(log n).
+
+
+* Tanto la búsqueda como el guardado usan el mismo algoritmo de búsqueda
+
+
+* CASO PATOLÓGICO: Si insertamos ya ordenado, el orden degenera en O(n), porque el ABB básicamente se convierte en una lista.
+
+
+* BORRADO: 0 hijos, 1 hijo, 2 hijos
+0 HIJOS: Se busca y se borra de una.
+---
+1 HIJO: Se borra el nodo (no los hijos también), y todos sus hijos se ubican del mismo lado que el nodo borrado. (ver ppt abb borrar)
+---
+2 HIJOS: colocamos en su lugar el nodo inmediatamente anterior del elemento borrado, que es el máximo de la izquierda (todo a la derecha), o el nodo inmediatamente próximo del elemento borrado, que es el mínimo del lado derecho (todo a la izquierda). Borramos el nodo que usamos para reemplazar el borrado. (revisar Wikipedia). Básicamente, el menor de la derecha o el mayor de la izquierda es un reemplazante. Luego aplicamos borrado de 0 o 1 nodos según corresponda.
+
+
+* Borrar también implica buscar el nodo (mismo algoritmo de búsqueda).
+
+
+* Para borrar podemos buscar dos veces, o usar nodo_t** para hacer referencia al elemento que lo reemplazará (ver clase de nuevo).
+
+
+* Insertar n elementos cuesta O(n log n).
+
+
+* HASH O ABB? Queremos las claves ordenadas? ABB. Queremos velocidad de acceso a los datos o no nos importa el orden? Hash.
+
+
+* Calcular la altura es O(n log n) (verificar)
+
+
+* EJERCICIO: Invertir un árbol (ver ppt), nota: es igual invertir de abajo para arriba (postorder) o de arriba para abajo (preorder)  -->>  orden O(N)
+
+
