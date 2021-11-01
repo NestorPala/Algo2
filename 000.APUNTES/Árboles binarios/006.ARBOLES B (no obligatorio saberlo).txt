@@ -1,0 +1,32 @@
+ARBOLES B
+---------
+https://www.youtube.com/watch?v=UJxuYsCRqkQ&t
+---------
+
+* Similar a ABB
+
+* Estrictamente hablando, se tarda más en escribir un dato que en leerlo
+
+* Este tipo de árboles se utiliza cuando tenemos que escribir mucho en disco (queremos reducir el acceso a disco)
+
+* Aumentamos la cantidad de nodos hijos (ancho), reduciendo así la altura, y además cada nodo tendrá más de una clave
+
+* AXIOMAS
+>>> Todas las ramas deben tener la misma profundidad
+>>> Si un nodo tiene K claves, debe tener  K+1 hijos (salvo la raiz y las hojas)
+>>> Cada clave está asociada a 2 hijos (menores y mayores)
+
+* CARACTERISTICAS DE UN ARBOL B
+>>> K: numero máximo de claves por nodo
+>>> M: número máximo de hijos por nodo -> M=K+1
+>>> Número mínimo de claves por nodo: floor(K/2), salvo raíz
+>>> Número mínimo de hijos por nodo: floor(M/2), salvo hojas y raíz
+
+* Podemos hacer inserciones con y sin overflow (overflow es cuando se llenó el nodo que debería contener a la nueva clave)
+
+* En el borrado puede haber underflow (menos claves que el mínimo requerido, que es 2)
+
+* Métodos de borrado con underflow:
+>>> redistribución (aplicamos rotaciones como en AVL), no se propaga
+>>> concatenación (se propaga, ojo), el nodo resultante nunca va a resultar en overflow
+

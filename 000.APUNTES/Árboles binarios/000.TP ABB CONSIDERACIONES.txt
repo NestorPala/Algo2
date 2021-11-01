@@ -1,0 +1,21 @@
+TP ABB consideraciones
+-----------------------
+-----------------------
+
+* RECORDAR CASO BASE "if (nodo == NULL) return;" o "if (nodo == NULL) return 0;", dependerá del caso cual usemos
+
+* la funcion de comparacion no puede ser NULL
+
+* podemos usar strcmp() como funcion de comparacion
+
+* funcion visitar(char* clave, void* dato, void extra)
+
+* para hacer las pruebas NO INSERTAR ELEMENTOS ORDENADOS, insertar elementos lo más aleatorios posible, debido a que insertar en orden degenera en lista y el recorrido del árbol tarda mucho (esto no sería un problema con AVL)
+
+* para clonar un árbol utilizamos recorrido preorder
+
+* para mostrar las claves ordenadas utilizamos recorrido inorder
+
+* para recorrer el árbol con iterador externo utilizamos recorrido inorder
+
+* para borrar los elementos utilizamos recorrido postorder (porque sino perdemos referencias)
