@@ -1,0 +1,28 @@
+#include "ab.h"
+
+int abq(ab_t* ab, int rama) {
+    if (!ab) return 0;
+    if (!ab->izq && !ab->der) return 0;
+    int qi = abq(ab->izq, 1);
+    int qd = abq(ab->der, 2);
+    return ((((ab->izq && rama == 2) || (ab->der && rama == 1)) && !(ab->izq && ab->der)) ? 1 : 0) + qi + qd;
+}
+
+size_t ab_quiebres(const ab_t* ab) {
+    if (!ab) return 0;
+    if (!ab->izq && !ab->der) return 0; 
+    return abq(ab->izq, 1) + abq(ab->der, 2);
+}
+
+-----------------------------------------------
+(Otra solución, más fácil)
+
+#include "ab.h"
+
+size_t ab_quiebres(const ab_t* ab) {
+    if (!ab) return 0;
+    size_t quiebre = 0;
+    if (ab->der && ab->der->izq && !ab->der->der) quiebre++;
+    if (ab->izq && ab->izq->der && !ab->izq->izq) quiebre++;
+    return ab_quiebres(ab->izq) + ab_quiebres(ab->der) + quiebre;
+}

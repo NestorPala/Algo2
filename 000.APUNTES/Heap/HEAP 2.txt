@@ -1,0 +1,51 @@
+HEAP (BINARIO)
+
+
+encolar: upheap, orden: O(log N)
+desencolar: downheap, orden: O(log N)
+
+Para operaciones con K elementos, el orden es O(N * log K)
+
+--------------------
+
+Ejemplo:
+
+Escribir una funcion que, dado un arreglo de N cadenas y un enetero positivo K, devuelva las K cadenas más largas.
+
+(Se espera que la cantidad máxima de elementos en el heap sea de K)
+
+-->> Creamos un heap de mínimos de K elementos e insertamos las N cadenas, las que no cumplan se salen del heap, y al final del proceso se quedarán las K cadenas mas largas adentro del heap. Luego las devolvemos.
+
+(Podríamos usar heap de máximos, pero tendríamos que reacomodar a cada rato, entonces queda O(N log N) en vez de O(N log K). Usando heap de mínimos, verificar si un elemento debe entrar o no al heap se convierte en una operación O(1), y por ende el proceso total cuesta O(N log K).
+
+
+MEJOR VERSIÓN:  heapify (downheap, O(N)) + sacar los K primeros, y listo.
+
+--------------------
+
+Se puede implementar un arreglo para ABB y AVL como se hace con el heap? NO, porque no necesariamente los árboles están completos.
+
+No hay problema con los elementos repetidos.
+
+si hacemos heap sort con un arreglo ordenado el orden es O(n log n).
+
+Prestar atención porque si dice conseguir, por ejemplo, los 2 alumnos con mejor nota, nos conviene hace 2 pasadas de max() con un for y listo, el orden sería O(N) en vez de O(N log N). Pero si no especifica el K y dice K directamente (como incógnita), usamos heapsort, porque a lo mejor K es igual a N y se convierte en O(N^2) en el peor de los casos. En cualquier caso, por las dudas, usar heapsort.
+
+--------------------
+
+Chequear si un arreglo es un HEAP DE MINIMOS (revisar)
+
+bool heap_es_min(arr, N, size_t actual) {
+   size_t der = cuentita
+   size_t izq = cuentita
+
+   if (izq < N && arr[izq] > arr[actual]) return false;
+   if (der < N && arr[der] > arr[actual]) return false;
+
+   return heap_es_min(arr, N, izq) && heap_es_min(arr, N, izq);
+}
+
+--------------------
+
+
+

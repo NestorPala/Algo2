@@ -1,0 +1,91 @@
+#include <string.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include "hash.h"
+#include "hash_struct.h"
+
+
+typedef size_t (*hash_f)(const char*, size_t);
+
+
+/* crea una copia (memoria dinamica) de la cadena pasada por parametro */
+char* strdup(const char* org) {
+    char* cpy = malloc(sizeof(char) * (strlen(org) + 1));
+    if (!cpy) return NULL;
+    strcpy(cpy, org);
+    return cpy;
+}
+
+
+bool cuckoo_hashing(hash_t* hash, const char* clave, void* dato, hash_f funcion_hash, size_t indice_inicial, size_t cr) {
+
+    // Obtenemos la nueva posición (salto)
+    size_t indice = funcion_hash(clave, hash->tam_tabla);
+
+    // Si entramos en bucle cortamos
+    /* 
+        Entramos en bucle cuando la cantidad de reemplazos es mayor a la cantidad
+        de funciones de hash disponibles (en este caso, 2)
+        https://www.ijariit.com/manuscripts/v3i2/V3I2-1416.pdf
+    */
+    //if (indice == indice_inicial) cr++;
+    cr++; if (cr == 100000) return false;
+
+    // El programa termina con éxito cuando se encuentra un espacio vacio
+    if (hash->tabla[indice].num_fhash != 1  &&  hash->tabla[indice].num_fhash != 2) {
+        free(hash->tabla[indice].clave);
+        hash->tabla[indice].clave = strdup(clave);
+        hash->tabla[indice].dato = dato;
+        hash->tabla[indice].num_fhash = (funcion_hash == h1) ? 1 : 2;
+        return true;
+    }
+
+    char* clave_a_reubicar = strdup(hash->tabla[indice].clave);
+    void* dato_a_reubicar = hash->tabla[indice].dato;
+
+    // Realizamos los saltos cuckoo
+    hash_f hash_salto = (hash->tabla[indice].num_fhash == 1) ? h2 : h1;
+    bool reubicar = cuckoo_hashing(hash, clave_a_reubicar, dato_a_reubicar, hash_salto, indice_inicial, cr);
+
+    free(clave_a_reubicar);
+
+    if (reubicar) {
+        free(hash->tabla[indice].clave);
+        hash->tabla[indice].clave = strdup(clave);
+        hash->tabla[indice].dato = dato;
+        hash->tabla[indice].num_fhash = (funcion_hash == h1) ? 1 : 2;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+bool hash_guardar(hash_t* hash, const char* clave, void* dato) {
+    
+    if (hash->cantidad == hash->tam_tabla) return false;
+    if (!clave) return false;
+    if (hash_pertenece(hash, clave)) return false;
+
+    size_t indice = h1(clave, hash->tam_tabla);
+
+    //num_fhash  =>  1: h1;  2: h2
+    if (hash->tabla[indice].num_fhash != 1  &&  hash->tabla[indice].num_fhash != 2) {
+        free(hash->tabla[indice].clave);
+        hash->tabla[indice].clave = strdup(clave);
+        hash->tabla[indice].dato = dato;
+        hash->tabla[indice].num_fhash = 1;
+        hash->cantidad++;
+        return true;
+    }
+
+    bool guardado = cuckoo_hashing(hash, clave, dato, h2, indice, 0);
+
+    if (guardado) {
+        hash->cantidad++;
+        return true;
+    } else {
+        return false;
+    }
+}

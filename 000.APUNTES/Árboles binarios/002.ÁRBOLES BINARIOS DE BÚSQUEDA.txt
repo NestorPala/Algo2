@@ -49,7 +49,7 @@ Hash abierto: arreglo de listas que contienen campos
 * Para borrar podemos buscar dos veces, o usar nodo_t** para hacer referencia al elemento que lo reemplazará (ver clase de nuevo).
 
 
-* (VERIFICAR) Calcular la altura de un ABB es O(N). 
+* Calcular la altura de un ABB es O(N). 
 
 
 * EJERCICIO: Invertir un árbol (ver ppt), nota: es igual invertir de abajo para arriba (postorder) o de arriba para abajo (preorder)  -->>  orden O(N).
