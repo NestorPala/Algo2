@@ -216,6 +216,7 @@ void *hash_borrar(hash_t *hash, const char *clave) {
     if (!hash || !clave) return NULL;
     void* dato_borrado = NULL;
     hash_buscar(hash, clave, true, &dato_borrado);
+    hash->cantidad--;
     return dato_borrado;
 }
 

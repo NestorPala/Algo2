@@ -42,9 +42,14 @@ int main() {
     printf("\n\n");
 
     printf("\nPEPE BORRADO: %d", *(int*)hash_borrar(hash, "pepe"));
+    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
     printf("\nCARLOS BORRADO: %d", *(int*)hash_borrar(hash, "carlos"));
+    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
     printf("\nJUANA BORRADO: %d", *(int*)hash_borrar(hash, "juana"));
+    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
     hash_borrar(hash, "estefania");
+    printf("\nESTEFANIA BORRADO");
+    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
 
     printf("\n\n");
 
