@@ -150,13 +150,13 @@ bool hash_guardar_pos_vacia(hash_t *hash, const char *clave, void *dato) {
 
 
 // AUXILIAR  
-bool hash_redimensionar(hash_t* hash) {
+bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
     hash_t* hash_nuevo = hash_crear(hash->destruir_dato);
     if (!hash_nuevo) return false;
 
-    size_t nueva_capacidad = FACTOR_REDIMENSION * hash_nuevo->capacidad;
     hash_nuevo->tabla = realloc(hash_nuevo->tabla, nueva_capacidad);
     hash_nuevo->capacidad = nueva_capacidad;
+    hash_nuevo->cantidad = hash->cantidad;
 
     for (size_t i=0; i<hash->capacidad; i++) {
 
@@ -166,14 +166,14 @@ bool hash_redimensionar(hash_t* hash) {
 
         lista_iter_t* iter = lista_iter_crear(hash->tabla[i]);
         if(!iter){
-            free(hash_nuevo);
+            hash_destruir(hash_nuevo);
             return false;
         }
 
         while(!lista_iter_al_final(iter)) {
             campo_t* campo_actual = lista_iter_ver_actual(iter);
             if (!hash_guardar(hash_nuevo, campo_actual->clave, campo_actual->dato)){
-                free(hash_nuevo);
+                hash_destruir(hash_nuevo);
                 free(iter);
                 return false;
             }
@@ -191,7 +191,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
     if (!hash || !clave) return false;
 
     if (hash->cantidad == FACTOR_CARGA * hash->capacidad) {
-        if (!hash_redimensionar(hash)) {
+        if (!hash_redimensionar(hash, FACTOR_REDIMENSION * hash->capacidad)) {
             return false;
         }
     }
