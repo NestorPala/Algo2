@@ -6,7 +6,7 @@
 #include "lista.h"
 
 
-const size_t CAPACIDAD_INICIAL = 19; //numero primo
+const size_t CAPACIDAD_INICIAL = 101; //numero primo
 const size_t FACTOR_CARGA = 2;
 const size_t FACTOR_REDIMENSION = 2;
 
@@ -150,9 +150,9 @@ bool hash_guardar_pos_vacia(hash_t *hash, const char *clave, void *dato) {
 
 
 // AUXILIAR  
-bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
+hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
     hash_t* hash_nuevo = hash_crear(hash->destruir_dato);
-    if (!hash_nuevo) return false;
+    if (!hash_nuevo) return hash;
 
     hash_nuevo->tabla = realloc(hash_nuevo->tabla, nueva_capacidad);
     hash_nuevo->capacidad = nueva_capacidad;
@@ -167,23 +167,23 @@ bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
         lista_iter_t* iter = lista_iter_crear(hash->tabla[i]);
         if(!iter){
             hash_destruir(hash_nuevo);
-            return false;
+            return hash;
         }
 
         while(!lista_iter_al_final(iter)) {
             campo_t* campo_actual = lista_iter_ver_actual(iter);
             if (!hash_guardar(hash_nuevo, campo_actual->clave, campo_actual->dato)){
                 hash_destruir(hash_nuevo);
-                free(iter);
-                return false;
+                lista_iter_destruir(iter);
+                return hash;
             }
             lista_iter_avanzar(iter);
         }
+        lista_iter_destruir(iter);
     }
 
     hash_destruir(hash);
-    hash = hash_nuevo;
-    return true;
+    return hash_nuevo;
 }
 
 
@@ -191,7 +191,9 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
     if (!hash || !clave) return false;
 
     if (hash->cantidad == FACTOR_CARGA * hash->capacidad) {
-        if (!hash_redimensionar(hash, FACTOR_REDIMENSION * hash->capacidad)) {
+        size_t vieja_capacidad = hash->capacidad;
+        hash = hash_redimensionar(hash, FACTOR_REDIMENSION * hash->capacidad);
+        if (hash->capacidad == vieja_capacidad) {
             return false;
         }
     }
