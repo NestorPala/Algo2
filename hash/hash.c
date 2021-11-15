@@ -6,7 +6,7 @@
 #include "lista.h"
 
 
-const size_t CAPACIDAD_INICIAL = 101; //numero primo
+const size_t CAPACIDAD_INICIAL = 1; //numero primo
 const size_t FACTOR_CARGA = 2;
 const size_t FACTOR_REDIMENSION = 2;
 
@@ -28,6 +28,13 @@ struct hash_iter {
     campo_t* campo_actual;
     hash_t* hash;
 };
+
+
+// AUXILIAR 
+typedef struct hash_guardador {
+	size_t estado_busqueda; //1: vacio, 2: ocupado o 3: lleno y no encontrado
+	campo_t** encontrado; //estado 2
+} hg;
 
 
 /* crea una copia (memoria dinamica) de la cadena pasada por parametro */
@@ -88,11 +95,12 @@ campo_t* campo_crear(const char* clave, void* dato) {
 
 
 // AUXILIAR 
-campo_t* hash_buscar(const hash_t* hash, const char* clave, bool borrar, void** borrado) {
+campo_t* hash_buscar(const hash_t* hash, const char* clave, bool borrar, void** borrado, hg* guardador) {
 
     size_t indice = hash_(clave, hash->capacidad);
 
     if (!hash->tabla[indice]) {
+        if (guardador) guardador->estado_busqueda = 1;
         return NULL;
     }
 
@@ -111,10 +119,15 @@ campo_t* hash_buscar(const hash_t* hash, const char* clave, bool borrar, void** 
                 lista_iter_destruir(iter);
                 return NULL;
             }
+            if (guardador) {
+                guardador->estado_busqueda = 2;
+                guardador->encontrado = &campo_actual;
+            }
             lista_iter_destruir(iter);
             return campo_actual;
         }
         lista_iter_avanzar(iter);
+        if (lista_iter_al_final(iter) && guardador) guardador->estado_busqueda = 3;
     }
     lista_iter_destruir(iter);
 
@@ -122,39 +135,15 @@ campo_t* hash_buscar(const hash_t* hash, const char* clave, bool borrar, void** 
 }
 
 
-// AUXILIAR 
-bool hash_guardar_pos_vacia(hash_t *hash, const char *clave, void *dato) {
-
-    lista_t* lista = lista_crear();
-    if (!lista) return false;
-
-    campo_t* campo = campo_crear(clave, dato);
-    if (!campo) {
-        free(lista);
-        return false;
-    }
-
-    size_t indice = hash_(clave, hash->capacidad);
-    hash->tabla[indice] = lista;
-
-    if (!lista_insertar_primero(hash->tabla[indice], campo)) {
-        free(campo);
-        free(lista);
-        hash->tabla[indice] = NULL;
-        return false;
-    }
-
-    hash->cantidad++;
-    return true;
-}
-
-
 // AUXILIAR  
 hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
     hash_t* hash_nuevo = hash_crear(hash->destruir_dato);
-    if (!hash_nuevo) return hash;
+    if (!hash_nuevo) return NULL;
 
-    hash_nuevo->tabla = realloc(hash_nuevo->tabla, nueva_capacidad);
+    lista_t** nueva_tabla = realloc(hash_nuevo->tabla, nueva_capacidad);
+    if (!nueva_tabla) return NULL;
+
+    hash_nuevo->tabla = nueva_tabla;
     hash_nuevo->capacidad = nueva_capacidad;
     hash_nuevo->cantidad = hash->cantidad;
 
@@ -167,7 +156,7 @@ hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
         lista_iter_t* iter = lista_iter_crear(hash->tabla[i]);
         if(!iter){
             hash_destruir(hash_nuevo);
-            return hash;
+            return NULL;
         }
 
         while(!lista_iter_al_final(iter)) {
@@ -182,8 +171,17 @@ hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
         lista_iter_destruir(iter);
     }
 
-    hash_destruir(hash);
     return hash_nuevo;
+}
+
+
+// AUXILIAR
+hg* guardador_crear() {
+    hg* guardador = malloc(sizeof(hg));
+    if (!guardador) return NULL;
+    guardador->estado_busqueda = 0;
+    guardador->encontrado = NULL;
+    return guardador;
 }
 
 
@@ -192,24 +190,52 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
     if (hash->cantidad == FACTOR_CARGA * hash->capacidad) {
         size_t vieja_capacidad = hash->capacidad;
-        hash = hash_redimensionar(hash, FACTOR_REDIMENSION * hash->capacidad);
-        if (hash->capacidad == vieja_capacidad) {
+        size_t nueva_capacidad = FACTOR_REDIMENSION * hash->capacidad;
+        hash_t* hash_nuevo = hash_redimensionar(hash, nueva_capacidad);
+        if (!hash_nuevo) {
             return false;
         }
+        //hash_destruir(hash);
+        hash = hash_nuevo;
     }
 
-    campo_t* campo_encontrado = hash_buscar(hash, clave, false, NULL);
+    hg* guardador = guardador_crear();
+    hash_buscar(hash, clave, false, NULL, guardador);
 
-    if (!campo_encontrado) {
-        return hash_guardar_pos_vacia(hash, clave, dato);
+    if (guardador->estado_busqueda == 1) {
+        size_t indice = hash_(clave, hash->capacidad);
+        lista_t* lista = lista_crear();
+        if (!lista) return false;
+        campo_t* campo = campo_crear(clave, dato);
+        if (!campo) {
+            free(lista);
+            return false;
+        }
+        if (!lista_insertar_primero(lista, campo)) {
+            free(campo);
+            free(lista);
+            return false;
+        }
+        hash->tabla[indice] = lista;
+
+    } else if (guardador->estado_busqueda == 2) {
+
+        campo_t** c1 = guardador->encontrado;
+        if(hash->destruir_dato) {
+            hash->destruir_dato((*c1)->dato);
+        }
+        (*c1)->dato = dato;
+
+    } else {
+        size_t indice = hash_(clave, hash->capacidad);
+        lista_t* lista_indice = hash->tabla[indice];
+        campo_t* campo = campo_crear(clave, dato);
+        if (!campo) return false;
+        if (!lista_insertar_ultimo(lista_indice, campo)) return false;
     }
 
-    if(hash->destruir_dato) {
-        hash->destruir_dato(campo_encontrado->dato);
-    }
-
-    campo_encontrado->dato = dato;
     hash->cantidad++;
+    free(guardador);
     return true;
 }
 
@@ -217,7 +243,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 void *hash_borrar(hash_t *hash, const char *clave) {
     if (!hash || !clave) return NULL;
     void* dato_borrado = NULL;
-    hash_buscar(hash, clave, true, &dato_borrado);
+    hash_buscar(hash, clave, true, &dato_borrado, NULL);
     hash->cantidad--;
     return dato_borrado;
 }
@@ -225,14 +251,14 @@ void *hash_borrar(hash_t *hash, const char *clave) {
 
 void *hash_obtener(const hash_t *hash, const char *clave) {
     if (!hash || !clave) return NULL;
-    campo_t* campo = hash_buscar(hash, clave, false, NULL);
+    campo_t* campo = hash_buscar(hash, clave, false, NULL, NULL);
     return campo ? campo->dato : NULL;
 }
 
 
 bool hash_pertenece(const hash_t *hash, const char *clave) {
     if (!hash || !clave) return false;
-    return hash_buscar(hash, clave, false, NULL) ? true : false;
+    return hash_buscar(hash, clave, false, NULL, NULL) ? true : false;
 }
 
 

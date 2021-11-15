@@ -35,18 +35,31 @@ int main() {
 
     printf("\n\n");
 
-    printf("\nPEPE: %d",*(int*)hash_obtener(hash, "pepe"));
-    printf("\nCARLOS: %d",*(int*)hash_obtener(hash, "carlos"));
-    printf("\nJUANA: %d",*(int*)hash_obtener(hash, "juana"));
+
+    void* pepe = hash_obtener(hash, "pepe");
+    pepe ? printf("\nPEPE: %d", *(int*)pepe) : printf("\nPEPE: NULL");
+
+    void* carlos = hash_obtener(hash, "carlos");
+    carlos ? printf("\nCARLOS: %d", *(int*)carlos) : printf("\nCARLOS: NULL");
+
+    void* juana = hash_obtener(hash, "juana");
+    juana ? printf("\nJUANA: %d", *(int*)juana) : printf("\nJUANA: NULL");
+
 
     printf("\n\n");
 
-    printf("\nPEPE BORRADO: %d", *(int*)hash_borrar(hash, "pepe"));
+    hash_borrar(hash, "pepe");
+    printf("\nPEPE BORRADO");
     printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
-    printf("\nCARLOS BORRADO: %d", *(int*)hash_borrar(hash, "carlos"));
+
+    hash_borrar(hash, "carlos");
+    printf("\nCARLOS BORRADO");
     printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
-    printf("\nJUANA BORRADO: %d", *(int*)hash_borrar(hash, "juana"));
+
+    hash_borrar(hash, "juana");
+    printf("\nJUANA BORRADO");
     printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
+
     hash_borrar(hash, "estefania");
     printf("\nESTEFANIA BORRADO");
     printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
