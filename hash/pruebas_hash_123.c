@@ -22,6 +22,7 @@ int main() {
     printb(hash_guardar(hash, "carlos", x[1]));
     printb(hash_guardar(hash, "juana", x[2]));
     printb(hash_guardar(hash, "estefania", NULL));
+    printb(hash_guardar(hash, "freddy", NULL));
 
     printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
 
@@ -31,7 +32,8 @@ int main() {
     printb(hash_pertenece(hash, "carlos"));
     printb(hash_pertenece(hash, "juana"));
     printb(hash_pertenece(hash, "estefania"));
-    printb(hash_pertenece(hash, "tomas"));
+    printb(hash_pertenece(hash, "freddy"));
+    //printb(hash_pertenece(hash, "tomas"));
 
     printf("\n\n");
 
@@ -47,6 +49,7 @@ int main() {
 
 
     printf("\n\n");
+
 
     hash_borrar(hash, "pepe");
     printf("\nPEPE BORRADO");
@@ -64,12 +67,20 @@ int main() {
     printf("\nESTEFANIA BORRADO");
     printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
 
+    hash_borrar(hash, "freddy");
+    printf("\nFREDDY BORRADO");
+    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
+
+
     printf("\n\n");
+
 
     printb(hash_pertenece(hash, "pepe"));
     printb(hash_pertenece(hash, "carlos"));
     printb(hash_pertenece(hash, "juana"));
     printb(hash_pertenece(hash, "estefania"));
+    printb(hash_pertenece(hash, "freddy"));
+
 
     hash_destruir(hash);
 
