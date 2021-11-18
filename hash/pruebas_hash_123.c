@@ -12,17 +12,30 @@ void printb(bool a) {
 }
 
 
+void esta_o_no(hash_t* hash, const char* clave) {
+    void* elemento = hash_obtener(hash, clave);
+    elemento ? printf("\n%s: %d", clave, *(int*)elemento) : printf("\n%s: NULL", clave);
+}
+
+
+void borramos(hash_t* hash, const char* clave) {
+    hash_borrar(hash, clave);
+    printf("\n%s BORRADO", clave);
+    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
+}
+
+
 int main() {
     hash_t* hash = hash_crear(NULL);
 
-    int num[] = {12,32,43};
-    int* x[] = {&num[0], &num[1], &num[2]};
+    int num[] = {12, 32, 43, -99, 126};
+    int* x[] = {&num[0], &num[1], &num[2], &num[3], &num[4]};
 
     printb(hash_guardar(hash, "pepe", x[0]));
     printb(hash_guardar(hash, "carlos", x[1]));
     printb(hash_guardar(hash, "juana", x[2]));
-    printb(hash_guardar(hash, "estefania", NULL));
-    printb(hash_guardar(hash, "freddy", NULL));
+    printb(hash_guardar(hash, "estefania", x[3]));
+    printb(hash_guardar(hash, "freddy", x[4]));
 
     printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
 
@@ -37,16 +50,11 @@ int main() {
 
     printf("\n\n");
 
-
-    void* pepe = hash_obtener(hash, "pepe");
-    pepe ? printf("\nPEPE: %d", *(int*)pepe) : printf("\nPEPE: NULL");
-
-    void* carlos = hash_obtener(hash, "carlos");
-    carlos ? printf("\nCARLOS: %d", *(int*)carlos) : printf("\nCARLOS: NULL");
-
-    void* juana = hash_obtener(hash, "juana");
-    juana ? printf("\nJUANA: %d", *(int*)juana) : printf("\nJUANA: NULL");
-
+    esta_o_no(hash, "pepe");
+    esta_o_no(hash, "carlos");
+    esta_o_no(hash, "juana");
+    esta_o_no(hash, "estefania");
+    esta_o_no(hash, "freddy");
 
 
     printf("\n\n\nPRUEBAS DEL ITERADOR DE HASH\n\n\n");
@@ -61,40 +69,21 @@ int main() {
     }
 
 
-
     printf("\n\n");
 
-
-    hash_borrar(hash, "pepe");
-    printf("\nPEPE BORRADO");
-    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
-
-    hash_borrar(hash, "carlos");
-    printf("\nCARLOS BORRADO");
-    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
-
-    hash_borrar(hash, "juana");
-    printf("\nJUANA BORRADO");
-    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
-
-    hash_borrar(hash, "estefania");
-    printf("\nESTEFANIA BORRADO");
-    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
-
-    hash_borrar(hash, "freddy");
-    printf("\nFREDDY BORRADO");
-    printf("\nCANTIDAD DE ELEMENTOS: %zu", hash_cantidad(hash));
-
+    borramos(hash, "pepe");
+    borramos(hash, "carlos");
+    borramos(hash, "juana");
+    borramos(hash, "estefania");
+    borramos(hash, "freddy");
 
     printf("\n\n");
-
 
     printb(hash_pertenece(hash, "pepe"));
     printb(hash_pertenece(hash, "carlos"));
     printb(hash_pertenece(hash, "juana"));
     printb(hash_pertenece(hash, "estefania"));
     printb(hash_pertenece(hash, "freddy"));
-
 
     hash_iter_destruir(iter);
     hash_destruir(hash);
