@@ -48,6 +48,20 @@ int main() {
     juana ? printf("\nJUANA: %d", *(int*)juana) : printf("\nJUANA: NULL");
 
 
+
+    printf("\n\n\nPRUEBAS DEL ITERADOR DE HASH\n\n\n");
+
+    hash_iter_t* iter = hash_iter_crear(hash);
+    if (!iter) {printf("NO SE PUDO CREAR EL ITERADOR"); return -1;}
+
+    while(!hash_iter_al_final(iter)) {
+        const char* clave_actual = hash_iter_ver_actual(iter);
+        if (clave_actual) printf("\nCLAVE: %s", clave_actual);
+        hash_iter_avanzar(iter);
+    }
+
+
+
     printf("\n\n");
 
 
@@ -82,6 +96,7 @@ int main() {
     printb(hash_pertenece(hash, "freddy"));
 
 
+    hash_iter_destruir(iter);
     hash_destruir(hash);
 
     return 0;
