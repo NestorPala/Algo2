@@ -18,10 +18,12 @@ struct hash {
     hash_destruir_dato_t destruir_dato;
 };
 
+
 typedef struct campo {
     char* clave;
     void* dato;
 } campo_t;
+
 
 struct hash_iter {
     const hash_t* hash;
@@ -384,18 +386,20 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
 
 const char *hash_iter_ver_actual(const hash_iter_t *iter) {
     campo_t* campo_actual = lista_iter_ver_actual(iter->campo_actual);
-    const char* clave = strdup(campo_actual->clave);
+    const char* clave = campo_actual->clave;
     return clave;
 }
 
 
 bool hash_iter_al_final(const hash_iter_t *iter) {
 
-    for (size_t i=iter->lista_actual; i<iter->hash->capacidad; i++) {
-        if (!iter->hash->tabla[i]) continue;
-        else return false;
+    if (lista_iter_al_final(iter->campo_actual)) {
+        for (size_t i=iter->lista_actual; i<iter->hash->capacidad; i++) {
+            if (!iter->hash->tabla[i]) continue;
+            else return true;
+        }
     }
-    return true;
+    return false;
 }
 
 
