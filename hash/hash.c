@@ -6,7 +6,7 @@
 #include "lista.h"
 
 
-const size_t CAPACIDAD_INICIAL = 23; //numero primo
+const size_t CAPACIDAD_INICIAL = 1; //numero primo (valor predeterminado: 23)
 const size_t FACTOR_CARGA = 2;
 const size_t FACTOR_REDIMENSION = 2;
 
@@ -149,7 +149,6 @@ hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
 
     hash_nuevo->tabla = nueva_tabla;
     hash_nuevo->capacidad = nueva_capacidad;
-    hash_nuevo->cantidad = hash->cantidad;
 
     for (size_t i=0; i<hash->capacidad; i++) {
 
@@ -194,10 +193,13 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
     if (hash->cantidad == FACTOR_CARGA * hash->capacidad) {
         size_t nueva_capacidad = FACTOR_REDIMENSION * hash->capacidad;
-        hash_t* hash_nuevo = hash_redimensionar(hash, nueva_capacidad);
-        if (!hash_nuevo) return false;
-        //hash_destruir(hash);
-        hash = hash_nuevo;
+        *hash = *hash_redimensionar(hash, nueva_capacidad);
+        if (!hash) {
+            return false;
+        }
+        
+        // hash_destruir(hash);
+        // hash = hash_nuevo;
     }
 
     bool clave_ya_estaba = false;
@@ -309,9 +311,8 @@ void hash_destruir(hash_t *hash) {
     if (!hash) return;
 
     for (size_t i=0; i<hash->capacidad; i++) {
-        if (!hash->tabla[i]) {
-            continue;
-        } 
+        if (!hash->tabla[i]) continue;
+
         lista_iter_t* iter = lista_iter_crear(hash->tabla[i]);
         if (!iter) return;
 
@@ -323,6 +324,7 @@ void hash_destruir(hash_t *hash) {
             lista_iter_borrar(iter);
         }
         lista_iter_destruir(iter);
+        lista_destruir(hash->tabla[i], NULL); //
     }
 
     free(hash->tabla);
