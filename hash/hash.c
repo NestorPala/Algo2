@@ -116,7 +116,7 @@ campo_t* hash_buscar(const hash_t* hash, const char* clave, bool borrar, void** 
                 *borrado = campo_actual->dato;
                 if (hash->destruir_dato) { hash->destruir_dato(campo_actual->dato);}
                 free(campo_actual->clave);
-                free(campo_actual);
+                free(campo_actual); //
                 lista_iter_borrar(iter);
                 lista_iter_destruir(iter);
                 return NULL;
@@ -193,13 +193,13 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
     if (hash->cantidad == FACTOR_CARGA * hash->capacidad) {
         size_t nueva_capacidad = FACTOR_REDIMENSION * hash->capacidad;
-        *hash = *hash_redimensionar(hash, nueva_capacidad);
-        if (!hash) {
+        //*hash = *hash_redimensionar(hash, nueva_capacidad);
+        hash_t* hash_nuevo = hash_redimensionar(hash, nueva_capacidad);
+        if (!hash_nuevo) {
             return false;
         }
-        
-        // hash_destruir(hash);
-        // hash = hash_nuevo;
+        hash_destruir(hash);
+        *hash = *hash_nuevo;
     }
 
     bool clave_ya_estaba = false;
@@ -241,7 +241,8 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
     if (!clave_ya_estaba) hash->cantidad++;
     free(guardador);
-    return hash_pertenece(hash, clave);
+    //return hash_pertenece(hash, clave);
+    return true;
 }
 
 
@@ -327,7 +328,7 @@ void hash_destruir(hash_t *hash) {
     }
 
     free(hash->tabla);
-    free(hash);
+    //free(hash);
 }
 
 
