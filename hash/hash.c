@@ -28,7 +28,7 @@ typedef struct campo {
 struct hash_iter {
     const hash_t* hash;
     lista_iter_t* campo_actual;
-    size_t lista_actual;
+    int lista_actual;  //vale -1 si el hash esta vacio
 };
 
 
@@ -336,6 +336,7 @@ void hash_destruir(hash_t *hash) {
 
 
 hash_iter_t *hash_iter_crear(const hash_t *hash) {
+
     hash_iter_t* iter = malloc(sizeof(hash_iter_t));
     if (!iter) return NULL;
 
@@ -353,11 +354,6 @@ hash_iter_t *hash_iter_crear(const hash_t *hash) {
         break;
     }
 
-    if (lista_actual == -1) {
-        free(iter);
-        return NULL;
-    }
-
     iter->hash = hash;
     iter->campo_actual = campo_actual;
     iter->lista_actual = lista_actual;
@@ -368,10 +364,12 @@ hash_iter_t *hash_iter_crear(const hash_t *hash) {
 
 bool hash_iter_avanzar(hash_iter_t *iter) {
 
+    if (!iter || !iter->hash || iter->hash->cantidad == 0) return false;
+
     lista_iter_avanzar(iter->campo_actual);
 
     if (lista_iter_al_final(iter->campo_actual)) {
-        for (size_t i=iter->lista_actual+1; i<iter->hash->capacidad; i++) {
+        for (int i=iter->lista_actual+1; i<iter->hash->capacidad; i++) {
             if (!iter->hash->tabla[i]) continue;
             lista_iter_t* nuevo_iter = lista_iter_crear(iter->hash->tabla[i]);
             if (!nuevo_iter) return false;
@@ -387,6 +385,7 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
 
 
 const char *hash_iter_ver_actual(const hash_iter_t *iter) {
+    if (!iter || !iter->hash || iter->hash->cantidad == 0) return NULL;
     campo_t* campo_actual = lista_iter_ver_actual(iter->campo_actual);
     const char* clave = campo_actual->clave;
     return clave;
@@ -395,8 +394,10 @@ const char *hash_iter_ver_actual(const hash_iter_t *iter) {
 
 bool hash_iter_al_final(const hash_iter_t *iter) {
 
+    if (!iter || !iter->hash || iter->hash->cantidad == 0) return true;
+
     if (lista_iter_al_final(iter->campo_actual)) {
-        for (size_t i=iter->lista_actual; i<iter->hash->capacidad; i++) {
+        for (int i=iter->lista_actual; i<iter->hash->capacidad; i++) {
             if (!iter->hash->tabla[i]) continue;
             else return true;
         }
@@ -409,6 +410,3 @@ void hash_iter_destruir(hash_iter_t* iter) {
     lista_iter_destruir(iter->campo_actual);
     free(iter);
 }
-
-
-
