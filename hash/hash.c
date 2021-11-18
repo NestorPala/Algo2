@@ -378,16 +378,18 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
             iter->lista_actual = i;
             return true;
         }
+        return false;  
     }
-
-    return false;  
+    return true;
+    
 }
 
 
 const char *hash_iter_ver_actual(const hash_iter_t *iter) {
     if (!iter || !iter->hash || iter->hash->cantidad == 0) return NULL;
     campo_t* campo_actual = lista_iter_ver_actual(iter->campo_actual);
-    const char* clave = campo_actual->clave;
+    const char* clave = NULL;
+    if (!hash_iter_al_final(iter)) clave = campo_actual->clave;
     return clave;
 }
 
