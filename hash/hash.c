@@ -35,7 +35,7 @@ struct hash_iter {
 // AUXILIAR 
 typedef struct hash_guardador {
 	size_t estado_busqueda; //1: vacio, 2: ocupado o 3: lleno y no encontrado
-	campo_t** encontrado; //estado 2
+	campo_t* encontrado; //estado 2
 } hg;
 
 
@@ -123,7 +123,7 @@ campo_t* hash_buscar(const hash_t* hash, const char* clave, bool borrar, void** 
             }
             if (guardador) {
                 guardador->estado_busqueda = 2;
-                guardador->encontrado = &campo_actual;
+                guardador->encontrado = campo_actual;
             }
             lista_iter_destruir(iter);
             return campo_actual;
@@ -226,11 +226,10 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
     } else if (guardador->estado_busqueda == 2) {
 
-        campo_t** c1 = guardador->encontrado;
         if(hash->destruir_dato) {
-            hash->destruir_dato((*c1)->dato);
+            hash->destruir_dato(guardador->encontrado->dato);
         }
-        (*c1)->dato = dato;
+        guardador->encontrado->dato = dato;
 
     } else {
         size_t indice = hash_(clave, hash->capacidad);

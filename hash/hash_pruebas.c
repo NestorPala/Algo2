@@ -415,7 +415,7 @@ void pruebas_hash_catedra()
 
 void pruebas_volumen_catedra(size_t largo)
 {
-    prueba_hash_volumen(largo, false);
+    prueba_hash_volumen(largo, true);
 }
 
 
