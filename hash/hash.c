@@ -56,19 +56,23 @@ unsigned long hash_(const char* clave, size_t largo) {
 
 // AUXILIAR
 hash_t* hash_crear_2(size_t capacidad, hash_destruir_dato_t destruir_dato) {
+
     hash_t* hash = malloc(sizeof(hash_t));
     if (!hash) {
         return NULL;
     }
 
-    lista_t** tabla = malloc(capacidad * sizeof(lista_t*));
-    if (!tabla) {
-        free(hash);
-        return NULL;
-    }
+    lista_t** tabla = NULL;
 
-    for (size_t i = 0; i < capacidad; i++) {
-        tabla[i] = NULL;
+    if (capacidad != 0) {
+        tabla = malloc(capacidad * sizeof(lista_t*));
+        if (!tabla) {
+            free(hash);
+            return NULL;
+        }
+        for (size_t i = 0; i < capacidad; i++) {
+            tabla[i] = NULL;
+        }
     }
     
     hash->tabla = tabla;
@@ -151,27 +155,27 @@ lista_iter_t* hash_buscar(const hash_t* hash, const char* clave, int* estado_bus
 hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
     // printf("\n------------------- REDIMENSIONAMOS -------------------\n\n");  ////debug
 
-    // hash_t* nuevo_hash = hash_crear_2(nueva_capacidad, hash->destruir_dato);
-    // if (!nuevo_hash) {
-    //     return NULL;
-    // }
+    hash_t* nuevo_hash = hash_crear_2(nueva_capacidad, hash->destruir_dato);
+    if (!nuevo_hash) {
+        return NULL;
+    }
 
-    // hash_iter_t* iter = hash_iter_crear(hash);
-    // if (!iter) {
-    //     hash_destruir(nuevo_hash);
-    //     return NULL;
-    // }
+    hash_iter_t* iter = hash_iter_crear(hash);
+    if (!iter) {
+        hash_destruir(nuevo_hash);
+        return NULL;
+    }
 
-    // while(!hash_iter_al_final(iter)) {
-    //     const char* clave_actual = hash_iter_ver_actual(iter);
-    //     void* dato_actual = hash_obtener(hash, clave_actual);
+    while(!hash_iter_al_final(iter)) {
+        const char* clave_actual = hash_iter_ver_actual(iter);
+        void* dato_actual = hash_obtener(hash, clave_actual);
 
-    //     hash_guardar(nuevo_hash, clave_actual, dato_actual);
-    //     hash_iter_avanzar(iter);
-    // }
-    // hash_iter_destruir(iter);
+        hash_guardar(nuevo_hash, clave_actual, dato_actual);
+        hash_iter_avanzar(iter);
+    }
+    hash_iter_destruir(iter);
 
-    // return nuevo_hash;
+    return nuevo_hash;
 }
 
 
@@ -192,9 +196,9 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
             return false;
         }
 
-        hash_t* aux_hash = hash;
-        *hash = *nuevo_hash;
-        // hash_destruir(aux_hash); //
+        hash->capacidad = nuevo_hash->capacidad;
+        hash->tabla = nuevo_hash->tabla;
+        free(nuevo_hash);
     }
 
     bool clave_ya_estaba = false;
