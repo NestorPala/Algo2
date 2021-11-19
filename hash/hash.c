@@ -6,7 +6,7 @@
 #include "lista.h"
 
 
-const size_t CAPACIDAD_INICIAL = 191; //numero primo
+const size_t CAPACIDAD_INICIAL = 2; //numero primo
 const size_t FACTOR_CARGA = 2;
 const size_t FACTOR_REDIMENSION = 2;
 
@@ -55,7 +55,7 @@ unsigned long hash_(const char* clave, size_t largo) {
 
 
 // AUXILIAR
-hash_t* hash_crear_2(size_t cantidad, size_t capacidad, hash_destruir_dato_t destruir_dato) {
+hash_t* hash_crear_2(size_t capacidad, hash_destruir_dato_t destruir_dato) {
     hash_t* hash = malloc(sizeof(hash_t));
     if (!hash) {
         return NULL;
@@ -72,7 +72,7 @@ hash_t* hash_crear_2(size_t cantidad, size_t capacidad, hash_destruir_dato_t des
     }
     
     hash->tabla = tabla;
-    hash->cantidad = cantidad;
+    hash->cantidad = 0;
     hash->capacidad = capacidad;
     hash->destruir_dato = destruir_dato;
 
@@ -82,7 +82,7 @@ hash_t* hash_crear_2(size_t cantidad, size_t capacidad, hash_destruir_dato_t des
 
 // Definimos que la posicion esta vacia cuando es NULL
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato) {
-    return hash_crear_2(0, CAPACIDAD_INICIAL, destruir_dato);
+    return hash_crear_2(CAPACIDAD_INICIAL, destruir_dato);
 }
 
 
@@ -138,44 +138,49 @@ campo_t* hash_buscar(const hash_t* hash, const char* clave, int* estado_busqueda
 }
 
 
-// AUXILIAR  
-bool hash_redimensionar(hash_t** hash, size_t nueva_capacidad) {
+// AUXILIAR
+#include <stdio.h> //debug  
+bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
+    // printf("\n------------------- REDIMENSIONAMOS -------------------\n\n");  ////debug
+    // hash_t* nuevo_hash = hash_crear_2(nueva_capacidad, hash->destruir_dato);
+    // if (!nuevo_hash) {
+    //     return false;
+    // }
 
-    hash_t* nuevo_hash = hash_crear_2((*hash)->cantidad, nueva_capacidad, (*hash)->destruir_dato);
-    if (!nuevo_hash) {
-        return false;
-    }
+    // hash_iter_t* iter = hash_iter_crear(hash);
+    // if (!iter) {
+    //     hash_destruir(nuevo_hash);
+    //     return false;
+    // }
 
-    hash_iter_t* iter = hash_iter_crear(*hash);
-    if (!iter) {
-        hash_destruir(nuevo_hash);
-        return false;
-    }
+    // while(!hash_iter_al_final(iter)) {
+    //     char* clave_actual = strdup(hash_iter_ver_actual(iter));
+    //     void* dato_actual = hash_obtener(hash, clave_actual);
 
-    while(!hash_iter_al_final(iter)) {
-        char* clave_actual = strdup(hash_iter_ver_actual(iter));
-        void* dato_actual = hash_obtener(*hash, clave_actual);
+    //     hash_guardar(nuevo_hash, clave_actual, dato_actual);
+    //     hash_iter_avanzar(iter);
+    // }
+    // hash_iter_destruir(iter);
 
-        hash_guardar(nuevo_hash, clave_actual, dato_actual);
-        hash_iter_avanzar(iter);
-    }
-    hash_iter_destruir(iter);
+    // hash_t* aux = hash;
+    // hash = nuevo_hash;
+    // hash_destruir(aux);
 
-    hash_destruir(*hash);
-    *hash = nuevo_hash;
-
-    return true;
+    // return true;
 }
 
 
 bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
+
+    printf("\nCAPACIDAD DEL HASH: %zu\n", hash->capacidad); ////////////
+
     if (!hash || !clave) {
         return false;
     }
 
     if (hash->cantidad == FACTOR_CARGA * hash->capacidad) {
         size_t nueva_capacidad = FACTOR_REDIMENSION * hash->capacidad;
-        if (!hash_redimensionar(&hash, nueva_capacidad)){
+        if (!hash_redimensionar(hash, nueva_capacidad)){
             return false;
         }
     }
