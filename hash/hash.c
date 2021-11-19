@@ -148,17 +148,18 @@ lista_iter_t* hash_buscar(const hash_t* hash, const char* clave, int* estado_bus
 
 // AUXILIAR
 // #include <stdio.h> //debug  
-bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
+hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
     // printf("\n------------------- REDIMENSIONAMOS -------------------\n\n");  ////debug
+
     // hash_t* nuevo_hash = hash_crear_2(nueva_capacidad, hash->destruir_dato);
     // if (!nuevo_hash) {
-    //     return false;
+    //     return NULL;
     // }
 
     // hash_iter_t* iter = hash_iter_crear(hash);
     // if (!iter) {
     //     hash_destruir(nuevo_hash);
-    //     return false;
+    //     return NULL;
     // }
 
     // while(!hash_iter_al_final(iter)) {
@@ -170,11 +171,7 @@ bool hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
     // }
     // hash_iter_destruir(iter);
 
-    // hash_t* aux = hash;
-    // hash = nuevo_hash;
-    // hash_destruir(aux);
-
-    return true;
+    // return nuevo_hash;
 }
 
 
@@ -188,17 +185,29 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
     if (hash->cantidad == FACTOR_CARGA * hash->capacidad) {
         size_t nueva_capacidad = FACTOR_REDIMENSION * hash->capacidad;
-        if (!hash_redimensionar(hash, nueva_capacidad)){
+
+        hash_t* nuevo_hash = hash_redimensionar(hash, nueva_capacidad);
+
+        if (!nuevo_hash){
             return false;
         }
+
+        hash_t* aux_hash = hash;
+        *hash = *nuevo_hash;
+        // hash_destruir(aux_hash); //
     }
 
     bool clave_ya_estaba = false;
     int estado_busqueda = 0;
+    lista_iter_t* iter =  NULL;
 
-    lista_iter_t* iter = hash_buscar(hash, clave, &estado_busqueda);
-    if (iter) {
-        clave_ya_estaba = true;
+    if (hash->cantidad != 0) {  // Si el hash esta vacio no busco nada
+        iter = hash_buscar(hash, clave, &estado_busqueda);
+        if (iter) {
+            clave_ya_estaba = true;
+        }
+    } else {
+        estado_busqueda = 1;
     }
 
     size_t x = hash_(clave, hash->capacidad);
