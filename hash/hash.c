@@ -179,6 +179,35 @@ hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
 }
 
 
+// AUXILIAR
+bool tabla_destruir(lista_t** tabla, size_t capacidad, hash_destruir_dato_t destruir_dato) {
+    if (!tabla) return false;
+
+    for (size_t i=0; i<capacidad; i++) {
+        if (!tabla[i]) {
+            continue;
+        }
+        lista_iter_t* iter = lista_iter_crear(tabla[i]);
+        if (!iter) {
+            return false;
+        }
+
+        while(!lista_iter_al_final(iter)) {
+            campo_t* campo_actual = lista_iter_ver_actual(iter);
+            campo_destruir(campo_actual, destruir_dato);
+            lista_iter_borrar(iter);
+        }
+        lista_iter_destruir(iter);
+        lista_destruir(tabla[i], NULL);
+        tabla[i] = NULL;
+    }
+
+    free(tabla);
+    tabla = NULL;
+    return true;
+}
+
+
 bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
     // printf("CAPACIDAD DEL HASH: %zu\n", hash->capacidad); ////////////
@@ -196,6 +225,11 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
             return false;
         }
 
+        if (!tabla_destruir(hash->tabla, hash->capacidad, hash->destruir_dato)){   //borrar tabla vieja
+            hash_destruir(nuevo_hash);
+            return false;
+        }
+        
         hash->capacidad = nuevo_hash->capacidad;
         hash->tabla = nuevo_hash->tabla;
         free(nuevo_hash);
@@ -348,26 +382,7 @@ void hash_destruir(hash_t *hash) {
         return;
     }
 
-    for (size_t i=0; i<hash->capacidad; i++) {
-        if (!hash->tabla[i]) {
-            continue;
-        }
-        lista_iter_t* iter = lista_iter_crear(hash->tabla[i]);
-        if (!iter) {
-            return;
-        }
-
-        while(!lista_iter_al_final(iter)) {
-            campo_t* campo_actual = lista_iter_ver_actual(iter);
-            campo_destruir(campo_actual, hash->destruir_dato);
-            lista_iter_borrar(iter);
-        }
-        lista_iter_destruir(iter);
-        lista_destruir(hash->tabla[i], NULL);
-        hash->tabla[i] = NULL;
-    }
-
-    free(hash->tabla);
+    tabla_destruir(hash->tabla, hash->capacidad, hash->destruir_dato);
     free(hash);
 }
 
