@@ -101,7 +101,7 @@ campo_t* campo_crear(const char* clave, void* dato) {
 void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato) {
     if (!campo) return;
 
-    if (destruir_dato && campo->dato) {
+    if (destruir_dato) {
         destruir_dato(campo->dato);
     }
 
