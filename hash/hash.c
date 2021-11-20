@@ -6,7 +6,7 @@
 #include "lista.h"
 
 
-const size_t CAPACIDAD_INICIAL = 1; //numero primo
+const size_t CAPACIDAD_INICIAL = 19; //numero primo
 const size_t FACTOR_CARGA = 2;
 
 
