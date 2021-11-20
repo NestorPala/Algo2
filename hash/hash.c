@@ -334,7 +334,7 @@ void *hash_borrar(hash_t *hash, const char *clave) {
         if (strcmp(campo_actual->clave, clave) == 0) {
             encontrado = true;
             dato_borrado = campo_actual->dato;
-            campo_destruir(campo_actual, hash->destruir_dato);
+            campo_destruir(campo_actual, NULL);
             lista_iter_borrar(iter);
             break;
         }
