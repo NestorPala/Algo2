@@ -34,7 +34,9 @@ struct abb_iter {
 };
 
 
-// AUXILIAR 
+//-----------------------------------------------------------------------------------------//
+
+
 char* strdup(const char* org) {
     char* cpy = malloc(sizeof(char) * (strlen(org) + 1));
     if (!cpy) return NULL;
@@ -43,67 +45,10 @@ char* strdup(const char* org) {
 }
 
 
-// AUXILIAR
-abb_nodo_t* abb_nodo_crear(abb_nodo_t* izq, abb_nodo_t* der, const char* clave, void* dato) {
-
-    abb_nodo_t* nodo_nuevo = malloc(sizeof(abb_nodo_t));
-    if (!nodo_nuevo) return NULL;
-
-    nodo_nuevo->izq = izq;
-    nodo_nuevo->der = der;
-    nodo_nuevo->clave = strdup(clave);
-    nodo_nuevo->dato = dato;
-
-    return nodo_nuevo;
-}
+//-------------------------------------------- AUXILIARES ---------------------------------------------//
 
 
-// AUXILIAR
-// La funcion empieza siempre por la raiz
-abb_nodo_t* abb_nodo_buscar(abb_nodo_t* nodo_actual, const char* clave, cmp_t cmp, abb_nodo_t** padre) {
-
-    // Caso base (si la raiz es NULL o llegué a una hoja)
-    if (!nodo_actual) return NULL;
-
-    // Si lo encuentro en la raiz o en el nodo padre
-        // cmp_t(c1, c2) == 0  =>  c1 = c2
-    if (cmp(clave, nodo_actual->clave) == 0) {
-        return nodo_actual;
-    }
-
-    // Vamos guardando el nodo padre para luego poder insertar si no se encuentra la clave
-    if (padre) {
-        *padre = nodo_actual;
-    }
-
-    // Busco a izquierda y derecha del nodo actual
-        // cmp_t(c1, c2) < 0  =>  c1 < c2
-        // cmp_t(c1, c2) > 0  =>  c1 > c2
-    if (cmp(clave, nodo_actual->clave) < 0)
-        return abb_nodo_buscar(nodo_actual->izq, clave, cmp, padre);
-    else
-        return abb_nodo_buscar(nodo_actual->der, clave, cmp, padre);
-}
-
-
-// AUXILIAR 
-void* abb_nodo_borrar(abb_nodo_t* nodo, destr_t destruir_dato) {
-
-    void* dato_borrado = nodo->dato;
-
-    if (destruir_dato) {
-        destruir_dato(nodo->dato);
-        dato_borrado = NULL;
-    }
-    
-    //free(nodo->clave);
-    free(nodo);
-
-    return dato_borrado;
-}
-
-
-// AUXILIAR
+// REVISAR
 void aux_inorder(abb_nodo_t* nodo_actual, pila_t* inorder, const char* clave) {
     if (!nodo_actual) return;
     aux_inorder(nodo_actual->izq, inorder, clave);
@@ -112,7 +57,74 @@ void aux_inorder(abb_nodo_t* nodo_actual, pila_t* inorder, const char* clave) {
 }
 
 
-// AUXILIAR
+// #####
+abb_nodo_t* abb_nodo_crear(abb_nodo_t* izq, abb_nodo_t* der, const char* clave, void* dato) {
+
+    abb_nodo_t* nuevo_nodo = malloc(sizeof(abb_nodo_t));
+    if (!nuevo_nodo) return NULL;
+
+    nuevo_nodo->izq = izq;
+    nuevo_nodo->der = der;
+    nuevo_nodo->clave = strdup(clave);
+    nuevo_nodo->dato = dato;
+
+    return nuevo_nodo;
+}
+
+
+// #####
+// La funcion empieza siempre por la raiz
+// El nodo padre es el padre del ultimo nodo valido recorrido
+abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, abb_nodo_t** padre) {
+
+    if (!actual) return NULL;
+
+    // Si lo encuentro en la raiz
+    if (cmp(clave, actual->clave) == 0) {
+        return actual;
+    }
+
+    if (actual->izq && actual->der) {
+        *padre = actual;
+    }
+
+    if (cmp(clave, actual->clave) < 0)
+        return abb_nodo_buscar(actual->izq, clave, cmp, padre);
+    else
+        return abb_nodo_buscar(actual->der, clave, cmp, padre);
+}
+
+
+// #####
+void* abb_nodo_destruir(abb_nodo_t* nodo, destr_t destruir_dato) {
+
+    if (!nodo) return NULL;
+
+    free(nodo->clave);
+
+    void* dato_borrado = nodo->dato;
+
+    if (destruir_dato) {
+        destruir_dato(nodo->dato);
+        dato_borrado = NULL;
+    }
+    
+    free(nodo);
+
+    return dato_borrado;
+}
+
+
+// #####
+void abb_destruir_2(abb_nodo_t* nodo, destr_t destruir_dato) {
+    if (!nodo) return;
+    abb_destruir_2(nodo->izq, destruir_dato);
+    abb_destruir_2(nodo->der, destruir_dato);
+    abb_nodo_destruir(nodo, destruir_dato);
+}
+
+
+// REVISAR
 void* abb_borrar_hoja (abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* abb, const char* clave) {
 
     void* dato_borrado = NULL;
@@ -121,7 +133,7 @@ void* abb_borrar_hoja (abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* ab
 
     // Si es la raíz
     if (cmp(clave, abb->raiz->clave) == 0) {
-        dato_borrado = abb_nodo_borrar(borrado, destruir_dato);
+        dato_borrado = abb_nodo_destruir(borrado, NULL);
     } else {
 
         // Si no es la raíz
@@ -129,11 +141,11 @@ void* abb_borrar_hoja (abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* ab
         // Recordar que el hijo nunca va a ser igual al padre
         if (cmp(borrado->clave, padre_borrado->clave) < 0) {
 
-            dato_borrado = abb_nodo_borrar(padre_borrado->izq, destruir_dato);
+            dato_borrado = abb_nodo_destruir(padre_borrado->izq, NULL);
             padre_borrado->izq = NULL;
         }
         else {
-            dato_borrado = abb_nodo_borrar(padre_borrado->der, destruir_dato);
+            dato_borrado = abb_nodo_destruir(padre_borrado->der, NULL);
             padre_borrado->der = NULL;
         }  
     }
@@ -142,7 +154,7 @@ void* abb_borrar_hoja (abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* ab
 }
 
 
-// AUXILIAR
+// REVISAR
 void* abb_borrar_1_hijo (abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* abb, const char* clave) {
 
     void* dato_borrado = NULL;
@@ -162,7 +174,7 @@ void* abb_borrar_1_hijo (abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* 
             nodo_aux = abb->raiz->der;
         }
 
-        dato_borrado = abb_nodo_borrar(abb->raiz, destruir_dato);
+        dato_borrado = abb_nodo_destruir(abb->raiz, NULL);
         abb->raiz = nodo_aux;
     } else {
         // Si no es la raíz
@@ -191,14 +203,14 @@ void* abb_borrar_1_hijo (abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* 
             }
         }
 
-        dato_borrado = abb_nodo_borrar(borrado, destruir_dato); 
+        dato_borrado = abb_nodo_destruir(borrado, NULL); 
     }
 
     return dato_borrado;
 }
 
 
-// AUXILIAR
+// REVISAR
 void* abb_borrar_2(abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* abb, const char* clave) {
 
 
@@ -311,19 +323,61 @@ void* abb_borrar_2(abb_nodo_t* borrado, abb_nodo_t* padre_borrado, abb_t* abb, c
 }
 
 
-// AUXILIAR
-void abb_destruir_2(abb_nodo_t* nodo, destr_t destruir_dato) {
+// #####?
+bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, abb_nodo_t* padre_nuevo, cmp_t cmp, bool reempl_izq, bool reempl_der) {
+    if (!viejo || !nuevo) return false;
 
-    // Caso base
-    if (!nodo) return;
+    free(viejo->clave);
+    viejo->clave = strdup(nuevo->clave);
 
-    abb_destruir_2(nodo->izq, destruir_dato);
-    abb_destruir_2(nodo->der, destruir_dato);
+    viejo->dato = nuevo->dato;
 
-    abb_nodo_borrar(nodo, destruir_dato);
+    if (reempl_izq) {
+        viejo->izq = nuevo->izq;
+    }
+
+    if (reempl_der) {
+        viejo->der = nuevo->der;
+    }
+
+    // Esto solo funciona para reemplazar un nodo con una hoja
+    if (padre_nuevo) {
+        if (cmp(nuevo->clave, padre_nuevo->clave) < 0) {
+            abb_nodo_destruir(padre_nuevo->izq, NULL);
+            padre_nuevo->izq = NULL;
+        } else {
+            abb_nodo_destruir(padre_nuevo->der, NULL);
+            padre_nuevo->der = NULL;
+        }
+    }
 }
 
 
+// #####
+bool abb_nodo_swap_hoja(abb_nodo_t* padre, abb_nodo_t* hijo) {
+    return abb_nodo_swap(padre, hijo, NULL, NULL, false, false);
+}
+
+
+// #####?
+bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
+
+    if (cmp(hijo->clave, padre->clave) == 0) {
+        return abb_nodo_swap_hoja(padre, hijo);
+    } else if (cmp(hijo->clave, padre->clave) < 0) {
+        padre->izq = hijo;
+    } else {
+        padre->der = hijo;
+    }
+
+    return true;
+}
+
+
+//-------------------------------------------- PRIMITIVAS ---------------------------------------------//
+
+
+// #####
 abb_t* abb_crear(cmp_t cmp, destr_t destruir_dato) {
 
     // La función de comparación es vital; si el usuario no la pasa, no hacemos nada
@@ -341,77 +395,61 @@ abb_t* abb_crear(cmp_t cmp, destr_t destruir_dato) {
 }
 
 
+// EN PROCESO
 bool abb_guardar(abb_t *abb, const char *clave, void *dato) {
 
-    if (!abb || !clave) return false;
+    if (!abb || !clave) {
+        return false;
+    }
 
-    abb_nodo_t* nodo_nuevo = abb_nodo_crear(NULL, NULL, clave, dato);
-    if (!nodo_nuevo) return false;
+    abb_nodo_t* nuevo_nodo = abb_nodo_crear(NULL, NULL, clave, dato);
+    if (!nuevo_nodo) return false;
 
     // Si no hay elementos
-    if (abb->raiz == NULL) {
-        abb->raiz = nodo_nuevo;
+    if (abb->cantidad == 0) {
+        abb->raiz = nuevo_nodo;
         abb->cantidad = 1;
         return true;
-    }
-
-    cmp_t cmp = abb->cmp;
-
-    //paso su dirección de memoria (pasaje por referencia) para mantener el puntero aislado del stack de recursión
-    abb_nodo_t* padre_encontrado;
-
-    abb_nodo_t* nodo_encontrado = abb_nodo_buscar(abb->raiz, clave, cmp, &padre_encontrado);
-    
-    //si el elemento ya está, lo piso (no aumenta la cantidad)
-    if (nodo_encontrado) {
-
-        // Si la funcion destruir dato es NULL asumimos que no hay que liberar memoria
-        if (!abb->destruir_dato) {
-            nodo_encontrado->dato = dato;
-            return true;
+    } else if (abb->cantidad == 1) {  // Si esta solo la raiz
+        if (!abb_guardar_hoja(abb->raiz, nuevo_nodo, abb->cmp)) {
+            return false;
         }
-
-        // Si no, usamos la función de "Bárbara"
-        abb->destruir_dato(nodo_encontrado->dato);
-        nodo_encontrado->dato = dato;
+        abb->cantidad = 2;
         return true;
     }
+
+    abb_nodo_t* padre_encontrado = NULL;
+    abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &padre_encontrado);
     
-    //si el elemento no está, lo ubico a izq. o der. de donde estará su padre
-    //la clave nunca va a ser igual a su padre (porque sino pasa lo del if de arriba)
-    if (cmp(clave, padre_encontrado->clave) < 0) {
-
-        padre_encontrado->izq = nodo_nuevo;
-    } else {
-        padre_encontrado->der = nodo_nuevo;
-    }
-
-    abb->cantidad++;
+    //...
 
     return true;
 }
 
 
+// #####
 void *abb_obtener(const abb_t *abb, const char *clave) {
-    if (!abb) return NULL;
-    if (!clave) return NULL;
-    abb_nodo_t* nodo_encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, NULL);
-    return nodo_encontrado ? nodo_encontrado->dato : NULL;
+    if (!abb || !clave) return NULL;
+    abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, NULL);
+    return encontrado ? encontrado->dato : NULL;
 }
 
 
+// #####
 bool abb_pertenece(const abb_t *abb, const char *clave) {
-    if (!abb) return false;
-    if (!clave) return false;  
-    return (abb_nodo_buscar(abb->raiz, clave, abb->cmp, NULL) != NULL) ? true : false;
+    if (!abb || !clave) return false;
+    return abb_nodo_buscar(abb->raiz, clave, abb->cmp, NULL) ? true : false;
 }
 
 
+// #####
 size_t abb_cantidad(const abb_t *abb) {
-    if(!abb) return 0; else return abb->cantidad;
+    if(!abb || !abb->raiz) return 0;
+    return abb->cantidad;
 }
 
 
+// REHACER
 void *abb_borrar(abb_t *abb, const char *clave) {
 
     /*
@@ -419,29 +457,33 @@ void *abb_borrar(abb_t *abb, const char *clave) {
     https://docs.google.com/presentation/d/1Iyq_N7JBe19e4TZRlWe4qC3CdQ_SArpQ/edit#slide=id.p23
     */
 
-    if (!abb || !clave) return NULL;
+    if (!abb || !clave || abb->cantidad == 0) return NULL;
     
-    abb_nodo_t* encontrado_padre = NULL;
-    abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &encontrado_padre);
+    // abb_nodo_t* encontrado_padre = NULL;
+    // abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &encontrado_padre);
 
-    // Si el elemento no pertenece al ABB no se puede borrar, obviamente
-    if (!encontrado) return NULL;
+    // // Si el elemento no pertenece al ABB no se puede borrar, obviamente
+    // if (!encontrado) return NULL;
 
-    abb->cantidad--; ///
+    // abb->cantidad--; ///
 
-    // Hacemos el borrado en el lugar encontrado (si hay)
-    return abb_borrar_2(encontrado, encontrado_padre, abb, clave);
+    // // Hacemos el borrado en el lugar encontrado (si hay)
+    // return abb_borrar_2(encontrado, encontrado_padre, abb, clave);
 }
 
 
+// #####
 void abb_destruir(abb_t *abb) {
     
     if (!abb) return;
 
-    //usamos recorrido POST-ORDER
     if (abb->cantidad != 0) {
-        abb_destruir_2(abb->raiz, abb->destruir_dato);
-    }
+        if (abb->cantidad == 1) {
+            abb_nodo_destruir(abb->raiz, abb->destruir_dato);
+        } else {
+            abb_destruir_2(abb->raiz, abb->destruir_dato);
+        }
+    } 
 
     free(abb);
 }
