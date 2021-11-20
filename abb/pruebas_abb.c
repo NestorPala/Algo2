@@ -90,9 +90,18 @@ void pruebas_abb_vacio() {
 void pruebas_unitarias() {
     
     abb_t* abb = abb_crear(strcmp, NULL);
-    size_t cant = 2;
-    int num[] = {12, 32, 43, -99, 126, 45, 65, 177, 277};
-    char* claves[] = {"pepe", "carlos", "juana", "estefania", "freddy", "mariana", "jose", "tomas", "cecilio"};
+
+    int num[] = {12, 32, 43, -99, 126, 
+                45, 65, 177, 277, 144, 
+                -2, 345, 7, 65};
+
+    char* claves[] = {
+                "pepe", "carlos", "juana", "estefania", "freddy", 
+                "mariana", "jose", "tomas", "cecilio", "casper",
+                "cane", "maro", "tomi", "tara"};
+
+    size_t cant = sizeof(num) * 2 / sizeof(int*);
+
     int** x = crear_arreglo_numeros(num, cant);
 
     guardamos(abb, claves, x, cant);
@@ -100,13 +109,11 @@ void pruebas_unitarias() {
     obtenemos(abb, claves, cant);
     //probamos_iterador(abb);
     printf("\n\n");
-    borramos(abb, claves, cant);
+    //borramos(abb, claves, cant);
     printf("\n\n");
 
     abb_destruir(abb);
     free(x);
-
-    return;
 }
 
 

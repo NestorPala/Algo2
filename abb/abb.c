@@ -74,7 +74,7 @@ abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, ab
     }
 
     if (actual->izq && actual->der) {
-        *padre = actual;
+        padre = &actual;
     }
 
     if (cmp(clave, actual->clave) < 0)
@@ -112,7 +112,7 @@ void abb_destruir_2(abb_nodo_t* nodo, destr_t destruir_dato) {
 
 
 // #####?
-bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, abb_nodo_t* padre_nuevo, cmp_t cmp, bool reempl_izq, bool reempl_der) {
+bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, bool reempl_izq, bool reempl_der) {
     if (!viejo || !nuevo) return false;
 
     free(viejo->clave);
@@ -128,21 +128,9 @@ bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, abb_nodo_t* padre_nuevo
         viejo->der = nuevo->der;
     }
 
-    // Esto solo funciona para reemplazar un nodo con una hoja
-    if (padre_nuevo) {
-        if (cmp(nuevo->clave, padre_nuevo->clave) < 0) {
-            abb_nodo_destruir(padre_nuevo->izq, NULL);
-            padre_nuevo->izq = NULL;
-        } else {
-            abb_nodo_destruir(padre_nuevo->der, NULL);
-            padre_nuevo->der = NULL;
-        }
-    }
-}
+    abb_nodo_destruir(nuevo, NULL);
 
-
-bool abb_nodo_swap_hoja(abb_nodo_t* padre, abb_nodo_t* hijo) {
-    return abb_nodo_swap(padre, hijo, NULL, NULL, false, false);
+    return true;
 }
 
 
@@ -150,7 +138,7 @@ bool abb_nodo_swap_hoja(abb_nodo_t* padre, abb_nodo_t* hijo) {
 bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
 
     if (cmp(hijo->clave, padre->clave) == 0) {
-        return abb_nodo_swap_hoja(padre, hijo);
+        return abb_nodo_swap(padre, hijo, false, false);
     } else if (cmp(hijo->clave, padre->clave) < 0) {
         padre->izq = hijo;
     } else {
@@ -158,6 +146,56 @@ bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
     }
 
     return true;
+}
+
+
+// AUXILIAR
+bool abb_guardar_2(abb_nodo_t* actual, abb_t *abb, const char *clave, void *dato) {
+    
+    if (!actual) return false;
+    
+    if (!actual->izq && !actual->der) {
+
+        abb_nodo_t* nuevo = abb_nodo_crear(NULL, NULL, clave, dato);
+
+        if (abb->cmp(clave, actual->clave) == 0) {
+            if (!abb_nodo_swap(actual, nuevo, true, true)) return false;
+            abb->cantidad++;
+            return true;
+        } else if (abb->cmp(clave, actual->clave) < 0) {
+            actual->izq = nuevo;
+        } else {
+            actual->der = nuevo;
+        }
+
+        abb->cantidad++;
+        return true;
+    }
+
+    if (abb->cmp(clave, actual->clave) == 0) {
+        abb_nodo_t* nuevo = abb_nodo_crear(actual->izq, actual->der, clave, dato);
+        if (!abb_nodo_swap(actual, nuevo, true, true)) return false;
+        abb->cantidad++;
+        return true;
+    } else if (abb->cmp(clave, actual->clave) < 0) {
+        if (!actual->izq) {
+            abb_nodo_t* nuevo = abb_nodo_crear(NULL, NULL, clave, dato);
+            if (!nuevo) return false;
+            actual->izq = nuevo;
+            abb->cantidad++;
+            return true;
+        }
+        return abb_guardar_2(actual->izq, abb, clave, dato);
+    } else {
+        if (!actual->der) {
+            abb_nodo_t* nuevo = abb_nodo_crear(NULL, NULL, clave, dato);
+            if (!nuevo) return false;
+            actual->der = nuevo;
+            abb->cantidad++;
+            return true;
+        }
+        return abb_guardar_2(actual->der, abb, clave, dato);
+    }
 }
 
 
@@ -181,7 +219,6 @@ abb_t* abb_crear(cmp_t cmp, destr_t destruir_dato) {
 }
 
 
-// EN PROCESO
 bool abb_guardar(abb_t *abb, const char *clave, void *dato) {
 
     if (!abb || !clave) {
@@ -204,11 +241,9 @@ bool abb_guardar(abb_t *abb, const char *clave, void *dato) {
         return true;
     }
 
-    // abb_nodo_t* padre_encontrado = NULL;
-    // abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &padre_encontrado);
-    //...
+    abb_nodo_destruir(nuevo_nodo, NULL);
 
-    return true;
+    return abb_guardar_2(abb->raiz, abb, clave, dato);
 }
 
 
