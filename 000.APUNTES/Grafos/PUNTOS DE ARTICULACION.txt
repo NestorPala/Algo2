@@ -1,0 +1,4 @@
+PUNTOS DE ARTICULACION
+
+* Son los vertices que al sacarlos se divide el grafo en componentes conexas
+* SOLO APLICA PARA GRAFOS NO DIRIGIDOS

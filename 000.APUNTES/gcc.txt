@@ -13,3 +13,10 @@ TPS:
 2)   ./pruebas
 
 3)  valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./pruebas
+
+
+---------------------------------------------------------------------------
+
+gcc -g -std=gnu11 -Wall -pedantic -Wformat=2 -Wshadow -Wpointer-arith -Wunreachable-code -Wconversion -Wno-sign-conversion -Wbad-function-cast --coverage -Werror -o pruebas *.c
+
+valgrind --leak-check=full --track-origins=yes --show-reachable=yes --error-exitcode=2 ./pruebas
