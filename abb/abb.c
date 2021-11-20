@@ -111,7 +111,6 @@ void abb_destruir_2(abb_nodo_t* nodo, destr_t destruir_dato) {
 }
 
 
-// #####?
 bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, bool reempl_izq, bool reempl_der) {
     if (!viejo || !nuevo) return false;
 
@@ -134,7 +133,6 @@ bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, bool reempl_izq, bool r
 }
 
 
-// #####?
 bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
 
     if (cmp(hijo->clave, padre->clave) == 0) {
@@ -149,7 +147,6 @@ bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
 }
 
 
-// AUXILIAR
 bool abb_guardar_2(abb_nodo_t* actual, abb_t *abb, const char *clave, void *dato) {
     
     if (!actual) return false;
@@ -266,26 +263,89 @@ size_t abb_cantidad(const abb_t *abb) {
 }
 
 
-// REHACER
+// AUXILIAR
+void* abb_borrar_2_nodos(abb_t* abb, const char* clave, bool izq) {
+
+    abb_nodo_t* aux = izq ? abb->raiz->izq : abb->raiz->der;
+    void* dato_borrado = NULL;
+
+    if (abb->cmp(clave, abb->raiz->clave) == 0) {
+        dato_borrado = abb_nodo_destruir(abb->raiz, abb->destruir_dato);
+        abb->raiz = aux;
+    } else {
+        dato_borrado = abb_nodo_destruir(aux, abb->destruir_dato);
+    }
+
+    return dato_borrado;
+} 
+
+
+// AUXILIAR 
+void* abb_borrar_x(abb_t* abb, const char* clave) {
+    //...
+    return NULL;
+}
+
+
+// AUXILIAR
+void* abb_borrar_H2O(abb_t* abb, const char* clave) {
+
+    void* dato_borrado = NULL;
+
+    if (abb->cmp(clave, abb->raiz->clave) == 0) {
+
+        abb_nodo_t* aux1 = abb->raiz->izq;
+        abb_nodo_t* aux2 = abb->raiz->der;
+        dato_borrado = abb_nodo_destruir(abb->raiz, abb->destruir_dato);
+        aux1->der = aux2;
+        abb->raiz = aux1;
+
+    } else if (abb->cmp(clave, abb->raiz->izq->clave) == 0) {
+
+        dato_borrado = abb_nodo_destruir(abb->raiz->izq, abb->destruir_dato);
+        abb->raiz->izq = NULL;
+
+    } else {
+
+        dato_borrado = abb_nodo_destruir(abb->raiz->der, abb->destruir_dato);
+        abb->raiz->der = NULL;
+
+    }
+
+    return dato_borrado;
+}
+
+
+// REHACIENDO
 void *abb_borrar(abb_t *abb, const char *clave) {
 
-    /*
-    VER COMO BORRAR EN ABB
-    https://docs.google.com/presentation/d/1Iyq_N7JBe19e4TZRlWe4qC3CdQ_SArpQ/edit#slide=id.p23
-    */
-
     if (!abb || !clave || abb->cantidad == 0) return NULL;
+    if (!abb_pertenece(abb, clave)) return NULL;
     
-    // abb_nodo_t* encontrado_padre = NULL;
-    // abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &encontrado_padre);
+    // A partir de acá asumimos que la clave a borrar existe
 
-    // // Si el elemento no pertenece al ABB no se puede borrar, obviamente
-    // if (!encontrado) return NULL;
+    void* dato_borrado = NULL;
 
-    // abb->cantidad--; ///
-
-    // // Hacemos el borrado en el lugar encontrado (si hay)
-    // return abb_borrar_2(encontrado, encontrado_padre, abb, clave);
+    if (abb->cantidad == 1) {
+        dato_borrado = abb_nodo_destruir(abb->raiz, abb->destruir_dato);
+        abb->raiz = NULL;
+        abb->cantidad = 0;
+    } else if (abb->cantidad == 2) {
+        if (abb->raiz->izq) {
+            dato_borrado = abb_borrar_2_nodos(abb, clave, true);
+        } else {
+            dato_borrado = abb_borrar_2_nodos(abb, clave, false);
+        }
+        abb->cantidad = 1;
+    } else if (abb->cantidad == 3 && abb->raiz->izq && abb->raiz->der) {
+        dato_borrado = abb_borrar_H2O(abb, clave);
+        abb->cantidad = 2;
+    } else {
+        dato_borrado = abb_borrar_x(abb, clave);
+        abb->cantidad--;
+    }
+    
+    return dato_borrado;
 }
 
 

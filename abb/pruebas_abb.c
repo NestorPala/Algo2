@@ -96,11 +96,12 @@ void pruebas_unitarias() {
                 -2, 345, 7, 65};
 
     char* claves[] = {
-                "pepe", "carlos", "juana", "estefania", "freddy", 
+                "pepe", "carl", "soto", "estefania", "freddy", 
                 "mariana", "jose", "tomas", "cecilio", "casper",
                 "cane", "maro", "tomi", "tara"};
 
-    size_t cant = sizeof(num) * 2 / sizeof(int*);
+    //size_t cant = sizeof(num) * 2 / sizeof(int*);
+    size_t cant = 3;
 
     int** x = crear_arreglo_numeros(num, cant);
 
@@ -109,7 +110,7 @@ void pruebas_unitarias() {
     obtenemos(abb, claves, cant);
     //probamos_iterador(abb);
     printf("\n\n");
-    //borramos(abb, claves, cant);
+    borramos(abb, claves, cant);
     printf("\n\n");
 
     abb_destruir(abb);
