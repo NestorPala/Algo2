@@ -212,8 +212,8 @@ hash_t* hash_redimensionar_2(hash_t* hash, size_t nueva_capacidad) {
 // AUXILIAR 
 void hash_redimensionar(hash_t* hash, float carga, float redimension) {
     
-    if (hash->cantidad == carga * hash->capacidad) {
-        size_t nueva_capacidad = redimension * hash->capacidad;
+    if ((float)(hash->cantidad) == carga * (float)(hash->capacidad)) {
+        size_t nueva_capacidad = (size_t)(redimension * (float)(hash->capacidad));
         hash_t* nuevo_hash = hash_redimensionar_2(hash, nueva_capacidad);
 
         if (!nuevo_hash) return;
@@ -236,7 +236,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
         return false;
     }
 
-    float carga = FACTOR_CARGA, redimension = FACTOR_CARGA * 2;
+    float carga = (float)FACTOR_CARGA, redimension = (float)(FACTOR_CARGA * 2);
     hash_redimensionar(hash, carga, redimension);
 
     bool clave_ya_estaba = false;
@@ -308,7 +308,7 @@ void *hash_borrar(hash_t *hash, const char *clave) {
         return NULL;
     }
 
-    float carga = (1/(2 * FACTOR_CARGA)), redimension = (1/FACTOR_CARGA);
+    float carga = (1/(2 * (float)FACTOR_CARGA)), redimension = (1/((float)FACTOR_CARGA));
     hash_redimensionar(hash, carga, redimension);
 
     void* dato_borrado = NULL; 
