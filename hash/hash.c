@@ -105,8 +105,10 @@ campo_t* campo_crear(const char* clave, void* dato) {
 // AUXILIAR
 void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato) {
     if (!campo) return;
+    if (destruir_dato && campo->dato) {
+        destruir_dato(campo->dato);
+    }
     free(campo->clave);
-    if (destruir_dato) {destruir_dato(campo->dato);}
     free(campo);
 }
 
@@ -150,10 +152,8 @@ lista_iter_t* hash_buscar(const hash_t* hash, const char* clave, int* estado_bus
 }
 
 
-// AUXILIAR
-// #include <stdio.h> //debug  
+// AUXILIAR 
 hash_t* hash_redimensionar(hash_t* hash, size_t nueva_capacidad) {
-    // printf("\n------------------- REDIMENSIONAMOS -------------------\n\n");  ////debug
 
     hash_t* nuevo_hash = hash_crear_2(nueva_capacidad, hash->destruir_dato);
     if (!nuevo_hash) {
@@ -210,8 +210,6 @@ bool tabla_destruir(lista_t** tabla, size_t capacidad, hash_destruir_dato_t dest
 
 bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
 
-    // printf("CAPACIDAD DEL HASH: %zu\n", hash->capacidad); ////////////
-
     if (!hash || !clave) {
         return false;
     }
@@ -225,7 +223,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
             return false;
         }
 
-        if (!tabla_destruir(hash->tabla, hash->capacidad, hash->destruir_dato)){   //borrar tabla vieja
+        if (!tabla_destruir(hash->tabla, hash->capacidad, NULL)){   //borrar tabla vieja
             hash_destruir(nuevo_hash);
             return false;
         }
