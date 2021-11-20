@@ -3,8 +3,8 @@
 #include <stdio.h> //printf()
 #include <stddef.h>  //NULL
 #include <stdlib.h> //rand()
-#include <time.h> //srand()
 #include <string.h> //strcmp()
+#include <stdbool.h>
 
 
 /***********************************************************************************/
@@ -15,91 +15,98 @@ const size_t N = 10000;
 /***********************************************************************************/
 
 
+void printb(bool a) {
+    a ? printf("TRUE\n") : printf("FALSE\n");
+}
+
+
+void obtenemos(abb_t* abb, char* claves[], size_t n) {
+    for (size_t i=0; i<n; i++) {
+        void* elemento = abb_obtener(abb, claves[i]);
+        elemento ? printf("\n%s: %d", claves[i], *(int*)elemento) : printf("\n%s: NULL", claves[i]);
+    }
+}
+
+
+void pertenencia(abb_t* abb, char* clave) {
+    printf("LA CLAVE '%s' PERTENECE AL abb   >>>  ", clave);
+    printb(abb_pertenece(abb, clave));
+}
+
+
+void borramos(abb_t* abb, char* claves[], size_t n) {
+    for (size_t i=0; i<n; i++) {
+        abb_borrar(abb, claves[i]);
+        printf("\n%s BORRADO", claves[i]);
+        printf("\nCANTIDAD DE ELEMENTOS: %zu", abb_cantidad(abb));
+        pertenencia(abb, claves[i]);
+    }   
+}
+
+
+void guardamos(abb_t* abb, char* claves[], int** numeros, size_t n) {
+    for (size_t i=0; i<n; i++) {
+        printf("\nGUARDANDO: %s\n", claves[i]);
+        printb(abb_guardar(abb, claves[i], numeros[i]));
+        printf("CANTIDAD DE ELEMENTOS: %zu\n", abb_cantidad(abb));
+        pertenencia(abb, claves[i]);
+    }
+}
+
+
+// void probamos_iterador(abb_t* abb) {
+//     printf("\n\n\nPRUEBAS DEL ITERADOR DE abb\n");
+
+//     abb_iter_t* iter = abb_iter_crear(abb);
+//     if (!iter) {printf("NO SE PUDO CREAR EL ITERADOR"); return;}
+
+//     while(!abb_iter_al_final(iter)) {
+//         const char* clave_actual = abb_iter_ver_actual(iter);
+//         if (clave_actual) printf("\nCLAVE: %s", clave_actual);
+//         abb_iter_avanzar(iter);
+//     }
+//     abb_iter_destruir(iter);
+// }
+
+
+int** crear_arreglo_numeros(int numeros[], size_t n) {
+    int** arr = malloc(n * sizeof(int*));
+    if (!arr) return NULL;
+    for (size_t i=0; i<n; i++) arr[i] = &numeros[i];
+    return arr;
+}
+
+
 void pruebas_abb_vacio() {
-
     abb_t* arbol = abb_crear(strcmp, NULL);
-
     print_test("El arbol está vacío: ", abb_cantidad(arbol) == 0);
     print_test("No se pueden obtener elementos: ", abb_obtener(arbol, "Pepe") == NULL);
     print_test("Obtener pertenencia en un árbol vacío: ", !abb_pertenece(arbol, "15"));
-    // print_test("No se puede borrar en un árbol vacío: ", abb_borrar(arbol, "Juan") == NULL);
-    //abb_destruir(arbol);
-
+    print_test("No se puede borrar en un árbol vacío: ", abb_borrar(arbol, "Juan") == NULL);
     abb_destruir(arbol);
 }
 
 
-void pruebas_unitarias_insertar_abb() {
+void pruebas_unitarias() {
     
-    abb_t* arbol = abb_crear(strcmp, NULL);
+    abb_t* abb = abb_crear(strcmp, NULL);
+    size_t cant = 2;
+    int num[] = {12, 32, 43, -99, 126, 45, 65, 177, 277};
+    char* claves[] = {"pepe", "carlos", "juana", "estefania", "freddy", "mariana", "jose", "tomas", "cecilio"};
+    int** x = crear_arreglo_numeros(num, cant);
 
-    char* claves[] = {"pepe", "juan", "maria", "diana"};
-    int numeros[] = {2,17,-23, 0};
+    guardamos(abb, claves, x, cant);
+    printf("\n\n");
+    obtenemos(abb, claves, cant);
+    //probamos_iterador(abb);
+    printf("\n\n");
+    borramos(abb, claves, cant);
+    printf("\n\n");
 
-    print_test("ABB guardar:  arbol[clave1] = valor1   ", 
-                abb_guardar(arbol, claves[0], &numeros[0]));
-    
-    print_test("ABB obtener en clave1 es igual a valor1: ", 
-                *(int*)abb_obtener(arbol, "pepe") == numeros[0]);
+    abb_destruir(abb);
+    free(x);
 
-    print_test("ABB guardar:  arbol[clave2] = valor2   ", 
-                abb_guardar(arbol, claves[1], &numeros[1]));
-    
-    print_test("ABB obtener en clave2 es igual a valor2: ", 
-                *(int*)abb_obtener(arbol, "juan") == numeros[1]); 
-
-    print_test("ABB guardar:  arbol[clave3] = valor3   ", 
-                abb_guardar(arbol, claves[2], &numeros[2]));
-    
-    print_test("ABB obtener en clave3 es igual a valor3: ", 
-                *(int*)abb_obtener(arbol, "maria") == numeros[2]);
-
-    print_test("ABB guardar:  arbol[clave4] = valor4   ", 
-                abb_guardar(arbol, claves[3], &numeros[3]));
-    
-    print_test("ABB obtener en clave4 es igual a valor4: ", 
-                *(int*)abb_obtener(arbol, "diana") == numeros[3]); 
-    
-    abb_destruir(arbol);
-}
-
-
-void pruebas_unitarias_borrar_abb() {
-
-    abb_t* arbol = abb_crear(strcmp, NULL);
-
-    printf("Inserto 5 elementos. Ahora los voy a borrar uno por uno");
-
-    int n[] = {12, 9, 14, 7, 10};
-    abb_guardar(arbol, "12", &n[0]);
-    abb_guardar(arbol, "09", &n[1]);
-    abb_guardar(arbol, "14", &n[2]);
-    // abb_guardar(arbol, "07", &n[3]);
-    // abb_guardar(arbol, "10", &n[4]);
-
-    
-    print_test("La clave '12' pertenece al árbol:  ", abb_pertenece(arbol, "12"));
-    int a = *(int*)abb_borrar(arbol, "12");
-    print_test("Se pudo borrar el valor en la clave '12': ", a == n[0] );
-    print_test("La clave '12' ya no pertenece al árbol:  ", !abb_pertenece(arbol, "12"));
-    
-
-    print_test("La clave '09' pertenece al árbol:  ", abb_pertenece(arbol, "09"));
-    int b = *(int*)abb_borrar(arbol, "09");
-    print_test("Se pudo borrar el valor en la clave '09': ", b == n[1] );
-    print_test("La clave '09' ya no pertenece al árbol:  ", !abb_pertenece(arbol, "09"));
-
-
-    print_test("La clave '14' pertenece al árbol:  ", abb_pertenece(arbol, "14"));
-    int c = *(int*)abb_borrar(arbol, "14");
-    print_test("Se pudo borrar el valor en la clave '14': ", c == n[2] );
-    print_test("La clave '14' ya no pertenece al árbol:  ", !abb_pertenece(arbol, "14"));
-
-
-    // print_test("Se pudo borrar el valor en la clave '07': ", *(int*)abb_borrar(arbol, "07") == n[3] );
-    // print_test("Se pudo borrar el valor en la clave '10': ", *(int*)abb_borrar(arbol, "10") == n[4] );
-
-    abb_destruir(arbol);
+    return;
 }
 
 
@@ -107,12 +114,7 @@ void pruebas_unitarias_borrar_abb() {
 
 void pruebas_abb_estudiante() {
     pruebas_abb_vacio();
-    //pruebas_unitarias_insertar_abb();  ///
-    pruebas_unitarias_borrar_abb();
-
-
-    //pruebas_volumen_insertar_abb();
-    //pruebas_volumen_borrar_abb();
+    pruebas_unitarias();
 }
 
 /***********************************************************************************/
