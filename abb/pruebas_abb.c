@@ -29,16 +29,20 @@ void obtenemos(abb_t* abb, char* claves[], size_t n) {
 
 
 void pertenencia(abb_t* abb, char* clave) {
-    printf("LA CLAVE '%s' PERTENECE AL abb   >>>  ", clave);
+    printf("\nLA CLAVE '%s' PERTENECE AL abb   >>>  ", clave);
     printb(abb_pertenece(abb, clave));
 }
 
 
 void borramos(abb_t* abb, char* claves[], size_t n) {
     for (size_t i=0; i<n; i++) {
-        abb_borrar(abb, claves[i]);
-        printf("\n%s BORRADO", claves[i]);
+        void* borrado = abb_borrar(abb, claves[i]);
+        printf("\nBORRANDO '%s'", claves[i]);
+        printf("\nEL DATO BORRADO FUE: ");
+        borrado ? printf("%d", *(int*)borrado) : printf("NULL");
+
         printf("\nCANTIDAD DE ELEMENTOS: %zu", abb_cantidad(abb));
+
         pertenencia(abb, claves[i]);
     }   
 }
@@ -48,7 +52,7 @@ void guardamos(abb_t* abb, char* claves[], int** numeros, size_t n) {
     for (size_t i=0; i<n; i++) {
         printf("\nGUARDANDO: %s\n", claves[i]);
         printb(abb_guardar(abb, claves[i], numeros[i]));
-        printf("CANTIDAD DE ELEMENTOS: %zu\n", abb_cantidad(abb));
+        printf("CANTIDAD DE ELEMENTOS: %zu", abb_cantidad(abb));
         pertenencia(abb, claves[i]);
     }
 }
@@ -100,8 +104,8 @@ void pruebas_unitarias() {
                 "mariana", "jose", "tomas", "cecilio", "casper",
                 "cane", "maro", "tomi", "tara"};
 
-    //size_t cant = sizeof(num) * 2 / sizeof(int*);
-    size_t cant = 3;
+    size_t cant = sizeof(num) * 2 / sizeof(int*);
+    //size_t cant = 3;
 
     int** x = crear_arreglo_numeros(num, cant);
 

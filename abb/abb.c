@@ -68,12 +68,12 @@ abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, ab
 
     if (!actual) return NULL;
 
-    // Si lo encuentro en la raiz
+    // Si lo encuentro en la raiz o en el nodo actual
     if (cmp(clave, actual->clave) == 0) {
         return actual;
     }
 
-    if (actual->izq && actual->der) {
+    if (padre && actual->izq && actual->der) {
         padre = &actual;
     }
 
@@ -111,11 +111,15 @@ void abb_destruir_2(abb_nodo_t* nodo, destr_t destruir_dato) {
 }
 
 
-bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, bool reempl_izq, bool reempl_der) {
+bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, destr_t destruir_dato, bool reempl_izq, bool reempl_der) {
     if (!viejo || !nuevo) return false;
 
     free(viejo->clave);
     viejo->clave = strdup(nuevo->clave);
+
+    if (destruir_dato) {
+        destruir_dato(viejo->dato);
+    }
 
     viejo->dato = nuevo->dato;
 
@@ -136,7 +140,7 @@ bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, bool reempl_izq, bool r
 bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
 
     if (cmp(hijo->clave, padre->clave) == 0) {
-        return abb_nodo_swap(padre, hijo, false, false);
+        return abb_nodo_swap(padre, hijo, NULL, false, false);
     } else if (cmp(hijo->clave, padre->clave) < 0) {
         padre->izq = hijo;
     } else {
@@ -156,7 +160,7 @@ bool abb_guardar_2(abb_nodo_t* actual, abb_t *abb, const char *clave, void *dato
         abb_nodo_t* nuevo = abb_nodo_crear(NULL, NULL, clave, dato);
 
         if (abb->cmp(clave, actual->clave) == 0) {
-            if (!abb_nodo_swap(actual, nuevo, true, true)) return false;
+            if (!abb_nodo_swap(actual, nuevo, NULL, true, true)) return false;
             abb->cantidad++;
             return true;
         } else if (abb->cmp(clave, actual->clave) < 0) {
@@ -171,7 +175,7 @@ bool abb_guardar_2(abb_nodo_t* actual, abb_t *abb, const char *clave, void *dato
 
     if (abb->cmp(clave, actual->clave) == 0) {
         abb_nodo_t* nuevo = abb_nodo_crear(actual->izq, actual->der, clave, dato);
-        if (!abb_nodo_swap(actual, nuevo, true, true)) return false;
+        if (!abb_nodo_swap(actual, nuevo, NULL, true, true)) return false;
         abb->cantidad++;
         return true;
     } else if (abb->cmp(clave, actual->clave) < 0) {
@@ -280,10 +284,145 @@ void* abb_borrar_2_nodos(abb_t* abb, const char* clave, bool izq) {
 } 
 
 
+// AUXILIAR
+void* abb_borrar_raiz_1_hijo(abb_t* abb, bool izq) {
+    abb_nodo_t* aux = izq ? abb->raiz->izq : abb->raiz->der;
+
+    void* dato_borrado = abb_nodo_destruir(abb->raiz, abb->destruir_dato);
+    abb->raiz = aux;
+
+    return dato_borrado;
+}
+
+
+// AUXILIAR
+// Me dan un nodo X y busco el nodo mas grande del subarbol izquierdo de X
+// Avanzo 1 a la izquierda de X y luego todo hacia la derecha hasta que ya no tenga hijo derecho
+abb_nodo_t* abb_buscar_maximo_izq(abb_nodo_t* nodo, abb_nodo_t** padre_nodo)  {
+
+    nodo = nodo->izq;
+
+    while (nodo->der) {
+        padre_nodo = &nodo;
+        nodo = nodo->der;
+    }
+
+    return nodo;
+}
+
+
+// AUXILIAR
+void* abb_borrar_2_hijos(abb_nodo_t* nodo, destr_t destruir_dato) {
+
+    void* dato_borrado = nodo->dato;
+
+    // Como ya sabemos que el nodo tiene 2 hijos, preguntamos directamente si el hijo izquierdo tiene hijo derecho
+
+    // Si el hijo izquierdo no tiene hijo derecho, entonces sera el reemplazante de su padre
+        // El subarbol izquierdo del hijo izquierdo se conserva
+        // El subarbol derecho del hijo izquierdo sera heredado de su padre
+
+    if (!nodo->izq->der) {
+        return abb_nodo_swap(nodo, nodo->izq, destruir_dato, true, false) ? dato_borrado : NULL;
+    }
+
+    // Si el hijo izquierdo tiene hijo derecho, entonces buscamos su hijo lo mas a la derecha posible
+
+    abb_nodo_t* padre_maximo_izq = NULL;
+    abb_nodo_t* maximo_izq = abb_buscar_maximo_izq(nodo, &padre_maximo_izq);
+
+    // Ese hijo todo a la derecha (lo llamamos 'maximo_izq') sera el reemplazante del nodo que queriamos borrar
+        // Si 'maximo_izq' no tiene hijo izquierdo, lo sacamos directo y lo colocamos donde queremos borrar el nodo, el padre de 'maximo_izq' ahora apunta a NULL
+        // Si 'maximo_izq' tiene hijo izquierdo, hacemos el traspaso de ese hijo al padre de 'maximo_izq'
+
+    padre_maximo_izq->der = maximo_izq->izq ? maximo_izq->izq : NULL;
+
+
+    return abb_nodo_swap(nodo, maximo_izq, destruir_dato, false, false) ? dato_borrado : NULL;
+} 
+
+
+// AUXILIAR
+void* abb_borrar_hoja(abb_nodo_t* nodo, abb_nodo_t* padre_nodo, cmp_t cmp, destr_t destruir_dato) {
+
+    if (cmp(nodo->clave, padre_nodo->clave) < 0) {
+        padre_nodo->izq = NULL;
+    } else {
+        padre_nodo->der = NULL;
+    }
+
+    return abb_nodo_destruir(nodo, destruir_dato);
+}
+
+
+// AUXILIAR
+void* abb_borrar_1_hijo(abb_nodo_t* nodo, abb_nodo_t* padre_nodo, cmp_t cmp, destr_t destruir_dato) {
+
+    // Hay 4 casos:
+
+    if ( cmp(nodo->clave, padre_nodo->izq->clave) < 0  &&  nodo->izq ) {
+
+        // El nodo es hijo izquierdo y tiene hijo izquierdo
+        padre_nodo->izq = nodo->izq;
+
+    } else if ( cmp(nodo->clave, padre_nodo->izq->clave) < 0  &&  nodo->der ) {
+
+        // El nodo es hijo izquierdo y tiene hijo derecho
+        padre_nodo->izq = nodo->der;
+
+    } else if ( cmp(nodo->clave, padre_nodo->izq->clave) > 0  &&  nodo->izq ) {
+
+        // El nodo es hijo derecho y tiene hijo izquierdo
+        padre_nodo->der = nodo->izq;
+
+    } else {
+
+        // El nodo es hijo derecho y tiene hijo derecho 
+        padre_nodo->der = nodo->der;
+        
+    }
+
+    return abb_nodo_destruir(nodo, destruir_dato);
+}
+
+
 // AUXILIAR 
 void* abb_borrar_x(abb_t* abb, const char* clave) {
-    //...
-    return NULL;
+    
+    abb_nodo_t* padre_encontrado = NULL;
+    abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &padre_encontrado);
+
+    if (encontrado == abb->raiz) {
+        
+        if (!abb->raiz->der) {
+
+            // Si no tiene subarbol del lado derecho, el hijo izquierdo pasa a ser la nueva raiz
+            return abb_borrar_raiz_1_hijo(abb, true); 
+
+        } else if (!abb->raiz->izq) {
+
+            // Si no tiene subarbol del lado izquierdo, el hijo derecho pasa a ser la nueva raiz
+            return abb_borrar_raiz_1_hijo(abb, false); 
+
+        }
+
+        // Si tiene los dos, reemplazamos la raiz con el hijo mas grande del subarbol izquierdo
+        return abb_borrar_2_hijos(abb->raiz, abb->destruir_dato);   
+
+    } else if (!encontrado->izq && !encontrado->der) { 
+
+        // pregunto si el nodo encontrado es una hoja (tiene 0 hijos)
+        return abb_borrar_hoja(encontrado, padre_encontrado, abb->cmp, abb->destruir_dato);   
+              
+    } else if ((encontrado->izq && !encontrado->der) || (!encontrado->izq && encontrado->der)) { 
+
+        // pregunto si el nodo es interno y tiene 1 hijo
+        return abb_borrar_1_hijo(encontrado, padre_encontrado, abb->cmp, abb->destruir_dato);                                                      
+
+    }
+
+    //...cuando el nodo es interno y tiene 2 hijos
+    return abb_borrar_2_hijos(encontrado, abb->destruir_dato);  
 }
 
 
