@@ -22,12 +22,8 @@ void pruebas_lista_vacia() {
 }
 
 
-void pruebas_unitarias_lista() {
+void pruebas_unitarias_lista_crear(lista_t* lista, int* x[]) {
     printf("---------------------------------------------/PRUEBAS UNITARIAS LISTA - CREAR/---------------------------------------------\n");
-    lista_t* lista = lista_crear();
-
-    int num[] = {12,32,44};
-    int* x[] = {&num[0], &num[1], &num[2]};
 
     print_test("Se pudo insertar el primer elemento en la lista al final", lista_insertar_ultimo(lista, x[0]));
     print_test("El primer elemento insertado es el correcto", *(int*)lista_ver_ultimo(lista) == *x[0]);
@@ -40,7 +36,10 @@ void pruebas_unitarias_lista() {
     print_test("Se pudo insertar el tercer elemento en la lista al final", lista_insertar_ultimo(lista, x[2]));
     print_test("El tercer elemento insertado es el correcto", *(int*)lista_ver_ultimo(lista) == *x[2]);
     print_test("El tamanio de la lista es 3", lista_largo(lista) == 3);
+}
 
+
+void pruebas_unitarias_lista_borrar(lista_t* lista, int* x[]) {
     printf("---------------------------------------------/PRUEBAS UNITARIAS LISTA - BORRAR/---------------------------------------------\n");
     
     print_test("Se pudo borrar el primer elemento de la lista", *(int*)lista_borrar_primero(lista) == *x[0]);
@@ -53,6 +52,18 @@ void pruebas_unitarias_lista() {
     print_test("El tamanio de la lista es 1", lista_largo(lista) == 0);
 
     print_test("La lista esta vacia", lista_esta_vacia(lista));
+}
+
+
+void pruebas_unitarias_lista() {
+
+    lista_t* lista = lista_crear();
+
+    int num[] = {12,32,44};
+    int* x[] = {&num[0], &num[1], &num[2]};
+
+    pruebas_unitarias_lista_crear(lista, x);
+    pruebas_unitarias_lista_borrar(lista, x);
 
     lista_destruir(lista, NULL);
 }
@@ -164,7 +175,7 @@ void lista_llenar(lista_t* lista, int** numeros, size_t n) {
 }
 
 
-void pruebas_iterador_externo_3() {
+void pruebas_iterador_externo_en_medio() {
     printf("---------------------------------------------/PRUEBAS DE ITERADOR EXTERNO LISTA - MEDIO LISTA/---------------------------------------------\n");
     lista_t* lista = lista_crear();
     int* num = obtener_numeros(N);
@@ -173,16 +184,17 @@ void pruebas_iterador_externo_3() {
     lista_iter_t* iter = lista_iter_crear(lista);
 
     size_t pos_arbitraria = (2/3) * N;
-    int i = -1;
+    int i = 0;
     int w = 666;
 
     while (!lista_iter_al_final(iter)) {
-        i++;
+        
         if (i == pos_arbitraria) {
             lista_iter_insertar(iter, &w);
             break;
         }
         lista_iter_avanzar(iter);
+        i++;
     }
     
     print_test("El elemento se inserto en el medio de la lista correctamente", lista_iter_ver_actual(iter) == &w);
@@ -209,7 +221,7 @@ void pruebas_iterador_externo_3() {
 }
 
 
-void pruebas_iterador_externo_2() {
+void pruebas_iterador_externo_al_final() {
     printf("---------------------------------------------/PRUEBAS DE ITERADOR EXTERNO LISTA - FINAL LISTA/---------------------------------------------\n");
     lista_t* lista = lista_crear();
     int* num = obtener_numeros(N);
@@ -239,7 +251,7 @@ void pruebas_iterador_externo_2() {
 }
 
 
-void pruebas_iterador_externo() {
+void pruebas_iterador_externo_al_inicio() {
     printf("---------------------------------------------/PRUEBAS DE ITERADOR EXTERNO LISTA - PRINCIPIO LISTA/---------------------------------------------\n");
     lista_t* lista = lista_crear();
     int* num = obtener_numeros(N);
@@ -312,9 +324,9 @@ void pruebas_lista_estudiante() {
     pruebas_unitarias_lista();
     pruebas_volumen_lista();
     pruebas_iterador_interno();
-    pruebas_iterador_externo();
-    pruebas_iterador_externo_2();
-    pruebas_iterador_externo_3();
+    pruebas_iterador_externo_al_inicio();
+    pruebas_iterador_externo_al_final();
+    pruebas_iterador_externo_en_medio();
     pruebas_destruir_lista();
 }
 

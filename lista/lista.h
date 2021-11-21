@@ -42,7 +42,7 @@ bool lista_insertar_primero(lista_t *lista, void *dato);
 bool lista_insertar_ultimo(lista_t *lista, void *dato);
 
 // Se elimina el primer elemento de la lista. Devuelve el elemento eliminado, en caso
-// de no estar vacía devuelve NULL.
+// de estar vacía devuelve NULL.
 // Pre: la lista fue creada.
 // Post: la lista tiene todos los elementos a excepcion del primero.
 void *lista_borrar_primero(lista_t *lista);

@@ -63,11 +63,11 @@ bool lista_esta_vacia(const lista_t *lista) {
 
 bool lista_insertar_primero(lista_t *lista, void *dato) {
     
-  //nodo_t *nuevo_nodo = _crear_nodo(dato, lista->primer_elemento);
   nodo_t* nuevo_nodo = crear_nodo(dato, lista->primer_elemento);
 
-  if (!nuevo_nodo)
-    return false;
+  if (!nuevo_nodo) {
+      return false;
+  }
   if (lista_esta_vacia(lista))
   {
     lista->ultimo_elemento = nuevo_nodo;
@@ -132,15 +132,12 @@ size_t lista_largo(const lista_t *lista) {
 
 
 void lista_destruir(lista_t *lista, void (*destruir_dato)(void *)) {
-    nodo_t *nodo_actual = lista->primer_elemento;
-    
-    while (nodo_actual){
-        nodo_t *nodo_proximo = nodo_actual->siguiente_nodo;
-        if (destruir_dato){
-            destruir_dato(nodo_actual->dato);
+    while(!lista_esta_vacia(lista)) {
+        void* dato = lista_ver_primero(lista);
+        if (destruir_dato) {
+            destruir_dato(dato);
         }
-        free(nodo_actual);
-        nodo_actual = nodo_proximo;
+        lista_borrar_primero(lista);
     }
     free(lista);
 }
@@ -217,15 +214,15 @@ void lista_iter_destruir(lista_iter_t* iterador) {
 }
 
 
-// Función auxiliar. No aparece en el punto h. Pre: el iterador existe.
+// Función auxiliar. Pre: el iterador existe.
 bool lista_iter_al_principio(lista_iter_t* iter) {
 
     return iter->nodo_anterior == NULL;
 }
 
 
-// Función auxiliar. No aparece en el punto h. Pre: el iterador existe.
-void lista_iter_insertar_medio(lista_iter_t* iter, void* dato) {
+// Función auxiliar. Pre: el iterador existe.
+void lista_iter_insertar_actual(lista_iter_t* iter, void* dato) {
 
     nodo_t* nuevo_nodo = crear_nodo(dato, iter->nodo_actual);
 
@@ -266,7 +263,7 @@ bool lista_iter_insertar(lista_iter_t* iter, void* dato) {
     }
 
     // Elemento en el medio de la lista
-    lista_iter_insertar_medio(iter, dato);
+    lista_iter_insertar_actual(iter, dato);
 
     return true;
 }
@@ -296,12 +293,6 @@ void* lista_iter_borrar_ultimo(lista_iter_t* iter) {
     iter->nodo_actual = NULL;
     iter->lista->ultimo_elemento = iter->nodo_anterior;
     iter->lista->largo--;
-
-    // if (lista_largo(iter->lista) == 0) {
-    //     iter->nodo_anterior = NULL;
-    //     iter->lista->primer_elemento = NULL;
-    //     iter->lista->ultimo_elemento = NULL;
-    // }
 
     return dato_elim;
 }
