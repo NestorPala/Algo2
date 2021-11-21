@@ -107,7 +107,7 @@ void pruebas_unitarias() {
                 "cane", "maro", "tomi", "tara", "sisi"};
 
     //size_t cant = sizeof(num) * 2 / sizeof(int*);
-    size_t cant = 5;
+    size_t cant = 8;
 
     int** x = crear_arreglo_numeros(num, cant);
 

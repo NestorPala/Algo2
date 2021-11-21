@@ -74,7 +74,7 @@ abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, ab
         return actual;
     }
 
-    if (padre && actual->izq && actual->der) {
+    if (actual->izq && actual->der) {
         *padre = actual;
     }
 
@@ -250,15 +250,17 @@ bool abb_guardar(abb_t *abb, const char *clave, void *dato) {
 
 
 void *abb_obtener(const abb_t *abb, const char *clave) {
-    if (!abb || !clave) return NULL;
-    abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, NULL);
+    if (!abb || !clave || abb->cantidad == 0) return NULL;
+    abb_nodo_t* aux = abb->raiz;
+    abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &aux);
     return encontrado ? encontrado->dato : NULL;
 }
 
 
 bool abb_pertenece(const abb_t *abb, const char *clave) {
-    if (!abb || !clave) return false;
-    return abb_nodo_buscar(abb->raiz, clave, abb->cmp, NULL) ? true : false;
+    if (!abb || !clave || abb->cantidad == 0) return false;
+    abb_nodo_t* aux = abb->raiz;
+    return abb_nodo_buscar(abb->raiz, clave, abb->cmp, &aux) ? true : false;
 }
 
 
@@ -425,7 +427,7 @@ void* abb_borrar_1_hijo(abb_nodo_t* nodo, abb_nodo_t* padre_nodo, cmp_t cmp, des
 // AUXILIAR 
 void* abb_borrar_x(abb_t* abb, const char* clave) {
     
-    abb_nodo_t* padre_encontrado = NULL;
+    abb_nodo_t* padre_encontrado = abb->raiz;
     abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &padre_encontrado);
 
     if (encontrado == abb->raiz) {
