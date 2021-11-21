@@ -5,59 +5,50 @@
 #include <stdlib.h> //rand()
 #include <string.h> //strcmp()
 #include <stdbool.h>
+#include "generador.h" //archivo propio
 
 
 /***********************************************************************************/
 
 // Cantidad masiva de pruebas
-const size_t N = 10000;
+const size_t N = 2000;
 
 /***********************************************************************************/
 
 
-void printb(bool a) {
-    a ? printf("TRUE\n") : printf("FALSE\n");
-}
-
-
-void obtenemos(abb_t* abb, char* claves[], size_t n) {
+bool obtenemos(abb_t* abb, char** claves, int** valores, size_t n) {
     for (size_t i=0; i<n; i++) {
-        void* elemento = abb_obtener(abb, claves[i]);
-        elemento ? printf("\n%s: %d", claves[i], *(int*)elemento) : printf("\n%s: NULL", claves[i]);
+        if (*(int*)abb_obtener(abb, claves[i]) != *valores[i]) {
+            return false;
+        }
     }
+    return true;
 }
 
 
-void pertenencia(abb_t* abb, char* clave) {
-    printf("\nLA CLAVE '%s' PERTENECE AL abb   >>>  ", clave);
-    printb(abb_pertenece(abb, clave));
-}
-
-
-void borramos(abb_t* abb, char* claves[], size_t n) {
+bool pertenencia(abb_t* abb, char** claves, size_t n) {
     for (size_t i=0; i<n; i++) {
-
-        printf("\n----------------------------------------------- BORRANDO '%s' -----------------------------------------------", claves[i]);
-        void* borrado = abb_borrar(abb, claves[i]);
-
-        printf("\nSE HA BORRADO: '%s'", claves[i]);
-        printf("\nEL DATO BORRADO FUE: ");
-        borrado ? printf("%d", *(int*)borrado) : printf("NULL");
-
-        printf("\nCANTIDAD DE ELEMENTOS: %zu", abb_cantidad(abb));
-
-        pertenencia(abb, claves[i]);
-    }   
-}
-
-
-void guardamos(abb_t* abb, char* claves[], int** numeros, size_t n) {
-    for (size_t i=0; i<n; i++) {
-        printf("\nGUARDANDO: %s\n", claves[i]);
-        printb(abb_guardar(abb, claves[i], numeros[i]));
-        printf("CANTIDAD DE ELEMENTOS: %zu", abb_cantidad(abb));
-        pertenencia(abb, claves[i]);
+        if (!abb_pertenece(abb, claves[i])) return false;
     }
+    return true;
+}
+
+
+bool borramos(abb_t* abb, char** claves, int** valores, size_t n) {
+    for (size_t i=0; i<n; i++) {
+        if (*(int*)abb_borrar(abb, claves[i]) != *valores[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool guardamos(abb_t* abb, char** claves, int** valores, size_t n) {
+    for (size_t i=0; i<n; i++) {
+        if (!abb_guardar(abb, claves[i], valores[i])) return false;
+    }
+    return true;
 }
 
 
@@ -76,11 +67,68 @@ void guardamos(abb_t* abb, char* claves[], int** numeros, size_t n) {
 // }
 
 
-int** crear_arreglo_numeros(int numeros[], size_t n) {
-    int** arr = malloc(n * sizeof(int*));
-    if (!arr) return NULL;
-    for (size_t i=0; i<n; i++) arr[i] = &numeros[i];
-    return arr;
+
+void pruebas_volumen() {
+    
+    abb_t* abb = abb_crear(strcmp, NULL);
+    size_t cant = N;
+
+    char** claves = arreglo_cadenas_crear(cant);
+    int** valores = arreglo_numeros_crear(cant);
+
+    bool todos_guardados = guardamos(abb, claves, valores, cant);
+    print_test("Se pudieron guardar todos los elementos en el árbol: ", todos_guardados);
+
+    bool todos_pertenecen = pertenencia(abb, claves, cant);
+    print_test("Todos los elementos guardados pertenecen al árbol: ", todos_pertenecen);
+
+    bool todos_obtenidos = obtenemos(abb, claves, valores, cant);
+    print_test("Todos los elementos del árbol se pueden ver: ", todos_obtenidos);
+
+    //probamos_iterador(abb);
+
+    bool todos_borrados = borramos(abb, claves, valores, cant);
+    print_test("SE BORRARON TODOS LOS ELEMENTOS DEL ABB  >>>  ", todos_borrados);
+
+    abb_destruir(abb);
+    arreglo_numeros_destruir(valores, cant);
+    arreglo_cadenas_destruir(claves, cant);
+}
+
+
+void pruebas_unitarias() {
+    
+    abb_t* abb = abb_crear(strcmp, NULL);
+
+    char* claves[] = {"pepe", "carl", "soto", "este", "fred", 
+                      "mari", "jose", "toma", "ceci", "casp",
+                      "cane", "maro", "tomi", "tara", "sisi"};
+
+    int val[] = {12, 32, 43, -99, 126, 
+                45, 65, 177, 277, 144, 
+                -2, 345, 7, 65, -3231};
+
+    size_t cant = sizeof(val) * 2 / sizeof(int*); //size_t cant = 15;
+
+    int** valores = malloc(cant * sizeof(int*));
+    for (size_t i=0; i<cant; i++) valores[i] = &val[i];
+
+    bool todos_guardados = guardamos(abb, claves, valores, cant);
+    print_test("Se pudieron guardar todos los elementos en el árbol: ", todos_guardados);
+
+    bool todos_pertenecen = pertenencia(abb, claves, cant);
+    print_test("Todos los elementos guardados pertenecen al árbol: ", todos_pertenecen);
+
+    bool todos_obtenidos = obtenemos(abb, claves, valores, cant);
+    print_test("Todos los elementos del árbol se pueden ver: ", todos_obtenidos);
+
+    //probamos_iterador(abb);
+
+    bool todos_borrados = borramos(abb, claves, valores, cant);
+    print_test("SE BORRARON TODOS LOS ELEMENTOS DEL ABB  >>>  ", todos_borrados);
+
+    abb_destruir(abb);
+    free(valores);
 }
 
 
@@ -94,45 +142,18 @@ void pruebas_abb_vacio() {
 }
 
 
-void pruebas_unitarias() {
-    
-    abb_t* abb = abb_crear(strcmp, NULL);
-
-    int num[] = {12, 32, 43, -99, 126, 
-                45, 65, 177, 277, 144, 
-                -2, 345, 7, 65, -3231};
-
-    char* claves[] = {
-                "pepe", "carl", "soto", "este", "fred", 
-                "mari", "jose", "toma", "ceci", "casp",
-                "cane", "maro", "tomi", "tara", "sisi"};
-
-    //size_t cant = sizeof(num) * 2 / sizeof(int*);
-    size_t cant = sizeof(num) * 2 / sizeof(int*);
-
-    int** x = crear_arreglo_numeros(num, cant);
-
-    guardamos(abb, claves, x, cant);
-    printf("\n\n");
-    obtenemos(abb, claves, cant);
-    //probamos_iterador(abb);
-    printf("\n\n");
-    borramos(abb, claves, cant);
-    printf("\n\n");
-
-    abb_destruir(abb);
-    free(x);
-}
-
-
 /***********************************************************************************/
+
 
 void pruebas_abb_estudiante() {
     pruebas_abb_vacio();
     pruebas_unitarias();
+    pruebas_volumen();
 }
 
+
 /***********************************************************************************/
+
 /*
  * Función main() que llama a la función de pruebas.
  */
