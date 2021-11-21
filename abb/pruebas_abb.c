@@ -36,8 +36,10 @@ void pertenencia(abb_t* abb, char* clave) {
 
 void borramos(abb_t* abb, char* claves[], size_t n) {
     for (size_t i=0; i<n; i++) {
-        void* borrado = abb_borrar(abb, claves[i]);
+
         printf("\nBORRANDO '%s'", claves[i]);
+        void* borrado = abb_borrar(abb, claves[i]);
+
         printf("\nEL DATO BORRADO FUE: ");
         borrado ? printf("%d", *(int*)borrado) : printf("NULL");
 
@@ -97,15 +99,15 @@ void pruebas_unitarias() {
 
     int num[] = {12, 32, 43, -99, 126, 
                 45, 65, 177, 277, 144, 
-                -2, 345, 7, 65};
+                -2, 345, 7, 65, -3231};
 
     char* claves[] = {
-                "pepe", "carl", "soto", "estefania", "freddy", 
-                "mariana", "jose", "tomas", "cecilio", "casper",
-                "cane", "maro", "tomi", "tara"};
+                "pepe", "carl", "soto", "este", "fred", 
+                "mari", "jose", "toma", "ceci", "casp",
+                "cane", "maro", "tomi", "tara", "sisi"};
 
-    size_t cant = sizeof(num) * 2 / sizeof(int*);
-    //size_t cant = 3;
+    //size_t cant = sizeof(num) * 2 / sizeof(int*);
+    size_t cant = 4;
 
     int** x = crear_arreglo_numeros(num, cant);
 

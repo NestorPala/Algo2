@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <string.h> //strcpy(), strcmp()
 #include "pila.h"  //para el iterador externo
+#include <stdio.h> ////debug
 
 
 typedef struct abb_nodo abb_nodo_t;
@@ -278,6 +279,12 @@ void* abb_borrar_2_nodos(abb_t* abb, const char* clave, bool izq) {
         abb->raiz = aux;
     } else {
         dato_borrado = abb_nodo_destruir(aux, abb->destruir_dato);
+
+        if (izq) {
+            abb->raiz->izq = NULL;
+        } else {
+            abb->raiz->der = NULL;
+        }
     }
 
     return dato_borrado;
@@ -303,7 +310,7 @@ abb_nodo_t* abb_buscar_maximo_izq(abb_nodo_t* nodo, abb_nodo_t** padre_nodo)  {
     nodo = nodo->izq;
 
     while (nodo->der) {
-        padre_nodo = &nodo;
+        *padre_nodo = nodo;
         nodo = nodo->der;
     }
 
@@ -335,8 +342,18 @@ void* abb_borrar_2_hijos(abb_nodo_t* nodo, destr_t destruir_dato) {
         // Si 'maximo_izq' no tiene hijo izquierdo, lo sacamos directo y lo colocamos donde queremos borrar el nodo, el padre de 'maximo_izq' ahora apunta a NULL
         // Si 'maximo_izq' tiene hijo izquierdo, hacemos el traspaso de ese hijo al padre de 'maximo_izq'
 
-    padre_maximo_izq->der = maximo_izq->izq ? maximo_izq->izq : NULL;
 
+    // DEBUG
+    padre_maximo_izq ? printf("\n\n\nPADRE MAXIMO ABB IZQ\n%s: %d\n\n\n", 
+                                padre_maximo_izq->clave, *(int*)(padre_maximo_izq->dato)) 
+                     : printf("\nNULL");
+
+
+    if (maximo_izq->izq) {
+        padre_maximo_izq->der = maximo_izq->izq;
+    } else {
+        padre_maximo_izq->der = NULL;
+    }
 
     return abb_nodo_swap(nodo, maximo_izq, destruir_dato, false, false) ? dato_borrado : NULL;
 } 
