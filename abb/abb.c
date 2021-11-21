@@ -74,7 +74,7 @@ abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, ab
         return actual;
     }
 
-    if (actual->izq && actual->der) {
+    if (actual->izq || actual->der) {
         *padre = actual;
     }
 
@@ -332,6 +332,8 @@ void abb_nodo_debug(abb_nodo_t* nodo, const char* nombre_nodo) {
 // AUXILIAR
 void* abb_borrar_2_hijos(abb_nodo_t* nodo, destr_t destruir_dato) {
 
+    abb_nodo_debug(nodo, "NODO CON 2 HIJOS A BORRAR"); ///DEBUG
+
     void* dato_borrado = nodo->dato;
 
     // Como ya sabemos que el nodo tiene 2 hijos, preguntamos directamente si el hijo izquierdo tiene hijo derecho
@@ -341,8 +343,11 @@ void* abb_borrar_2_hijos(abb_nodo_t* nodo, destr_t destruir_dato) {
         // El subarbol derecho del hijo izquierdo sera heredado de su padre
 
     if (!nodo->izq->der) {
+        abb_nodo_debug(nodo, "EL HIJO IZQ DEL NODO NO TIENE HIJO DERECHO"); ///DEBUG
         return abb_nodo_swap(nodo, nodo->izq, destruir_dato, true, false) ? dato_borrado : NULL;
     }
+
+    abb_nodo_debug(nodo, "EL HIJO IZQ DEL NODO TIENE HIJO DERECHO"); ///DEBUG
 
     // Si el hijo izquierdo tiene hijo derecho, entonces buscamos su hijo lo mas a la derecha posible
 
@@ -354,8 +359,8 @@ void* abb_borrar_2_hijos(abb_nodo_t* nodo, destr_t destruir_dato) {
         // Si 'maximo_izq' tiene hijo izquierdo, hacemos el traspaso de ese hijo al padre de 'maximo_izq'
 
 
-    abb_nodo_debug(padre_maximo_izq, "PADRE MAXIMO ABB IZQ"); //debug
     abb_nodo_debug(maximo_izq, "MAXIMO ABB IZQ"); //debug
+    abb_nodo_debug(padre_maximo_izq, "PADRE MAXIMO ABB IZQ"); //debug
 
 
     if (maximo_izq->izq) {
@@ -371,6 +376,11 @@ void* abb_borrar_2_hijos(abb_nodo_t* nodo, destr_t destruir_dato) {
 // AUXILIAR
 void* abb_borrar_hoja(abb_nodo_t* nodo, abb_nodo_t* padre_nodo, cmp_t cmp, destr_t destruir_dato) {
 
+    abb_nodo_debug(nodo, "NODO HOJA ACTUAL A BORRAR"); ///DEBUG
+    abb_nodo_debug(padre_nodo, "PADRE DEL NODO HOJA ACTUAL A BORRAR"); ///DEBUG
+    abb_nodo_debug(nodo->izq, "HIJO IZQ DEL NODO HOJA ACTUAL A BORRAR"); ///DEBUG
+    abb_nodo_debug(nodo->izq, "HIJO DER DEL NODO HOJA ACTUAL A BORRAR"); ///DEBUG
+
     if (cmp(nodo->clave, padre_nodo->clave) < 0) {
         padre_nodo->izq = NULL;
     } else {
@@ -385,8 +395,8 @@ void* abb_borrar_hoja(abb_nodo_t* nodo, abb_nodo_t* padre_nodo, cmp_t cmp, destr
 void* abb_borrar_1_hijo(abb_nodo_t* nodo, abb_nodo_t* padre_nodo, cmp_t cmp, destr_t destruir_dato) {
 
 
-    abb_nodo_debug(padre_nodo, "PADRE DEL NODO INTERNO (A BORRAR) CON 1 HIJO"); //DEBUG
     abb_nodo_debug(nodo, "NODO INTERNO (A BORRAR) CON 1 HIJO"); //DEBUG
+    abb_nodo_debug(padre_nodo, "PADRE DEL NODO INTERNO (A BORRAR) CON 1 HIJO"); //DEBUG
     abb_nodo_debug(nodo->izq, "HIJO IZQ DEL NODO INTERNO"); //DEBUG
     abb_nodo_debug(nodo->der, "HIJO DER DEL NODO INTERNO"); //DEBUG
     
@@ -429,6 +439,11 @@ void* abb_borrar_x(abb_t* abb, const char* clave) {
     
     abb_nodo_t* padre_encontrado = abb->raiz;
     abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &padre_encontrado);
+    
+    printf("\nABB_BORRAR_X"); ///debug
+    printf("\nABB_BORRAR_X:\tVAMOS A BORRAR LA CLAVE: '%s'", clave); ///debug
+    abb_nodo_debug(encontrado, "ABB_BORRAR_X:\tNODO ENCONTRADO"); ///debug
+    abb_nodo_debug(padre_encontrado, "ABB_BORRAR_X:\tPADRE NODO ENCONTRADO"); ///debug
 
     if (encontrado == abb->raiz) {
         

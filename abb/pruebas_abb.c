@@ -40,6 +40,7 @@ void borramos(abb_t* abb, char* claves[], size_t n) {
         printf("\n----------------------------------------------- BORRANDO '%s' -----------------------------------------------", claves[i]);
         void* borrado = abb_borrar(abb, claves[i]);
 
+        printf("\nSE HA BORRADO: '%s'", claves[i]);
         printf("\nEL DATO BORRADO FUE: ");
         borrado ? printf("%d", *(int*)borrado) : printf("NULL");
 
@@ -107,7 +108,7 @@ void pruebas_unitarias() {
                 "cane", "maro", "tomi", "tara", "sisi"};
 
     //size_t cant = sizeof(num) * 2 / sizeof(int*);
-    size_t cant = 8;
+    size_t cant = sizeof(num) * 2 / sizeof(int*);
 
     int** x = crear_arreglo_numeros(num, cant);
 
