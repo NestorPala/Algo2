@@ -27,7 +27,7 @@ struct abb {
 
 
 struct abb_iter {
-    abb_t* abb;
+    const abb_t* abb;
     pila_t* recursion;
 };
 
@@ -595,14 +595,9 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// struct abb_iter {
-//     abb_t* abb;
-//     pila_t* recursion;
-// };
-
-
-
 abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
+
+    if (!arbol || arbol->cantidad == 0) return NULL;
 
     abb_iter_t* iter = malloc(sizeof(abb_iter_t));
     if (!iter) return NULL;
@@ -615,19 +610,43 @@ abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
         return NULL;
     }
 
+    // Apilo raiz y todos los hijos izquierdos
+    abb_nodo_t* nodo = arbol->raiz;
+
+    while(nodo) {
+        pila_apilar(iter->recursion, nodo);
+        nodo = nodo->izq;
+    }
+
     return iter;
 }
 
 
 bool abb_iter_in_avanzar(abb_iter_t *iter) {
-    //...
-    return false;
+    if (!iter->abb || iter->abb->cantidad == 0 || pila_esta_vacia(iter->recursion)) return false;
+
+    abb_nodo_t* tope = pila_desapilar(iter->recursion);
+    if (!tope) return false;
+
+    if (tope->der) {
+        pila_apilar(iter->recursion, tope->der);
+
+        if (tope->der->izq) {
+            abb_nodo_t* aux = tope->der->izq;
+            while(aux) {
+                pila_apilar(iter->recursion, aux);
+                aux = aux->izq;
+            }
+        }
+    }
+
+    return true;
 }
 
 
 const char *abb_iter_in_ver_actual(const abb_iter_t *iter) {
     if (!iter->abb || iter->abb->cantidad == 0 || pila_esta_vacia(iter->recursion)) return NULL;
-    return ((abb_nodo_t*)pila_desapilar(iter->recursion))->clave;
+    return ((abb_nodo_t*)pila_ver_tope(iter->recursion))->clave;
 }
 
 

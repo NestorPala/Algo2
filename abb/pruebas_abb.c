@@ -52,21 +52,6 @@ bool guardamos(abb_t* abb, char** claves, int** valores, size_t n) {
 }
 
 
-// void probamos_iterador(abb_t* abb) {
-//     printf("\n\n\nPRUEBAS DEL ITERADOR DE abb\n");
-
-//     abb_iter_t* iter = abb_iter_crear(abb);
-//     if (!iter) {printf("NO SE PUDO CREAR EL ITERADOR"); return;}
-
-//     while(!abb_iter_al_final(iter)) {
-//         const char* clave_actual = abb_iter_ver_actual(iter);
-//         if (clave_actual) printf("\nCLAVE: %s", clave_actual);
-//         abb_iter_avanzar(iter);
-//     }
-//     abb_iter_destruir(iter);
-// }
-
-
 // Funcion para probar el iterador interno
 bool sumar(const char* clave, void* dato, void* total) {
     
@@ -74,6 +59,13 @@ bool sumar(const char* clave, void* dato, void* total) {
         *(int*)total += *(int*)dato;
     }
 
+    return true;
+}
+
+
+// Funcion para probar el iterador interno
+bool imprimir(const char* clave, void* dato, void* total) {
+    printf("%s\t", clave);
     return true;
 }
 
@@ -92,6 +84,29 @@ void pruebas_abb(abb_t* abb, char** claves, int** valores, size_t cant) {
 
     bool todos_borrados = borramos(abb, claves, valores, cant);
     print_test("SE BORRARON TODOS LOS ELEMENTOS DEL ABB  >>>  ", todos_borrados);
+}
+
+
+void pruebas_iterador_externo() {
+    abb_t* abb = abb_crear(strcmp, NULL);
+
+    char* claves[] = {"06", "01", "15", "04", "10", "16", "08", "13", "11", "14"};
+    int valores[] =  { 6,   1,   15,   4,   10,   16,   8,   13,   11,   14 };
+
+    for (size_t i=0; i<10; i++) {
+        abb_guardar(abb, claves[i], &valores[i]);
+    }
+
+    abb_iter_t* iter = abb_iter_in_crear(abb);
+
+    while(!abb_iter_in_al_final(iter)) {
+        const char* clave_actual = abb_iter_in_ver_actual(iter);
+        printf("%s\t", clave_actual); ///debug
+        abb_iter_in_avanzar(iter);
+    }
+
+    abb_iter_in_destruir(iter);
+    abb_destruir(abb);
 }
 
 
@@ -230,6 +245,7 @@ void pruebas_abb_estudiante() {
     pruebas_unitarias();
     pruebas_volumen();
     pruebas_iterador_interno();
+    pruebas_iterador_externo();
 }
 
 
