@@ -67,6 +67,17 @@ bool guardamos(abb_t* abb, char** claves, int** valores, size_t n) {
 // }
 
 
+// Funcion para probar el iterador interno
+bool sumar(const char* clave, void* dato, void* total) {
+    
+    if (dato) {
+        *(int*)total += *(int*)dato;
+    }
+
+    return true;
+}
+
+
 void pruebas_abb(abb_t* abb, char** claves, int** valores, size_t cant) {
     bool todos_guardados = guardamos(abb, claves, valores, cant);
     print_test("Se pudieron guardar todos los elementos en el árbol: ", todos_guardados);
@@ -81,6 +92,25 @@ void pruebas_abb(abb_t* abb, char** claves, int** valores, size_t cant) {
 
     bool todos_borrados = borramos(abb, claves, valores, cant);
     print_test("SE BORRARON TODOS LOS ELEMENTOS DEL ABB  >>>  ", todos_borrados);
+}
+
+
+void pruebas_iterador_interno() {
+    printf("\n------------------------------------------ PRUEBAS ITERADOR INTERNO DEL ABB ------------------------------------------\n"); 
+    abb_t* abb = abb_crear(strcmp, NULL);
+
+    int valor1 = 3, valor2 = 5;
+
+    abb_guardar(abb, "pepe", &valor1);
+    abb_guardar(abb, "juan", &valor2);
+
+    int resultado = 0;
+
+    abb_in_order(abb, sumar, &resultado);
+
+    print_test("El iterador interno funciona correctamente: ", resultado == 8);
+
+    abb_destruir(abb);
 }
 
 
@@ -199,6 +229,7 @@ void pruebas_abb_estudiante() {
     pruebas_abb_vacio();
     pruebas_unitarias();
     pruebas_volumen();
+    pruebas_iterador_interno();
 }
 
 

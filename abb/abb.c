@@ -571,15 +571,28 @@ void abb_destruir(abb_t *arbol) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+
 // AUXILIAR
 void abb_in_order_(abb_nodo_t* nodo, bool visitar(const char *, void *, void *), void *extra) {
-    //...
-    return;
+    
+    if (!nodo) {
+        return;
+    }
+
+    abb_in_order_(nodo->izq, visitar, extra);
+    
+    if (!visitar(nodo->clave, nodo->dato, extra)) {
+        return;
+    }
+
+    abb_in_order_(nodo->der, visitar, extra);
 }
+
 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra) {
     return abb_in_order_(arbol->raiz, visitar, extra);
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
