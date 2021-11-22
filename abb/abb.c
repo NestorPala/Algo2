@@ -369,7 +369,7 @@ bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
 
 
 // AUXILIAR
-bool abb_guardar_cantidad_mayor_a_2(abb_nodo_t* actual, abb_t *abb, const char *clave, void *dato) {
+bool abb_guardar_cantidad_mayor_a_1(abb_nodo_t* actual, abb_t *abb, const char *clave, void *dato) {
     
     if (!actual) {
         return false;
@@ -412,7 +412,7 @@ bool abb_guardar_cantidad_mayor_a_2(abb_nodo_t* actual, abb_t *abb, const char *
             abb->cantidad++;
             return true;
         }
-        return abb_guardar_cantidad_mayor_a_2(actual->izq, abb, clave, dato);
+        return abb_guardar_cantidad_mayor_a_1(actual->izq, abb, clave, dato);
     } else {
         if (!actual->der) {
             abb_nodo_t* nuevo = abb_nodo_crear(NULL, NULL, clave, dato);
@@ -423,7 +423,7 @@ bool abb_guardar_cantidad_mayor_a_2(abb_nodo_t* actual, abb_t *abb, const char *
             abb->cantidad++;
             return true;
         }
-        return abb_guardar_cantidad_mayor_a_2(actual->der, abb, clave, dato);
+        return abb_guardar_cantidad_mayor_a_1(actual->der, abb, clave, dato);
     }
 }
 
@@ -431,7 +431,7 @@ bool abb_guardar_cantidad_mayor_a_2(abb_nodo_t* actual, abb_t *abb, const char *
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
-abb_t* abb_crear(cmp_t cmp, destr_t destruir_dato) {
+abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato) {
 
     // La función de comparación es vital; si el usuario no la pasa, no hacemos nada
     if (!cmp) {
@@ -478,7 +478,7 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato) {
 
     abb_nodo_destruir(nuevo_nodo, NULL);
 
-    return abb_guardar_cantidad_mayor_a_2(arbol->raiz, arbol, clave, dato);
+    return abb_guardar_cantidad_mayor_a_1(arbol->raiz, arbol, clave, dato);
 }
 
 
