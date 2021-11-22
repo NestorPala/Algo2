@@ -63,13 +63,6 @@ bool sumar(const char* clave, void* dato, void* total) {
 }
 
 
-// Funcion para probar el iterador interno
-bool imprimir(const char* clave, void* dato, void* total) {
-    printf("%s\t", clave);
-    return true;
-}
-
-
 void pruebas_abb(abb_t* abb, char** claves, int** valores, size_t cant) {
     bool todos_guardados = guardamos(abb, claves, valores, cant);
     print_test("Se pudieron guardar todos los elementos en el árbol: ", todos_guardados);
@@ -80,30 +73,48 @@ void pruebas_abb(abb_t* abb, char** claves, int** valores, size_t cant) {
     bool todos_obtenidos = obtenemos(abb, claves, valores, cant);
     print_test("Todos los elementos del árbol se pueden ver: ", todos_obtenidos);
 
-    //probamos_iterador(abb);
-
     bool todos_borrados = borramos(abb, claves, valores, cant);
     print_test("SE BORRARON TODOS LOS ELEMENTOS DEL ABB  >>>  ", todos_borrados);
 }
 
 
 void pruebas_iterador_externo() {
+    printf("\n------------------------------------------ PRUEBAS ITERADOR EXTERNO DEL ABB ------------------------------------------\n"); 
     abb_t* abb = abb_crear(strcmp, NULL);
 
     char* claves[] = {"06", "01", "15", "04", "10", "16", "08", "13", "11", "14"};
-    int valores[] =  { 6,   1,   15,   4,   10,   16,   8,   13,   11,   14 };
+    int valores[] =  {  6,    1,   15,    4,   10,   16,    8,   13,   11,   14 };
 
     for (size_t i=0; i<10; i++) {
         abb_guardar(abb, claves[i], &valores[i]);
     }
 
     abb_iter_t* iter = abb_iter_in_crear(abb);
+    size_t visitados = 0;
+    bool iter_todos = true, iter_orden = true;
+
+    const char* aux = abb_iter_in_ver_actual(iter);
+    print_test("El iterador externo comienza apuntado al elemento mas a la izquierda de la raiz: ", strcmp(aux, "01") == 0);
 
     while(!abb_iter_in_al_final(iter)) {
         const char* clave_actual = abb_iter_in_ver_actual(iter);
-        printf("%s\t", clave_actual); ///debug
         abb_iter_in_avanzar(iter);
+        visitados++;
+        const char* clave_siguiente = abb_iter_in_ver_actual(iter);
+
+        if (!abb_iter_in_al_final(iter)) {
+            if (strcmp(clave_siguiente, clave_actual) < 0) {
+                iter_orden = false;
+            }
+        }
     }
+
+    if (visitados != 10) {
+        iter_todos = false;
+    }
+
+    print_test("El iterador externo recorre todos los elementos: ", iter_todos);
+    print_test("Todos los elementos estan en orden (el recorrido es efectivamente INORDER): ", iter_orden);
 
     abb_iter_in_destruir(iter);
     abb_destruir(abb);
@@ -112,19 +123,26 @@ void pruebas_iterador_externo() {
 
 void pruebas_iterador_interno() {
     printf("\n------------------------------------------ PRUEBAS ITERADOR INTERNO DEL ABB ------------------------------------------\n"); 
+
     abb_t* abb = abb_crear(strcmp, NULL);
 
-    int valor1 = 3, valor2 = 5;
+    char** claves = arreglo_cadenas_crear(100);
+    int** valores = arreglo_numeros_crear(100);
+    int resultado_inorder = 0, resultado_real = 0;
 
-    abb_guardar(abb, "pepe", &valor1);
-    abb_guardar(abb, "juan", &valor2);
+    for (size_t i=0; i<100; i++) {
+        resultado_real += *valores[i];
+    }
 
-    int resultado = 0;
+    for (size_t i=0; i<100; i++) {
+        abb_guardar(abb, claves[i], valores[i]);
+    }
 
-    abb_in_order(abb, sumar, &resultado);
+    abb_in_order(abb, sumar, &resultado_inorder);
+    print_test("El iterador interno funciona correctamente: ", resultado_inorder == resultado_real);
 
-    print_test("El iterador interno funciona correctamente: ", resultado == 8);
-
+    arreglo_cadenas_destruir(claves, 100);
+    arreglo_numeros_destruir(valores, 100);
     abb_destruir(abb);
 }
 
