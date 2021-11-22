@@ -173,7 +173,7 @@ void pruebas_unitarias() {
     // ARBOL "INCOMPLETO" 
     char* claves[] = {"pepe", "carl", "soto", "este", "fred", 
                       "mari", "jose", "toma", "ceci", "casp",
-                      "cane", "maro", "tomi", "tara", "sisi"};
+                      "cane", "maro", "tomi", "tara", ""};
     // ARBOL "LISTA"
     char* claves2[] = {"aa", "ab", "ac", "ad", "ae", "ba", "bb", "bc", "bd", "be", "ca", "cb", "cc", "cd", "ce"};
 
