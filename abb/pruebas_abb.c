@@ -78,6 +78,33 @@ void pruebas_abb(abb_t* abb, char** claves, int** valores, size_t cant) {
 }
 
 
+void pruebas_iterador_externo_abb_vacio() {
+    printf("\n-------------------------------------- PRUEBAS ITERADOR EXTERNO CON ABB VACIO --------------------------------------\n"); 
+    abb_t* abb = abb_crear(strcmp, NULL);
+    abb_iter_t* iter = abb_iter_in_crear(abb);
+
+    print_test("Se creó con éxito el iterador: ", iter);
+    print_test("El iterador esta al final ", abb_iter_in_al_final(iter));
+    print_test("No se puede avanzar un iterador de un ABB vacío: ", !abb_iter_in_avanzar(iter));
+
+    abb_guardar(abb, "01", NULL);
+    abb_guardar(abb, "00", NULL);
+    abb_guardar(abb, "10", NULL);
+    abb_guardar(abb, "09", NULL);
+    abb_guardar(abb, "11", NULL);
+
+    while(!abb_iter_in_al_final(iter)) {
+        abb_iter_in_avanzar(iter);
+    }
+
+    print_test("El iterador está al final: ", abb_iter_in_al_final(iter));
+    print_test("No se puede avanzar un iterador de un ABB vaciado: ", !abb_iter_in_avanzar(iter));
+
+    abb_iter_in_destruir(iter);
+    abb_destruir(abb);
+}
+
+
 void pruebas_iterador_externo() {
     printf("\n------------------------------------------ PRUEBAS ITERADOR EXTERNO DEL ABB ------------------------------------------\n"); 
     abb_t* abb = abb_crear(strcmp, NULL);
@@ -264,6 +291,7 @@ void pruebas_abb_estudiante() {
     pruebas_volumen();
     pruebas_iterador_interno();
     pruebas_iterador_externo();
+    pruebas_iterador_externo_abb_vacio();
 }
 
 
