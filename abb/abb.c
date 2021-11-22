@@ -380,7 +380,6 @@ bool abb_guardar_cantidad_mayor_a_1(abb_nodo_t* actual, abb_t *abb, const char *
             if (!abb_nodo_swap(actual, nuevo, NULL, true, true)) {
                 return false;
             }
-            abb->cantidad++;
             return true;
         } else if (abb->cmp(clave, actual->clave) < 0) {
             actual->izq = nuevo;
@@ -397,7 +396,6 @@ bool abb_guardar_cantidad_mayor_a_1(abb_nodo_t* actual, abb_t *abb, const char *
         if (!abb_nodo_swap(actual, nuevo, NULL, true, true)) {
             return false;
         }
-        abb->cantidad++;
         return true;
     } else if (abb->cmp(clave, actual->clave) < 0) {
         if (!actual->izq) {
@@ -571,17 +569,9 @@ void abb_destruir(abb_t *arbol) {
 
 // AUXILIAR
 void abb_in_order_(abb_nodo_t* nodo, bool visitar(const char *, void *, void *), void *extra) {
-    
-    if (!nodo) {
-        return;
-    }
-
-    abb_in_order_(nodo->izq, visitar, extra);
-    
-    if (!visitar(nodo->clave, nodo->dato, extra)) {
-        return;
-    }
-
+    if (!nodo) return;
+    abb_in_order_(nodo->izq, visitar, extra);  
+    visitar(nodo->clave, nodo->dato, extra);
     abb_in_order_(nodo->der, visitar, extra);
 }
 
