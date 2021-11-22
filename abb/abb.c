@@ -28,8 +28,6 @@ struct abb {
 
 struct abb_iter {
     abb_t* abb;
-    abb_nodo_t* anterior;
-    abb_nodo_t* actual;
     pila_t* recursion;
 };
 
@@ -596,3 +594,50 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+
+// struct abb_iter {
+//     abb_t* abb;
+//     pila_t* recursion;
+// };
+
+
+
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
+
+    abb_iter_t* iter = malloc(sizeof(abb_iter_t));
+    if (!iter) return NULL;
+
+    iter->abb = arbol;
+    iter->recursion = pila_crear();
+
+    if (!iter->recursion) {
+        free(iter);
+        return NULL;
+    }
+
+    return iter;
+}
+
+
+bool abb_iter_in_avanzar(abb_iter_t *iter) {
+    //...
+    return false;
+}
+
+
+const char *abb_iter_in_ver_actual(const abb_iter_t *iter) {
+    if (!iter->abb || iter->abb->cantidad == 0 || pila_esta_vacia(iter->recursion)) return NULL;
+    return ((abb_nodo_t*)pila_desapilar(iter->recursion))->clave;
+}
+
+
+bool abb_iter_in_al_final(const abb_iter_t *iter) {
+    if (!iter->abb || iter->abb->cantidad == 0) return true;
+    return pila_esta_vacia(iter->recursion);
+}
+
+
+void abb_iter_in_destruir(abb_iter_t* iter) {
+    pila_destruir(iter->recursion);
+    free(iter);
+}
