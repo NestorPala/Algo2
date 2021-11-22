@@ -33,15 +33,6 @@ struct abb_iter {
 
 
 // AUXILIAR
-char* strdup(const char* org) {
-    char* cpy = malloc(sizeof(char) * (strlen(org) + 1));
-    if (!cpy) return NULL;
-    strcpy(cpy, org);
-    return cpy;
-}
-
-
-// AUXILIAR
 abb_nodo_t* abb_nodo_crear(abb_nodo_t* izq, abb_nodo_t* der, const char* clave, void* dato) {
 
     abb_nodo_t* nuevo_nodo = malloc(sizeof(abb_nodo_t));
@@ -60,8 +51,9 @@ abb_nodo_t* abb_nodo_crear(abb_nodo_t* izq, abb_nodo_t* der, const char* clave, 
 
 
 // AUXILIAR
-// La funcion empieza siempre por la raiz
-// El nodo padre es el padre del ultimo nodo valido recorrido
+// La función empieza siempre por la raíz del ABB. 
+// El nodo padre es el padre del último nodo válido recorrido.
+// El padre del nodo raíz es el mismo nodo raíz.
 abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, abb_nodo_t** padre) {
 
     if (!actual) {
@@ -108,6 +100,7 @@ void* abb_nodo_destruir(abb_nodo_t* nodo, destr_t destruir_dato) {
 
 
 // AUXILIAR
+// Inserta todos los datos de un nodo A dentro de un nodo B y luego destruye el nodo A. 
 bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, destr_t destruir_dato, bool reempl_izq, bool reempl_der) {
     if (!viejo || !nuevo) {
         return false;
@@ -137,6 +130,7 @@ bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, destr_t destruir_dato, 
 
 
 // AUXILIAR
+// Función auxiliar recursiva para abb_destruir.
 void abb_destruir_postorder(abb_nodo_t* nodo, destr_t destruir_dato) {
     if (!nodo) {
         return;
@@ -148,8 +142,8 @@ void abb_destruir_postorder(abb_nodo_t* nodo, destr_t destruir_dato) {
 
 
 // AUXILIAR
-// Me dan un nodo X y busco el nodo mas grande del subarbol izquierdo de X
-// Avanzo 1 a la izquierda de X y luego todo hacia la derecha hasta que ya no tenga hijo derecho
+// Me dan un nodo X y busco el nodo mas grande del subarbol izquierdo de X.
+// Avanzo 1 a la izquierda de X y luego todo hacia la derecha hasta que ya no tenga hijo derecho.
 abb_nodo_t* abb_buscar_maximo_izq(abb_nodo_t* nodo, abb_nodo_t** padre_nodo)  {
 
     nodo = nodo->izq;
@@ -164,6 +158,7 @@ abb_nodo_t* abb_buscar_maximo_izq(abb_nodo_t* nodo, abb_nodo_t** padre_nodo)  {
 
 
 // AUXILIAR
+// Se utiliza cuando: 1) La raíz tiene 2 hijos pero no uno de los dos hijos directos, o 2) cuando la cantidad es mayor a 3.
 void* abb_borrar_nodo_con_2_hijos(abb_nodo_t* nodo, destr_t destruir_dato) {
 
     void* dato_borrado = nodo->dato;
@@ -300,6 +295,7 @@ void* abb_borrar_3_o_mas_nodos(abb_t* abb, const char* clave) {
 
 
 // AUXILIAR
+// Se utiliza en el caso de que solo quedan 3 elementos en el ABB y estos resultan la raiz y sus dos hijos. 
 void* abb_borrar_raiz_con_2_hojas(abb_t* abb, const char* clave) {
 
     void* dato_borrado = NULL;
@@ -352,6 +348,7 @@ void* abb_borrar_cantidad_de_2(abb_t* abb, const char* clave, bool izq) {
 
 
 // AUXILIAR
+// Se utiliza para guardar un elemento en una posición de nodo hoja.
 bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
 
     if (cmp(hijo->clave, padre->clave) == 0) {
@@ -367,6 +364,7 @@ bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
 
 
 // AUXILIAR
+// Se utiliza cuando ya existe la raíz y hay que guardar un nuevo elemento.
 bool abb_guardar_cantidad_mayor_a_1(abb_nodo_t* actual, abb_t *abb, const char *clave, void *dato) {
     
     if (!actual) {
