@@ -586,19 +586,35 @@ void abb_in_order_(abb_nodo_t* nodo, bool visitar(const char *, void *, void *),
 
 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra) {
-    return abb_in_order_(arbol->raiz, visitar, extra);
+    abb_in_order_(arbol->raiz, visitar, extra);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
+// AUXILIAR
+// Sirve para contener el caso de crear un iterador para un ABB vacio 
+void iniciar_iterador(abb_iter_t* iter) {
+    abb_nodo_t* nodo = iter->abb->raiz;
+
+    while(nodo) {
+        pila_apilar(iter->recursion, nodo);
+        nodo = nodo->izq;
+    }
+}
+
+
 abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
 
-    if (!arbol || arbol->cantidad == 0) return NULL;
+    if (!arbol) {
+        return NULL;
+    }
 
     abb_iter_t* iter = malloc(sizeof(abb_iter_t));
-    if (!iter) return NULL;
+    if (!iter) {
+        return NULL;
+    }
 
     iter->abb = arbol;
     iter->recursion = pila_crear();
@@ -608,23 +624,29 @@ abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
         return NULL;
     }
 
-    // Apilo raiz y todos los hijos izquierdos
-    abb_nodo_t* nodo = arbol->raiz;
-
-    while(nodo) {
-        pila_apilar(iter->recursion, nodo);
-        nodo = nodo->izq;
+    if (arbol->cantidad == 0) {
+        return iter;
     }
+
+    // Apilo raiz y todos los hijos izquierdos
+    iniciar_iterador(iter);
 
     return iter;
 }
 
 
 bool abb_iter_in_avanzar(abb_iter_t *iter) {
-    if (!iter->abb || iter->abb->cantidad == 0 || pila_esta_vacia(iter->recursion)) return false;
+
+    if (!iter->abb || iter->abb->cantidad == 0) {
+        return false;
+    }
 
     abb_nodo_t* tope = pila_desapilar(iter->recursion);
-    if (!tope) return false;
+
+    // En el caso de que se haya creado un iterador para un ABB vacío
+    if (!tope) {
+        iniciar_iterador(iter);
+    }
 
     if (tope->der) {
         pila_apilar(iter->recursion, tope->der);

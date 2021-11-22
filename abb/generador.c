@@ -35,10 +35,10 @@ char** arreglo_cadenas_crear(size_t cant) {
     for (size_t i=0; i<cant; i++) {
 
         int largo = 3 + rand() % 8;  // get random word size in 3..10
-        palabras[i] = malloc(largo + 1); // allocated space for word
+        palabras[i] = malloc((size_t)(largo + 1)); // allocated space for word
 
         for (j=0; j<largo; j++) {
-            palabras[i][j] = 'a' + rand() % 26;
+            palabras[i][j] = (char)(97 + rand() % 26);  //97 = 'a'
         }
 
         palabras[i][j] = '\0';
