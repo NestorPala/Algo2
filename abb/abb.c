@@ -350,10 +350,10 @@ void* abb_borrar_cantidad_de_2(abb_t* abb, const char* clave, bool izq) {
 
 // AUXILIAR
 // Se utiliza para guardar un elemento en una posición de nodo hoja.
-bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp) {
+bool abb_guardar_hoja(abb_nodo_t* padre, abb_nodo_t* hijo, cmp_t cmp, destr_t destruir_dato) {
 
     if (cmp(hijo->clave, padre->clave) == 0) {
-        return abb_nodo_swap(padre, hijo, NULL, false, false);
+        return abb_nodo_swap(padre, hijo, destruir_dato, false, false);
     } else if (cmp(hijo->clave, padre->clave) < 0) {
         padre->izq = hijo;
     } else {
@@ -377,7 +377,7 @@ bool abb_guardar_cantidad_mayor_a_1(abb_nodo_t* actual, abb_t *abb, const char *
         abb_nodo_t* nuevo = abb_nodo_crear(NULL, NULL, clave, dato);
 
         if (abb->cmp(clave, actual->clave) == 0) {
-            if (!abb_nodo_swap(actual, nuevo, NULL, true, true)) {
+            if (!abb_nodo_swap(actual, nuevo, abb->destruir_dato, true, true)) {
                 return false;
             }
             return true;
@@ -393,7 +393,7 @@ bool abb_guardar_cantidad_mayor_a_1(abb_nodo_t* actual, abb_t *abb, const char *
 
     if (abb->cmp(clave, actual->clave) == 0) {
         abb_nodo_t* nuevo = abb_nodo_crear(actual->izq, actual->der, clave, dato);
-        if (!abb_nodo_swap(actual, nuevo, NULL, true, true)) {
+        if (!abb_nodo_swap(actual, nuevo, abb->destruir_dato, true, true)) {
             return false;
         }
         return true;
@@ -464,7 +464,7 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato) {
         arbol->cantidad = 1;
         return true;
     } else if (arbol->cantidad == 1) {  // Si esta solo la raiz
-        if (!abb_guardar_hoja(arbol->raiz, nuevo_nodo, arbol->cmp)) {
+        if (!abb_guardar_hoja(arbol->raiz, nuevo_nodo, arbol->cmp, arbol->destruir_dato)) {
             return false;
         }
         arbol->cantidad = 2;
