@@ -11,6 +11,7 @@ const size_t FACTOR_CARGA = 2;
 typedef void (*destr_t)(void *e);
 
 
+// Implementamos el Heap de Mínimos
 struct heap {
 	void** arr;
 	size_t cantidad;
@@ -60,20 +61,58 @@ void arreglo_swap(void** datos, size_t a, size_t b) {
 }
 
 
+// AUXILIAR
+size_t arreglo_calcular_minimo(void** datos, cmp_func_t cmp, size_t padre, size_t izq, size_t der) {
+    size_t min = padre;
+    if(izq <= min) min = izq;
+    if(der <= min) min = der;
+    return min;
+}
+
+
 // AUXILIAR 
-void arreglo_downheap(void** datos, size_t padre, cmp_func_t cmp) {
-    //...
+void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cmp) {
+
+    // Caso base: llego al final del arreglo
+    if (padre == cantidad) return;
+
+    // Calculamos la posicion de los hijos
+    size_t izq = 2 * padre + 1;
+	size_t der = 2 * padre + 2;
+
+    // Calculamos el hijo mas chico
+    size_t min = arreglo_calcular_minimo(datos, cmp, padre, izq, der);
+
+    // Chequeamos la condicion de Heap
+    if (min != padre) {
+		arreglo_swap(datos, padre, min);
+		arreglo_downheap(datos, cantidad, padre, cmp); //padre?
+    }
 }
 
 
 // AUXILIAR
 void arreglo_upheap(void** datos, size_t hijo, cmp_func_t cmp) {
-    //...
+    
+    // Caso base: llego al inicio del arreglo
+    if (hijo == 0) return; 
+
+    // La posicion del arreglo donde se encuentra el "nodo padre"
+    size_t padre = (hijo - 1) / 2;
+
+    // Chequeamos la condicion de Heap
+    if (cmp(datos[padre], datos[hijo]) >= 0) {
+        arreglo_swap(datos, padre, hijo);
+        arreglo_upheap(datos, padre, cmp);
+    }
 } 
 
 
 // AUXILIAR
 void arreglo_heapify(void** datos, cmp_func_t cmp) {
+
+    //heapify: (downheap, O(N)) + sacar los K primeros, y listo.
+
     //...
 }
 
@@ -81,7 +120,7 @@ void arreglo_heapify(void** datos, cmp_func_t cmp) {
 // AUXILIAR
 void heap_redimensionar(heap_t* heap, float carga, float redimension) {
 
-    if ((float)(heap->cantidad) <= carga * (float)(heap->capacidad)) return;  // el original es "!="
+    if ((float)(heap->cantidad) != carga * (float)(heap->capacidad)) return;
 
     size_t nueva_capacidad = (size_t)(redimension * (float)(heap->capacidad));
 
@@ -217,7 +256,7 @@ void *heap_desencolar(heap_t *heap) {
     heap->arr[ultimo] = NULL;
 
     // "Ordenamos"
-    arreglo_downheap(heap->arr, 0, heap->cmp);
+    arreglo_downheap(heap->arr, heap->cantidad, 0, heap->cmp);
 
     heap->cantidad--;
     return maximo;
