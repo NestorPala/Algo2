@@ -8,6 +8,9 @@ const size_t CAPACIDAD_INICIAL = 20;
 const size_t FACTOR_CARGA = 2;
 
 
+typedef void (*destr_t)(void *e);
+
+
 struct heap {
 	void** arr;
 	size_t cantidad;
@@ -17,7 +20,7 @@ struct heap {
 
 
 // AUXILIAR
-void** copiar_arreglo(void** datos, size_t vieja_capacidad, size_t nueva_capacidad) {
+void** arreglo_copia_crear(void** datos, size_t vieja_capacidad, size_t nueva_capacidad) {
 
     void** nuevo_arreglo = malloc(nueva_capacidad * sizeof(void*));
     if (!nuevo_arreglo) return NULL;
@@ -35,6 +38,20 @@ void** copiar_arreglo(void** datos, size_t vieja_capacidad, size_t nueva_capacid
 
 
 // AUXILIAR
+void arreglo_destruir(void** datos, size_t n, destr_t destruir_dato) {
+    if (!datos || n == 0) return;
+
+    for (size_t i=0; i<n; i++) {
+        if (destruir_dato) {
+            destruir_dato(datos[i]);
+        }
+    }
+
+    free(datos);
+}
+
+
+// AUXILIAR
 heap_t* heap_crear_2(void** datos, size_t n, cmp_func_t cmp) {
 
     if (!cmp) return NULL;
@@ -44,7 +61,10 @@ heap_t* heap_crear_2(void** datos, size_t n, cmp_func_t cmp) {
 
     if (!datos || n == 0) {
         void** arr = malloc(n * sizeof(void*));
-        if (!arr) return NULL;
+        if (!arr) {
+            free(heap);
+            return NULL;
+        }
 
         for (size_t i=0; i<n; i++) {
             arr[i] = NULL;
@@ -56,8 +76,11 @@ heap_t* heap_crear_2(void** datos, size_t n, cmp_func_t cmp) {
     } else {
         size_t nueva_capacidad = FACTOR_CARGA * n;
 
-        heap->arr = copiar_arreglo(datos, n, nueva_capacidad);
-        if (!heap->arr) return NULL;
+        heap->arr = arreglo_copia_crear(datos, n, nueva_capacidad);
+        if (!heap->arr) {
+            free(heap);
+            return NULL;
+        }
 
         //heapify(heap->arr); // ordenamos en forma de heap la copia del arreglo que nos pasaron
 
@@ -69,6 +92,9 @@ heap_t* heap_crear_2(void** datos, size_t n, cmp_func_t cmp) {
 
     return heap;
 } 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 heap_t *heap_crear(cmp_func_t cmp) {
@@ -98,13 +124,12 @@ void *heap_ver_max(const heap_t *heap) {
 }
 
 
-// TERMINAR
 bool heap_encolar(heap_t *heap, void *elem) {
-
+    //...
+    return false;
 }
 
 
-// TERMINAR
 void *heap_desencolar(heap_t *heap) {
     if (heap_esta_vacio(heap)) return NULL;
     void* maximo = heap->arr[0];
@@ -115,13 +140,21 @@ void *heap_desencolar(heap_t *heap) {
 }
 
 
-// TERMINAR
 void heap_destruir(heap_t *heap, void (*destruir_elemento)(void *e)) {
+    if (!heap) return;
 
+    if (!heap->arr) {
+        free(heap);
+        return;
+    }
+
+    arreglo_destruir(heap->arr, heap->capacidad, destruir_elemento);
+    free(heap);
+
+    return;
 }
 
 
-// TERMINAR
 void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp) {
 
     if (!cmp || !elementos || cant == 0) return;
