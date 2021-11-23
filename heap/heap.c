@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h> //strcpy(), strcmp()
+#include <stdio.h> //DEBUG
 
 
-const size_t CAPACIDAD_INICIAL = 20;
+const size_t CAPACIDAD_INICIAL = 7;  // = 20; //arreglar luego redimension
 const size_t FACTOR_CARGA = 2;
 
 
@@ -63,10 +64,37 @@ void arreglo_swap(void** datos, size_t a, size_t b) {
 
 // AUXILIAR
 size_t arreglo_calcular_minimo(void** datos, cmp_func_t cmp, size_t padre, size_t izq, size_t der) {
-    size_t min = padre;
-    if(izq <= min) min = izq;
-    if(der <= min) min = der;
-    return min;
+    void* min = datos[padre];
+    size_t pos_min = padre;
+
+    if (datos[izq] && cmp(datos[izq], min) < 0) {
+        min = datos[izq];
+        pos_min = izq;
+    }
+
+    if (datos[der] && cmp(datos[der], min) < 0) {
+        min = datos[der];
+        pos_min = der;
+    }
+
+    return pos_min;
+}
+
+
+// DEBUG
+void heap_debug(void** datos) {
+    size_t n = 7;
+
+    printf("ESTADO ACTUAL DEL ARREGLO:\n");
+
+    printf("[");
+
+    for (size_t i=0; i<n; i++) {
+        datos[i] ? printf("%d,  ", *(int*)datos[i]) : printf("NULL  ");
+    }
+    printf("]");
+
+    printf("\n------------------------------------------------------------------------------\n");
 }
 
 
@@ -86,7 +114,7 @@ void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cm
     // Chequeamos la condicion de Heap
     if (min != padre) {
 		arreglo_swap(datos, padre, min);
-		arreglo_downheap(datos, cantidad, padre, cmp); //padre?
+		arreglo_downheap(datos, cantidad, padre, cmp);
     }
 }
 
@@ -101,7 +129,7 @@ void arreglo_upheap(void** datos, size_t hijo, cmp_func_t cmp) {
     size_t padre = (hijo - 1) / 2;
 
     // Chequeamos la condicion de Heap
-    if (cmp(datos[padre], datos[hijo]) >= 0) {
+    if (cmp(datos[padre], datos[hijo]) > 0) {
         arreglo_swap(datos, padre, hijo);
         arreglo_upheap(datos, padre, cmp);
     }
@@ -226,7 +254,6 @@ void heap_destruir(heap_t *heap, void (*destruir_elemento)(void *e)) {
 
 
 bool heap_encolar(heap_t *heap, void *elem) {
-    if (heap_esta_vacio(heap)) return false;
 
     // Redimensionamos el arreglo si es necesario
     float carga = (float)FACTOR_CARGA, redimension = (float)(FACTOR_CARGA * 2);
@@ -249,6 +276,8 @@ void *heap_desencolar(heap_t *heap) {
     // Redimensionamos el arreglo si es necesario
     float carga = (1/(2 * (float)FACTOR_CARGA)), redimension = (1/((float)FACTOR_CARGA));
     heap_redimensionar(heap, carga, redimension);
+
+    heap_debug(heap->arr); //debug
 
     // Borramos el primero
     size_t primero = 0, ultimo = heap->cantidad - 1;
