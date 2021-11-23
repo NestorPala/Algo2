@@ -2,7 +2,7 @@ COLA DE PRIORIDAD - HEAP
 
 *Es un "árbol izquierdista" implementado en un arreglo, que simula la estructura de árbol utilizando 3 fórmulas: padre, hijo_izq e hijo_der
 
-* Un "árbol izquierdista es aquel en el que los elementos se insertan por niveles de izquierda a derecha
+* Un "árbol izquierdista" es aquel en el que los elementos se insertan por niveles de izquierda a derecha
 
 * Cada "nodo" tiene que ser más >= que sus dos hijos (para heap de máximo)
 
