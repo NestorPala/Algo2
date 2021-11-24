@@ -21,6 +21,23 @@ struct heap {
 };
 
 
+// DEBUG
+void heap_debug(void** datos) {
+    size_t n = 7;
+
+    printf("ESTADO ACTUAL DEL ARREGLO:\n");
+
+    printf("[");
+
+    for (size_t i=0; i<n; i++) {
+        datos[i] ? printf("%d,  ", *(int*)datos[i]) : printf("NULL  ");
+    }
+    printf("]");
+
+    printf("\n------------------------------------------------------------------------------\n");
+}
+
+
 // AUXILIAR
 void** arreglo_copiar_arreglo(void** datos, size_t vieja_capacidad, size_t nueva_capacidad) {
 
@@ -81,23 +98,6 @@ size_t arreglo_calcular_minimo(void** datos, cmp_func_t cmp, size_t padre, size_
 }
 
 
-// DEBUG
-void heap_debug(void** datos) {
-    size_t n = 7;
-
-    printf("ESTADO ACTUAL DEL ARREGLO:\n");
-
-    printf("[");
-
-    for (size_t i=0; i<n; i++) {
-        datos[i] ? printf("%d,  ", *(int*)datos[i]) : printf("NULL  ");
-    }
-    printf("]");
-
-    printf("\n------------------------------------------------------------------------------\n");
-}
-
-
 // AUXILIAR 
 void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cmp) {
 
@@ -137,11 +137,11 @@ void arreglo_upheap(void** datos, size_t hijo, cmp_func_t cmp) {
 
 
 // AUXILIAR
-void arreglo_heapify(void** datos, cmp_func_t cmp) {
+void arreglo_heapify(void** datos, size_t n, cmp_func_t cmp) {
 
-    //heapify: (downheap, O(N)) + sacar los K primeros, y listo.
-
-    //...
+    for (size_t i=n; i<=0; i--) {
+        arreglo_downheap(datos, n-i, i, cmp);
+    }
 }
 
 
@@ -196,7 +196,7 @@ heap_t* heap_crear_2(void** datos, size_t n, cmp_func_t cmp) {
         }
 
         // ordenamos en forma de heap la copia del arreglo que nos pasaron
-        arreglo_heapify(heap->arr, heap->cmp); 
+        arreglo_heapify(heap->arr, n, heap->cmp); 
 
         heap->cantidad = n;
         heap->capacidad = nueva_capacidad;
@@ -274,8 +274,8 @@ void *heap_desencolar(heap_t *heap) {
     void* maximo = heap->arr[0];
 
     // Redimensionamos el arreglo si es necesario
-    float carga = (1/(2 * (float)FACTOR_CARGA)), redimension = (1/((float)FACTOR_CARGA));
-    heap_redimensionar(heap, carga, redimension);
+    // float carga = (1/(2 * (float)FACTOR_CARGA)), redimension = (1/((float)FACTOR_CARGA));
+    // heap_redimensionar(heap, carga, redimension);
 
     heap_debug(heap->arr); //debug
 
