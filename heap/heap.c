@@ -248,7 +248,7 @@ bool heap_encolar(heap_t *heap, void *elem) {
 
     // Redimensionamos el arreglo si es necesario
     float carga        =  1;
-    float redimension  =  FACTOR_CARGA;
+    float redimension  =  (float)FACTOR_CARGA;
     heap_redimensionar(heap, carga, redimension);
     
     // Guardamos el elemento y lo "ordenamos" como un heap

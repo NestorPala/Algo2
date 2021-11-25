@@ -27,6 +27,7 @@ int comp(const void* a, const void* b) {
 }
 
 
+// Auxiliar
 bool pruebas_heap_chequear_insercion(heap_t* heap, int numeros[], size_t cant, bool* todos_insertados){
     bool orden = true;
     void* elemento_anterior = NULL;
@@ -54,6 +55,7 @@ bool pruebas_heap_chequear_insercion(heap_t* heap, int numeros[], size_t cant, b
 }
 
 
+// Auxiliar
 bool pruebas_heap_chequear_eliminacion(heap_t* heap, int numeros[], size_t cant) {
 
     void* numero_anterior = NULL;
@@ -92,9 +94,7 @@ void pruebas_heap_crear() {
     print_test("La cantidad de elementos del heap es la correcta: ", heap_cantidad(heap) == 6);
     print_test("El maximo del heap es el correcto: ", *(int*)heap_ver_max(heap) == 12);
 
-
     bool orden_desencolados = pruebas_heap_chequear_eliminacion(heap, numeros, cant);
-
     print_test("Los elementos se desencolaron en el orden correcto: ", orden_desencolados);
 
     heap_destruir(heap, NULL);
@@ -114,10 +114,12 @@ void pruebas_heap_crear_arr() {
   
     heap_t* heap = heap_crear_arr(punteros, cant, comp);
 
-    for (size_t i=0; i<cant; i++) {
-        int valor_actual = *(int*)heap_desencolar(heap);
-        valor_actual ? printf("%d\t", valor_actual) : printf("NULL\t");
-    }
+    print_test("El heap no esta vacio: ", !heap_esta_vacio(heap));
+    print_test("La cantidad de elementos del heap es la correcta: ", heap_cantidad(heap) == 6);
+    print_test("El maximo del heap es el correcto: ", *(int*)heap_ver_max(heap) == 12);
+
+    bool orden_desencolados = pruebas_heap_chequear_eliminacion(heap, numeros, cant);
+    print_test("Los elementos se desencolaron en el orden correcto: ", orden_desencolados);
 
     free(punteros);
     heap_destruir(heap, NULL);
@@ -130,8 +132,8 @@ void pruebas_heapsort() {
     int numeros[] = {32,45,5,67,56,45,2,-17};
     size_t cant = 8;
     void** punteros = malloc(cant * sizeof(void*));
-    for (size_t i = 0; i < cant; i++)
-    {
+
+    for (size_t i = 0; i < cant; i++){
         punteros[i] = &numeros[i];
     }
 
@@ -140,6 +142,19 @@ void pruebas_heapsort() {
     for (size_t i=0; i<cant; i++) {
         printf("%d\t", *(int*)punteros[i]);
     }
+    printf("\n");
+
+    bool orden_hs = true;
+
+    for (size_t i=0; i<cant; i++) {
+        if (i > 0) {
+            if (comp(punteros[i], punteros[i-1]) < 0) {
+                orden_hs = false;
+            }
+        }
+    }
+
+    print_test("Los elementos se ordenaron correctamente: ", orden_hs);
 
     free(punteros);
 }
