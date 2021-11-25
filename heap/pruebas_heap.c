@@ -36,7 +36,6 @@ void pruebas_unitarias() {
 
     for (size_t i=0; i<cant; i++) {
         heap_encolar(heap, &numeros[i]);
-        //int numero_actual = *(int*)heap_ver_max(heap);
     }
 
     if (heap_esta_vacio(heap)) {
@@ -46,10 +45,10 @@ void pruebas_unitarias() {
     printf("EL MINIMO DEL HEAP ES: '%d'\n", *(int*)heap_ver_max(heap));
     printf("CANTIDAD DEL HEAP: %zu\n", heap_cantidad(heap));
 
-    // for (size_t i=0; i<cant; i++) {
-    //     int numero_actual = *(int*)heap_desencolar(heap);
-    //     printf("%d\t", numero_actual);
-    // }
+    for (size_t i=0; i<cant; i++) {
+        int numero_actual = *(int*)heap_desencolar(heap);
+        numero_actual ? printf("%d\t", numero_actual) : printf("NULL\t");
+    }
 
     heap_destruir(heap, NULL);
 
@@ -62,6 +61,11 @@ void pruebas_unitarias() {
     }
   
     heap_t* heap2 = heap_crear_arr(x1, 6, comp);
+
+    for (size_t i=0; i<cant; i++) {
+        int pepe = *(int*)heap_desencolar(heap2);
+        pepe ? printf("%d\t", pepe) : printf("NULL\t");
+    }
 
     free(x1);
     heap_destruir(heap2, NULL);

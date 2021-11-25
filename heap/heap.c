@@ -5,7 +5,7 @@
 #include <stdio.h> //DEBUG
 
 
-const size_t CAPACIDAD_INICIAL = 7;  // = 20; //arreglar luego redimension
+const size_t CAPACIDAD_INICIAL = 6;  // = 20; //arreglar luego redimension
 const size_t FACTOR_CARGA = 2;
 
 
@@ -83,13 +83,13 @@ void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cm
 	size_t der = 2 * padre + 2;
     size_t min = 0;
 
-    if (izq < cantidad && cmp(datos[izq], datos[padre]) < 0) {
+    if (izq < cantidad && datos[izq] && datos[padre] && cmp(datos[izq], datos[padre]) < 0) {
         min = izq;
     } else {
         min = padre;
     }
 
-    if (der < cantidad && cmp(datos[der], datos[min]) < 0) {
+    if (der < cantidad && datos[der] && datos[min] && cmp(datos[der], datos[min]) < 0) {
         min = der;
     }
 
