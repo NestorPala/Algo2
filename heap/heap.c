@@ -10,7 +10,6 @@ const size_t FACTOR_CARGA      =  2;    // Se utiliza para las redimensiones del
 typedef void (*destr_t)(void *e);       // Funcion de destruccion de dato
 
 
-// Implementamos el Heap de Mínimos
 struct heap {
 	void** arr;
 	size_t cantidad;
@@ -82,13 +81,13 @@ void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cm
 	size_t der = 2 * padre + 2;
     size_t min = 0;
 
-    if (izq < cantidad && datos[izq] && datos[padre] && cmp(datos[izq], datos[padre]) < 0) {
+    if (izq < cantidad && datos[izq] && datos[padre] && cmp(datos[izq], datos[padre]) > 0) {
         min = izq;
     } else {
         min = padre;
     }
 
-    if (der < cantidad && datos[der] && datos[min] && cmp(datos[der], datos[min]) < 0) {
+    if (der < cantidad && datos[der] && datos[min] && cmp(datos[der], datos[min]) > 0) {
         min = der;
     }
 
@@ -112,7 +111,7 @@ void arreglo_upheap(void** datos, size_t hijo, cmp_func_t cmp) {                
     size_t padre = (hijo - 1) / 2;
 
     // Chequeamos la condicion de Heap
-    if (cmp(datos[padre], datos[hijo]) > 0) {
+    if (cmp(datos[padre], datos[hijo]) < 0) {
         arreglo_swap(datos, padre, hijo);
         arreglo_upheap(datos, padre, cmp);
     }
