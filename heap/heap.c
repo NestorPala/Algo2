@@ -22,18 +22,15 @@ struct heap {
 
 
 // DEBUG
-void heap_debug(void** datos) {
-    size_t n = 7;
+void heap_debug(void** datos, size_t n) {
 
     printf("ESTADO ACTUAL DEL ARREGLO:\n");
-
     printf("[");
 
     for (size_t i=0; i<n; i++) {
         datos[i] ? printf("%d,  ", *(int*)datos[i]) : printf("NULL  ");
     }
     printf("]");
-
     printf("\n------------------------------------------------------------------------------\n");
 }
 
@@ -79,42 +76,27 @@ void arreglo_swap(void** datos, size_t a, size_t b) {
 }
 
 
-// AUXILIAR
-size_t arreglo_calcular_minimo(void** datos, cmp_func_t cmp, size_t padre, size_t izq, size_t der) {
-    void* min = datos[padre];
-    size_t pos_min = padre;
-
-    if (datos[izq] && cmp(datos[izq], min) < 0) {
-        min = datos[izq];
-        pos_min = izq;
-    }
-
-    if (datos[der] && cmp(datos[der], min) < 0) {
-        min = datos[der];
-        pos_min = der;
-    }
-
-    return pos_min;
-}
-
-
 // AUXILIAR 
 void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cmp) {
 
-    // Caso base: llego al final del arreglo
-    if (padre == cantidad) return;
-
-    // Calculamos la posicion de los hijos
     size_t izq = 2 * padre + 1;
 	size_t der = 2 * padre + 2;
+    size_t min = 0;
 
-    // Calculamos el hijo mas chico
-    size_t min = arreglo_calcular_minimo(datos, cmp, padre, izq, der);
+    if (izq < cantidad && cmp(datos[izq], datos[padre]) < 0) {
+        min = izq;
+    } else {
+        min = padre;
+    }
+
+    if (der < cantidad && cmp(datos[der], datos[min]) < 0) {
+        min = der;
+    }
 
     // Chequeamos la condicion de Heap
     if (min != padre) {
 		arreglo_swap(datos, padre, min);
-		arreglo_downheap(datos, cantidad, padre, cmp);
+		arreglo_downheap(datos, cantidad, min, cmp);
     }
 }
 
@@ -139,9 +121,13 @@ void arreglo_upheap(void** datos, size_t hijo, cmp_func_t cmp) {
 // AUXILIAR
 void arreglo_heapify(void** datos, size_t n, cmp_func_t cmp) {
 
-    for (size_t i=n; i<=0; i--) {
-        arreglo_downheap(datos, n-i, i, cmp);
+    heap_debug(datos, 6); //debug
+
+    for (size_t i=0; i<n/2; i++) {
+        arreglo_downheap(datos, n, (n/2 - 1) - i, cmp);
     }
+
+    heap_debug(datos, 6); //debug
 }
 
 
@@ -164,60 +150,59 @@ void heap_redimensionar(heap_t* heap, float carga, float redimension) {
 }
 
 
-// AUXILIAR
-heap_t* heap_crear_2(void** datos, size_t n, cmp_func_t cmp) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+heap_t *heap_crear(cmp_func_t cmp) {
 
     if (!cmp) return NULL;
 
     heap_t* heap = malloc(sizeof(heap_t));
     if (!heap) return NULL;
 
-    if (!datos || n == 0) {
-        void** arr = malloc(n * sizeof(void*));
-        if (!arr) {
-            free(heap);
-            return NULL;
-        }
-
-        for (size_t i=0; i<n; i++) {
-            arr[i] = NULL;
-        }
- 
-        heap->arr = arr;
-        heap->cantidad = 0;
-        heap->capacidad = n;
-    } else {
-        size_t nueva_capacidad = FACTOR_CARGA * n;
-
-        heap->arr = arreglo_copiar_arreglo(datos, n, nueva_capacidad);
-        if (!heap->arr) {
-            free(heap);
-            return NULL;
-        }
-
-        // ordenamos en forma de heap la copia del arreglo que nos pasaron
-        arreglo_heapify(heap->arr, n, heap->cmp); 
-
-        heap->cantidad = n;
-        heap->capacidad = nueva_capacidad;
+    void** arr = malloc(CAPACIDAD_INICIAL * sizeof(void*));
+    if (!arr) {
+        free(heap);
+        return NULL;
     }
+
+    for (size_t i=0; i<CAPACIDAD_INICIAL; i++) {
+        arr[i] = NULL;
+    }
+
+    heap->arr = arr;
+    heap->cantidad = 0;
+    heap->capacidad = CAPACIDAD_INICIAL;
 
     heap->cmp = cmp;
 
     return heap;
-} 
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-heap_t *heap_crear(cmp_func_t cmp) {
-    return heap_crear_2(NULL, CAPACIDAD_INICIAL, cmp);
 }
 
 
 heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
-    return heap_crear_2(arreglo, n, cmp);
+    
+    if (!cmp) return NULL;
+
+    heap_t* heap = malloc(sizeof(heap_t));
+    if (!heap) return NULL;
+
+    size_t nueva_capacidad = FACTOR_CARGA * n;
+
+    void** datos = arreglo_copiar_arreglo(arreglo, n, nueva_capacidad);
+    if (!datos) {
+        free(heap);
+        return NULL;
+    }
+
+    arreglo_heapify(datos, n, cmp);
+
+    heap->arr = datos;
+    heap->cantidad = n;
+    heap->capacidad = nueva_capacidad;
+    heap->cmp = cmp;
+
+    return heap;
 }
 
 
@@ -265,6 +250,8 @@ bool heap_encolar(heap_t *heap, void *elem) {
 
     heap->cantidad++;
 
+    if (heap->cantidad == 6) heap_debug(heap->arr, heap->cantidad); //debug
+
     return true;
 }
 
@@ -277,7 +264,7 @@ void *heap_desencolar(heap_t *heap) {
     // float carga = (1/(2 * (float)FACTOR_CARGA)), redimension = (1/((float)FACTOR_CARGA));
     // heap_redimensionar(heap, carga, redimension);
 
-    heap_debug(heap->arr); //debug
+    //heap_debug(heap->arr); //debug
 
     // Borramos el primero
     size_t primero = 0, ultimo = heap->cantidad - 1;

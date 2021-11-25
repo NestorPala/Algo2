@@ -36,7 +36,7 @@ void pruebas_unitarias() {
 
     for (size_t i=0; i<cant; i++) {
         heap_encolar(heap, &numeros[i]);
-        int numero_actual = *(int*)heap_ver_max(heap);
+        //int numero_actual = *(int*)heap_ver_max(heap);
     }
 
     if (heap_esta_vacio(heap)) {
@@ -46,26 +46,24 @@ void pruebas_unitarias() {
     printf("EL MINIMO DEL HEAP ES: '%d'\n", *(int*)heap_ver_max(heap));
     printf("CANTIDAD DEL HEAP: %zu\n", heap_cantidad(heap));
 
-    for (size_t i=0; i<cant; i++) {
-        int numero_actual = *(int*)heap_desencolar(heap);
-        printf("%d\t", numero_actual);
-    }
+    // for (size_t i=0; i<cant; i++) {
+    //     int numero_actual = *(int*)heap_desencolar(heap);
+    //     printf("%d\t", numero_actual);
+    // }
 
     heap_destruir(heap, NULL);
 
     printf("\n------------------------------------------------------------------------------\n");
 
-    void** numeros2 = malloc(6 * sizeof(void*));
-    for (size_t i=0; i<6; i++) numeros2[i] = &numeros[i];
-
-    heap_t* heap2 = heap_crear_arr(numeros2, 6, comp);
-
-    for (size_t i=0; i<cant; i++) {
-        int numero_actual = *(int*)heap_desencolar(heap2);
-        printf("%d\t", numero_actual);
+    void** x1 = malloc(6 * sizeof(void*));
+    for (size_t i = 0; i < 6; i++)
+    {
+        x1[i] = &numeros[i];
     }
+  
+    heap_t* heap2 = heap_crear_arr(x1, 6, comp);
 
-    free(numeros2);
+    free(x1);
     heap_destruir(heap2, NULL);
 }
 
