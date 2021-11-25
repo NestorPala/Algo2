@@ -5,7 +5,7 @@
 #include <stdio.h> //DEBUG
 
 
-const size_t CAPACIDAD_INICIAL = 6;  // = 20; //arreglar luego redimension
+const size_t CAPACIDAD_INICIAL = 10;
 const size_t FACTOR_CARGA = 2;
 
 
@@ -41,12 +41,20 @@ void** arreglo_copiar_arreglo(void** datos, size_t vieja_capacidad, size_t nueva
     void** nuevo_arreglo = malloc(nueva_capacidad * sizeof(void*));
     if (!nuevo_arreglo) return NULL;
 
-    for (size_t i=0; i<vieja_capacidad; i++) {
-        nuevo_arreglo[i] = datos[i];
-    }
+    if (vieja_capacidad == nueva_capacidad) {
+        return datos;
+    } else if (vieja_capacidad < nueva_capacidad) {
+        for (size_t i=0; i<vieja_capacidad; i++) {
+            nuevo_arreglo[i] = datos[i];
+        }
 
-    for (size_t i=vieja_capacidad; i<nueva_capacidad; i++) {
-        nuevo_arreglo[i] = NULL;
+        for (size_t i=vieja_capacidad; i<nueva_capacidad; i++) {
+            nuevo_arreglo[i] = NULL;
+        }
+    } else {
+        for (size_t i=0; i<nueva_capacidad; i++) {
+            nuevo_arreglo[i] = datos[i];
+        }
     }
 
     return nuevo_arreglo;
@@ -134,7 +142,9 @@ void arreglo_heapify(void** datos, size_t n, cmp_func_t cmp) {
 // AUXILIAR
 void heap_redimensionar(heap_t* heap, float carga, float redimension) {
 
-    if ((float)(heap->cantidad) != carga * (float)(heap->capacidad)) return;
+    if ( (float)(heap->cantidad)  !=  carga * (float)(heap->capacidad) ) {
+        return;
+    }
 
     size_t nueva_capacidad = (size_t)(redimension * (float)(heap->capacidad));
 
@@ -241,7 +251,8 @@ void heap_destruir(heap_t *heap, void (*destruir_elemento)(void *e)) {
 bool heap_encolar(heap_t *heap, void *elem) {
 
     // Redimensionamos el arreglo si es necesario
-    float carga = (float)FACTOR_CARGA, redimension = (float)(FACTOR_CARGA * 2);
+    float carga        =  1;
+    float redimension  =  FACTOR_CARGA;
     heap_redimensionar(heap, carga, redimension);
     
     // Guardamos el elemento y lo "ordenamos"
@@ -260,9 +271,10 @@ void *heap_desencolar(heap_t *heap) {
     if (heap_esta_vacio(heap)) return NULL;
     void* maximo = heap->arr[0];
 
-    // Redimensionamos el arreglo si es necesario
-    // float carga = (1/(2 * (float)FACTOR_CARGA)), redimension = (1/((float)FACTOR_CARGA));
-    // heap_redimensionar(heap, carga, redimension);
+    //Redimensionamos el arreglo si es necesario
+    float carga         =   ( 1  / ( 2 * (float)FACTOR_CARGA ) );
+    float redimension   =   ( 1  / (     (float)FACTOR_CARGA ) );
+    heap_redimensionar(heap, carga, redimension);
 
     //heap_debug(heap->arr); //debug
 
