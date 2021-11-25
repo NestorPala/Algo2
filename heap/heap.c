@@ -1,7 +1,6 @@
 #include "heap.h"
 #include <stdlib.h>
 #include <stddef.h>
-#include <string.h> //strcpy(), strcmp()
 
 
 const size_t CAPACIDAD_INICIAL = 10;

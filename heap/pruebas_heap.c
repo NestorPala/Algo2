@@ -27,9 +27,8 @@ int comp(const void* a, const void* b) {
 }
 
 
-void pruebas_unitarias() {
-
-    printf("\n--------------------------------------- HEAP CREAR ---------------------------------------\n");
+void pruebas_heap_crear() {
+    printf("\n--------------------------------------- PRUEBAS HEAP CREAR ---------------------------------------\n");
 
     heap_t* heap = heap_crear(comp);
 
@@ -53,41 +52,70 @@ void pruebas_unitarias() {
     }
 
     heap_destruir(heap, NULL);
+}
 
-    printf("\n--------------------------------------- HEAP CREAR ARR ---------------------------------------\n");
 
-    void** x1 = malloc(6 * sizeof(void*));
-    for (size_t i = 0; i < 6; i++)
-    {
-        x1[i] = &numeros[i];
+void pruebas_heap_crear_arr() {
+    printf("\n--------------------------------------- PRUEBAS HEAP CREAR ARR ---------------------------------------\n");
+
+    int numeros[] = {5, 9, 10, 12, 11, 2};
+    size_t cant = 6;
+
+    void** punteros = malloc(cant * sizeof(void*));
+    for (size_t i = 0; i < cant; i++) {
+        punteros[i] = &numeros[i];
     }
   
-    heap_t* heap2 = heap_crear_arr(x1, 6, comp);
+    heap_t* heap = heap_crear_arr(punteros, cant, comp);
 
     for (size_t i=0; i<cant; i++) {
-        int pepe = *(int*)heap_desencolar(heap2);
-        pepe ? printf("%d\t", pepe) : printf("NULL\t");
+        int valor_actual = *(int*)heap_desencolar(heap);
+        valor_actual ? printf("%d\t", valor_actual) : printf("NULL\t");
     }
 
-    free(x1);
-    heap_destruir(heap2, NULL);
+    free(punteros);
+    heap_destruir(heap, NULL);
+}
 
-    printf("\n--------------------------------------- HEAPSORT ---------------------------------------\n");
 
-    int asd[] = {32,45,5,67,56,45,2,-17};
-    void** x87 = malloc(8 * sizeof(void*));
-    for (size_t i = 0; i < 8; i++)
+void pruebas_heapsort() {
+    printf("\n--------------------------------------- PRUEBAS HEAPSORT ---------------------------------------\n");
+
+    int numeros[] = {32,45,5,67,56,45,2,-17};
+    size_t cant = 8;
+    void** punteros = malloc(cant * sizeof(void*));
+    for (size_t i = 0; i < cant; i++)
     {
-        x87[i] = &asd[i];
+        punteros[i] = &numeros[i];
     }
 
-    heap_sort(x87, 8, comp);
+    heap_sort(punteros, cant, comp);
 
-    for (size_t i=0; i<8; i++) {
-        printf("%d\t", *(int*)x87[i]);
+    for (size_t i=0; i<cant; i++) {
+        printf("%d\t", *(int*)punteros[i]);
     }
 
-    free(x87);
+    free(punteros);
+}
+
+
+void pruebas_unitarias() {
+    pruebas_heap_crear();
+    pruebas_heap_crear_arr();
+    pruebas_heapsort();
+}
+
+
+void pruebas_heap_vacio() {
+    printf("\n--------------------------------------- PRUEBAS HEAP VACIO ---------------------------------------\n");
+    heap_t* heap = heap_crear(comp);
+
+    print_test("El heap esta vacio: ", heap_esta_vacio(heap));
+    print_test("La cantidad del heap es 0: ", heap_cantidad(heap) == 0);
+    print_test("No se puede desencolar un heap vacio: ", !heap_desencolar(heap));
+    print_test("No se puede ver el maximo un heap vacio: ", !heap_ver_max(heap));
+
+    heap_destruir(heap, NULL);
 }
 
 
@@ -95,7 +123,7 @@ void pruebas_unitarias() {
 
 
 void pruebas_heap_estudiante() {
-    // pruebas_heap_vacio();
+    pruebas_heap_vacio();
     pruebas_unitarias();
     // pruebas_volumen();
 }
