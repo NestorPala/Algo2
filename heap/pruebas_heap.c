@@ -27,6 +27,54 @@ int comp(const void* a, const void* b) {
 }
 
 
+bool pruebas_heap_chequear_insercion(heap_t* heap, int numeros[], size_t cant, bool* todos_insertados){
+    bool orden = true;
+    void* elemento_anterior = NULL;
+
+    for (size_t i=0; i<cant; i++) {
+
+        if (i > 0) {
+            elemento_anterior = heap_ver_max(heap);
+        }
+
+        if (!heap_encolar(heap, &numeros[i])) {
+            *todos_insertados = false;
+        }
+        
+        if (i > 0) {
+            if (comp(&numeros[i], &numeros[i-1]) > 0) {
+                if (comp(heap_ver_max(heap), elemento_anterior) < 0) {
+                    orden = false;
+                }
+            }
+        }
+    }
+
+    return orden;
+}
+
+
+bool pruebas_heap_chequear_eliminacion(heap_t* heap, int numeros[], size_t cant) {
+
+    void* numero_anterior = NULL;
+    void* numero_nuevo = NULL;
+    bool orden_desencolados = true;
+
+    for (size_t i=0; i<cant; i++) {
+        numero_anterior = heap_ver_max(heap);
+        numero_nuevo = heap_desencolar(heap);
+
+        if (numero_anterior && numero_nuevo) {
+            if (comp(numero_nuevo, numero_anterior) < 0) {
+                orden_desencolados = false;
+            }
+        }
+    }
+
+    return orden_desencolados;
+}
+
+
 void pruebas_heap_crear() {
     printf("\n--------------------------------------- PRUEBAS HEAP CREAR ---------------------------------------\n");
 
@@ -34,22 +82,20 @@ void pruebas_heap_crear() {
 
     int numeros[] = {5, 9, 10, 12, 11, 2};
     size_t cant = 6;
+    bool ok = true, orden = true;
 
-    for (size_t i=0; i<cant; i++) {
-        heap_encolar(heap, &numeros[i]);
-    }
+    orden = pruebas_heap_chequear_insercion(heap, numeros, cant, &ok);
 
-    if (heap_esta_vacio(heap)) {
-        printf("EL HEAP ESTA VACIO\n");
-    }
+    print_test("Se pudieron encolar todos los elementos correctamente: ", ok);
+    print_test("Todos los elementos se insertaron en orden: ", orden);
+    print_test("El heap no esta vacio: ", !heap_esta_vacio(heap));
+    print_test("La cantidad de elementos del heap es la correcta: ", heap_cantidad(heap) == 6);
+    print_test("El maximo del heap es el correcto: ", *(int*)heap_ver_max(heap) == 12);
 
-    printf("EL MINIMO DEL HEAP ES: '%d'\n", *(int*)heap_ver_max(heap));
-    printf("CANTIDAD DEL HEAP: %zu\n", heap_cantidad(heap));
 
-    for (size_t i=0; i<cant; i++) {
-        int numero_actual = *(int*)heap_desencolar(heap);
-        numero_actual ? printf("%d\t", numero_actual) : printf("NULL\t");
-    }
+    bool orden_desencolados = pruebas_heap_chequear_eliminacion(heap, numeros, cant);
+
+    print_test("Los elementos se desencolaron en el orden correcto: ", orden_desencolados);
 
     heap_destruir(heap, NULL);
 }
