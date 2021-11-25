@@ -183,10 +183,41 @@ void pruebas_heap_vacio() {
 /***********************************************************************************/
 
 
+
+void pruebas_volumen() {
+    printf("\n--------------------------------------- PRUEBAS DE VOLUMEN ---------------------------------------\n");
+
+    heap_t* heap = heap_crear(comp);
+
+    int* numeros = malloc(N * sizeof(int*));
+
+    for (size_t i=0; i<N; i++) {
+        numeros[i] = rand() % 1000 + 1;
+    }
+
+    size_t cant = N;
+    bool ok = true, orden = true;
+
+    orden = pruebas_heap_chequear_insercion(heap, numeros, cant, &ok);
+
+    print_test("Se pudieron encolar todos los elementos correctamente: ", ok);
+    print_test("Todos los elementos se insertaron en orden: ", orden);
+    print_test("El heap no esta vacio: ", !heap_esta_vacio(heap));
+    print_test("La cantidad de elementos del heap es la correcta: ", heap_cantidad(heap) == N);
+
+    bool orden_desencolados = pruebas_heap_chequear_eliminacion(heap, numeros, cant);
+    print_test("Los elementos se desencolaron en el orden correcto: ", orden_desencolados);
+
+    free(numeros);
+    heap_destruir(heap, NULL);
+}
+
+
+
 void pruebas_heap_estudiante() {
     pruebas_heap_vacio();
     pruebas_unitarias();
-    // pruebas_volumen();
+    pruebas_volumen();
 }
 
 
