@@ -288,9 +288,6 @@ void *heap_desencolar(heap_t *heap) {
 }
 
 
-// Nuestro heap es de minimos y Heapsort utiliza maximos, 
-// por lo cual, para obtener un orden ascendente,
-// ordenamos normal (nos queda descendente) y luego espejamos el arreglo
 void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp) {
 
     if (!cmp || !elementos || cant == 0) {
@@ -304,9 +301,5 @@ void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp) {
         arreglo_swap(elementos, 0, cant-1-i);
         aux--;
         arreglo_downheap(elementos, aux, 0, cmp);
-    }
-
-    for (size_t i=0; i<cant/2; i++) {
-        arreglo_swap(elementos, i, cant-1-i);
     }
 }
