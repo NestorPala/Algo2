@@ -29,6 +29,8 @@ int comp(const void* a, const void* b) {
 
 void pruebas_unitarias() {
 
+    printf("\n--------------------------------------- HEAP CREAR ---------------------------------------\n");
+
     heap_t* heap = heap_crear(comp);
 
     int numeros[] = {5, 9, 10, 12, 11, 2};
@@ -52,7 +54,7 @@ void pruebas_unitarias() {
 
     heap_destruir(heap, NULL);
 
-    printf("\n------------------------------------------------------------------------------\n");
+    printf("\n--------------------------------------- HEAP CREAR ARR ---------------------------------------\n");
 
     void** x1 = malloc(6 * sizeof(void*));
     for (size_t i = 0; i < 6; i++)
@@ -69,6 +71,23 @@ void pruebas_unitarias() {
 
     free(x1);
     heap_destruir(heap2, NULL);
+
+    printf("\n--------------------------------------- HEAPSORT ---------------------------------------\n");
+
+    int asd[] = {32,45,5,67,56,45,2,-17};
+    void** x87 = malloc(8 * sizeof(void*));
+    for (size_t i = 0; i < 8; i++)
+    {
+        x87[i] = &asd[i];
+    }
+
+    heap_sort(x87, 8, comp);
+
+    for (size_t i=0; i<8; i++) {
+        printf("%d\t", *(int*)x87[i]);
+    }
+
+    free(x87);
 }
 
 

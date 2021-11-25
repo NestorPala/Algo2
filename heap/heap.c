@@ -21,18 +21,18 @@ struct heap {
 };
 
 
-// DEBUG
-void heap_debug(void** datos, size_t n) {
+// // DEBUG
+// void heap_debug(void** datos, size_t n) {
 
-    printf("ESTADO ACTUAL DEL ARREGLO:\n");
-    printf("[");
+//     printf("ESTADO ACTUAL DEL ARREGLO:\n");
+//     printf("[");
 
-    for (size_t i=0; i<n; i++) {
-        datos[i] ? printf("%d,  ", *(int*)datos[i]) : printf("NULL  ");
-    }
-    printf("]");
-    printf("\n------------------------------------------------------------------------------\n");
-}
+//     for (size_t i=0; i<n; i++) {
+//         datos[i] ? printf("%d,  ", *(int*)datos[i]) : printf("NULL  ");
+//     }
+//     printf("]");
+//     printf("\n------------------------------------------------------------------------------\n");
+// }
 
 
 // AUXILIAR
@@ -121,13 +121,13 @@ void arreglo_upheap(void** datos, size_t hijo, cmp_func_t cmp) {
 // AUXILIAR
 void arreglo_heapify(void** datos, size_t n, cmp_func_t cmp) {
 
-    heap_debug(datos, 6); //debug
+    //heap_debug(datos, 6); //debug
 
     for (size_t i=0; i<n/2; i++) {
         arreglo_downheap(datos, n, (n/2 - 1) - i, cmp);
     }
 
-    heap_debug(datos, 6); //debug
+    //heap_debug(datos, 6); //debug
 }
 
 
@@ -250,7 +250,7 @@ bool heap_encolar(heap_t *heap, void *elem) {
 
     heap->cantidad++;
 
-    if (heap->cantidad == 6) heap_debug(heap->arr, heap->cantidad); //debug
+    //if (heap->cantidad == 6) heap_debug(heap->arr, heap->cantidad); //debug
 
     return true;
 }
@@ -279,9 +279,23 @@ void *heap_desencolar(heap_t *heap) {
 }
 
 
+// Nuestro heap es de minimos y Heapsort utiliza maximos, 
+// por lo cual, para obtener un orden ascendente,
+// ordenamos normal (nos queda descendente) y luego espejamos el arreglo
 void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp) {
 
     if (!cmp || !elementos || cant == 0) return;
 
-    // ordenamiento...
+    arreglo_heapify(elementos, cant, cmp);
+    size_t aux = cant;
+
+    for (size_t i=0; i<cant-1; i++) {
+        arreglo_swap(elementos, 0, cant-1-i);
+        aux--;
+        arreglo_downheap(elementos, aux, 0, cmp);
+    }
+
+    for (size_t i=0; i<cant/2; i++) {
+        arreglo_swap(elementos, i, cant-1-i);
+    }
 }
