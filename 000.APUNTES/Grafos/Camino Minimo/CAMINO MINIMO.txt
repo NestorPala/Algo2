@@ -1,0 +1,22 @@
+camino minimo
+
+
+grafos sin pesos  -->  BFS
+---------------------------------
+
+grafos con pesos  -->  Dijkstra
+
+* es un BFS modificado que usa heap de minimo
+* O(V + E log V), porque encolar y desencolar del cuesta O(log E) (lo transformamos en O(log V), y lo hacemos E veces, una por cada arista, y luego le sumamos el costo de inicializar los V nodos
+* Este algoritmo funciona con grafos pesados y no pesados, pero en no pesados usamos BFS porque es mas rapido
+* Si el grafo no dirigido tiene al menos una arista con peso negativa en la parte conexa el problema no tiene solucion
+* Este algoritmo se basa en la precondicion de que si algo se saca del heap, su distancia no se puede mejorar
+
+
+Bellman-ford
+
+* Sirve para lo mismo que Dijkstra, y ademas puede identificar ciclos negativos
+* Tiene una gran desventaja, cuesta mas, en concreto, O(V*E)
+* Por cada vertice, recorremos todas las aristas
+
+				 
