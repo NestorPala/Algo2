@@ -1,0 +1,15 @@
+def dfs_2(grafo, vertice, visitados):
+    for w in grafo.adyacentes(vertice):
+        if w not in visitados:
+            visitados.add(w)
+            dfs_2(grafo, w, visitados)
+
+def dfs(grafo, origen):
+    visitados = set()
+    dfs_2(grafo, origen, visitados)
+    return visitados
+
+def es_conexo(grafo):
+    if not grafo: return True
+    visitados = dfs(grafo, grafo.vertice_aleatorio())
+    return len(visitados) == len(grafo)

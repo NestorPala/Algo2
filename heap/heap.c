@@ -79,22 +79,22 @@ void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cm
 
     size_t izq = 2 * padre + 1;
 	size_t der = 2 * padre + 2;
-    size_t min = 0;
+    size_t max = 0;
 
     if (izq < cantidad && datos[izq] && datos[padre] && cmp(datos[izq], datos[padre]) > 0) {
-        min = izq;
+        max = izq;
     } else {
-        min = padre;
+        max = padre;
     }
 
-    if (der < cantidad && datos[der] && datos[min] && cmp(datos[der], datos[min]) > 0) {
-        min = der;
+    if (der < cantidad && datos[der] && datos[max] && cmp(datos[der], datos[max]) > 0) {
+        max = der;
     }
 
     // Chequeamos la condicion de Heap
-    if (min != padre) {
-		arreglo_swap(datos, padre, min);
-		arreglo_downheap(datos, cantidad, min, cmp);
+    if (max != padre) {
+		arreglo_swap(datos, padre, max);
+		arreglo_downheap(datos, cantidad, max, cmp);
     }
 }
 

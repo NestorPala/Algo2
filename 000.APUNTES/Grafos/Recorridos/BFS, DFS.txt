@@ -18,7 +18,7 @@ BFS (Breadth First Search)
 DFS (Depth First Search)
 	* Recorro el grafo "a lo profundo"
 	* Utiliza recursividad
-	* Se parece a los recorridos inorder, reorder, postorder de un ABB 
+	* Se parece a los recorridos inorder, preorder, postorder de un ABB 
 	* Utiliza pilas
 
 ----------------------------------------------	
