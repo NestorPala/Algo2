@@ -28,14 +28,14 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato);
 
 
 // Guarda un par clave valor dentro del ABB. La clave puede ser vacía pero no NULL. El valor puede ser NULL.
-// Pre: El ABB existe. La clave no es NULL.
+// Pre: El ABB existe.
 // Post: Elemento guardado y la cantidad del ABB aumenta en 1.
 bool abb_guardar(abb_t *arbol, const char *clave, void *dato);
 
 
 // Dada una clave, devuelve su valor si la clave existe dentro del ABB o NULL si no. 
 // Pre: El ABB existe. La clave no es NULL.
-// Post: Ninguno.
+// Post: El arbol no fue modificado.
 void *abb_obtener(const abb_t *arbol, const char *clave);
 
 

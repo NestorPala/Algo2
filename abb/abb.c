@@ -52,9 +52,9 @@ abb_nodo_t* abb_nodo_crear(abb_nodo_t* izq, abb_nodo_t* der, const char* clave, 
 
 
 // AUXILIAR
-// La función empieza siempre por la raíz del ABB. 
-// El nodo padre es el padre del último nodo válido recorrido.
-// El padre del nodo raíz es el mismo nodo raíz.
+// Retorna el nodo a partir del nodo actual, cuya clave es igual al parametro 'clave' segun la funcion cmp.
+// En caso de no existir, retorna NULL
+// El nodo padre debe ser padre del nodo recibido. En caso de ser el nodo raiz, debe ser la misma raiz
 abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, abb_nodo_t** padre) {
 
     if (!actual) {
@@ -70,11 +70,9 @@ abb_nodo_t* abb_nodo_buscar(abb_nodo_t* actual, const char* clave, cmp_t cmp, ab
         *padre = actual;
     }
 
-    if (cmp(clave, actual->clave) < 0) {
-        return abb_nodo_buscar(actual->izq, clave, cmp, padre);
-    } else {
-        return abb_nodo_buscar(actual->der, clave, cmp, padre);
-    }
+    return (cmp(clave, actual->clave) < 0) 
+            ? abb_nodo_buscar(actual->izq, clave, cmp, padre)
+            : abb_nodo_buscar(actual->der, clave, cmp, padre);
 }
 
 
@@ -101,7 +99,8 @@ void* abb_nodo_destruir(abb_nodo_t* nodo, destr_t destruir_dato) {
 
 
 // AUXILIAR
-// Inserta todos los datos de un nodo A dentro de un nodo B y luego destruye el nodo A. 
+// Inserta todos los datos del nodo viejo dentro del nodo nuevo, destruyendo el nodo viejo con la funcion destruir_dato. 
+// En caso de true en reempl_izq y/o reempl_der, se referencian tambien los nodos hijos del nodo viejo en el nuevo.
 bool abb_nodo_swap(abb_nodo_t* viejo, abb_nodo_t* nuevo, destr_t destruir_dato, bool reempl_izq, bool reempl_der) {
     if (!viejo || !nuevo) {
         return false;
@@ -255,12 +254,8 @@ void* abb_borrar_hoja(abb_nodo_t* nodo, abb_nodo_t* padre_nodo, cmp_t cmp, destr
 
 
 // AUXILIAR 
-void* abb_borrar_3_o_mas_nodos(abb_t* abb, const char* clave) {
+void* abb_borrar_3_o_mas_nodos(abb_t* abb, abb_nodo_t* encontrado, abb_nodo_t* padre_encontrado, const char* clave) {
     
-    abb_nodo_t* padre_encontrado = abb->raiz;
-    abb_nodo_t* encontrado = abb_nodo_buscar(abb->raiz, clave, abb->cmp, &padre_encontrado);
-
-
     if (encontrado == abb->raiz) {
         
         if (!abb->raiz->der) {
@@ -297,11 +292,11 @@ void* abb_borrar_3_o_mas_nodos(abb_t* abb, const char* clave) {
 
 // AUXILIAR
 // Se utiliza en el caso de que solo quedan 3 elementos en el ABB y estos resultan la raiz y sus dos hijos. 
-void* abb_borrar_raiz_con_2_hojas(abb_t* abb, const char* clave) {
+void* abb_borrar_raiz_con_2_hojas(abb_t* abb, abb_nodo_t* nodo, const char* clave) {
 
     void* dato_borrado = NULL;
 
-    if (abb->cmp(clave, abb->raiz->clave) == 0) {
+    if (nodo == abb->raiz) {
 
         abb_nodo_t* aux1 = abb->raiz->izq;
         abb_nodo_t* aux2 = abb->raiz->der;
@@ -309,7 +304,7 @@ void* abb_borrar_raiz_con_2_hojas(abb_t* abb, const char* clave) {
         aux1->der = aux2;
         abb->raiz = aux1;
 
-    } else if (abb->cmp(clave, abb->raiz->izq->clave) == 0) {
+    } else if (nodo == abb->raiz->izq) {
 
         dato_borrado = abb_nodo_destruir(abb->raiz->izq, abb->destruir_dato);
         abb->raiz->izq = NULL;
@@ -326,12 +321,12 @@ void* abb_borrar_raiz_con_2_hojas(abb_t* abb, const char* clave) {
 
 
 // AUXILIAR
-void* abb_borrar_cantidad_de_2(abb_t* abb, const char* clave, bool izq) {
+void* abb_borrar_cantidad_de_2(abb_t* abb, abb_nodo_t* nodo, const char* clave, bool izq) {
 
     abb_nodo_t* aux = izq ? abb->raiz->izq : abb->raiz->der;
     void* dato_borrado = NULL;
 
-    if (abb->cmp(clave, abb->raiz->clave) == 0) {
+    if (nodo == abb->raiz) {
         dato_borrado = abb_nodo_destruir(abb->raiz, abb->destruir_dato);
         abb->raiz = aux;
     } else {
@@ -515,9 +510,9 @@ void *abb_borrar(abb_t *arbol, const char *clave) {
         return NULL;
     }
 
-    if (!abb_pertenece(arbol, clave)) {
-        return NULL;
-    }
+    abb_nodo_t* padre_encontrado = arbol->raiz;
+    abb_nodo_t* encontrado = abb_nodo_buscar(arbol->raiz, clave, arbol->cmp, &padre_encontrado);
+    if (!encontrado) return NULL;
     
     // A partir de acá sabemos que la clave a borrar existe
 
@@ -529,16 +524,16 @@ void *abb_borrar(abb_t *arbol, const char *clave) {
         arbol->cantidad = 0;
     } else if (arbol->cantidad == 2) {
         if (arbol->raiz->izq) {
-            dato_borrado = abb_borrar_cantidad_de_2(arbol, clave, true);
+            dato_borrado = abb_borrar_cantidad_de_2(arbol, encontrado, clave, true);
         } else {
-            dato_borrado = abb_borrar_cantidad_de_2(arbol, clave, false);
+            dato_borrado = abb_borrar_cantidad_de_2(arbol, encontrado, clave, false);
         }
         arbol->cantidad = 1;
     } else if (arbol->cantidad == 3 && arbol->raiz->izq && arbol->raiz->der) {
-        dato_borrado = abb_borrar_raiz_con_2_hojas(arbol, clave);
+        dato_borrado = abb_borrar_raiz_con_2_hojas(arbol, encontrado, clave);
         arbol->cantidad = 2;
     } else {
-        dato_borrado = abb_borrar_3_o_mas_nodos(arbol, clave);
+        dato_borrado = abb_borrar_3_o_mas_nodos(arbol, encontrado, padre_encontrado, clave);
         arbol->cantidad--;
     }
     
