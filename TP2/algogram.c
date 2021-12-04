@@ -1,16 +1,22 @@
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
+#include "string.h" 
 #include "hash.h"
 #include "heap.h"
 #include "algogram.h"
-// #include "post.h"
-#include "vd.h"  // (¡NUEVO!) Vector Dinámico V2 (¡ahora con voids asteriscos!)
+#include "vd.h" 
 
 
-// No es un TDA
+#define LOGIN "login\n"
+#define LOGOUT "logout\n"
+#define PUBLICAR_POST "publicar\n"
+#define VER_SIGUIENTE_FEED "ver_siguiente_feed\n"
+#define LIKEAR_POST "likear_post\n"
+#define MOSTRAR_LIKES "mostrar_likes\n"
+
+
 typedef struct red_social {
-    hash_t* funciones;
     size_t logueado;
     vd_t* usuarios;
     hash_t* usuarios_feed;
@@ -19,27 +25,81 @@ typedef struct red_social {
 } algogram_s;
 
 
-// No es un TDA
 typedef struct post {
     size_t autor;
     char* comentario;
     int fecha_creacion;
-    size_t cant_likes;      // Algogram todavia no tiene dislikes (?
-    vd_t* likers;        // O para los amigos, "personas que dieron me gusta"
+    size_t cant_likes; 
+    vd_t* likers;        
 } post_s;
 
 
-void logout() {};
-void post_ver_likes() {};
-void post_likear() {};
-void post_ver_proximo() {};
-void post_publicar() {};
-void login() {};
+void logout(algogram_s* red) {
+    printf("\nLOGOUT");
+}
+
+
+void post_ver_likes(algogram_s* red) {
+    printf("\nPOST VER LIKES");
+}
+
+
+void post_likear(algogram_s* red) {
+    printf("\nPOST LIKEAR");
+}
+
+
+void post_ver_siguiente(algogram_s* red) {
+    printf("\nPOST VER SIGUIENTE");
+}
+
+
+void post_publicar(algogram_s* red) {
+    printf("\nPOST PUBLICAR");
+}
+
+
+void login(algogram_s* red) {
+    printf("\nLOGIN");
+}
+
+
+void ejecutar_comando(char* comando, algogram_s* red) {
+         if (strcmp(comando, LOGIN)              == 0)  login(red);
+    else if (strcmp(comando, LOGOUT)             == 0)  logout(red);
+    else if (strcmp(comando, PUBLICAR_POST)      == 0)  post_publicar(red);
+    else if (strcmp(comando, VER_SIGUIENTE_FEED) == 0)  post_ver_siguiente(red);
+    else if (strcmp(comando, LIKEAR_POST)        == 0)  post_likear(red);
+    else if (strcmp(comando, MOSTRAR_LIKES)      == 0)  post_ver_likes(red);
+}
+
+
+bool es_comando(char* string) {
+    return     strcmp(string, LOGIN)               == 0
+            || strcmp(string, LOGOUT)              == 0
+            || strcmp(string, PUBLICAR_POST)       == 0
+            || strcmp(string, VER_SIGUIENTE_FEED)  == 0
+            || strcmp(string, LIKEAR_POST)         == 0
+            || strcmp(string, MOSTRAR_LIKES)       == 0;
+}
 
 
 void algogram_ingresar_comandos(algogram_s* red) {
-    //...
-    return;
+
+    char* buffer;
+    size_t buf_tam = 32;
+    buffer = (char *)malloc(buf_tam * sizeof(char));
+
+    printf("\nHOLA: "); //debug
+    getline(&buffer, &buf_tam, stdin);
+    printf("\nINGRESADO: %s", buffer);  //debug
+
+    if (!es_comando(buffer)) {
+        printf("Comando inválido.");
+        return;
+    }
+    
+    ejecutar_comando(buffer, red);
 }
 
 
