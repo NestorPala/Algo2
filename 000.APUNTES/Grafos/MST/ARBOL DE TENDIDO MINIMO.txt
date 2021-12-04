@@ -1,0 +1,36 @@
+MST (ARBOL DE TENDIDO MINIMO)
+
+es un arbol dentro del grafo que:
+	* contiene todos los vertices del grafo original
+	* contiene la minima suma de todos los pesos
+	* Cumple las 3 propiedades de arbol:
+		* aristas = vertices - 1
+		* no hay ciclos
+		* Hay un solo camino para ir de un vertice a otro
+
+
+Lo aplicamos para grafos no dirigidos.
+
+----------------------------------------------------------------
+
+Se puede usar BFS o DFS si el grafo no tiene pesos.
+
+----------------------------------------------------------------
+ARBOL DE TENDIDO CON LA MINIMA SUMA DE PESOS, SI EL GRAFO TIENE PESOS
+
+
+* Dijkstra no sirve para resolver el problema, porque si bien dij genera un arbol, este no es necesariamente el minimo.
+
+* Hay 2 algoritmos: 
+	1) PRIM (Usamos BFS o DFS, heap, orden O(E LOG V))
+	2) KRUSKAL (usamos conjuntos disjuntos (union-find), ordenamos las aristas, orden O(E LOG V))
+
+* No importa por que vertice comencemos, siempre obtenemos el resultado correcto.
+
+* El arbol de tendido minimo no tiene por que ser unico, si tenemos aristas semejantes (con el mismo peso).
+
+* Si los pesos son todos diferentes, el MST es unico.
+
+
+
+

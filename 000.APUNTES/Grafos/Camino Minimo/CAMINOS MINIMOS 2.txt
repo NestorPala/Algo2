@@ -1,0 +1,9 @@
+Para grafos no dirigidos el problema de caminos minimos no tiene sentido si tenemos una arista negativa, esto aplica para cualquier algoritmo.
+
+Para grafos dirigidos, caminos minimos no se puede resolver usando dijkstra si tenemos ciclos negativos
+
+
+Orden de dijkstra: O(V + E log V), o mas bien O(E log V), porque tenemos un heap.
+
+
+El elemento por el cual empiezo es con el cual quiero ver los caminos minimos a todos los demas

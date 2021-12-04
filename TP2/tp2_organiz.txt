@@ -1,0 +1,35 @@
+ALGOGRAM:
+	FUNCIONES:	   hash  -->   clave: nombre_funcion:	    valor: puntero_funcion
+	LOGUEADO:	    int  -->  			            valor: indice_usuario
+	USUARIOS: 	     vd  -->  indice: orden_carga_archivo;  valor: nombre_usuario
+	USUARIOS_FEED:     hash  -->   clave:      nombre_usuario;  valor: feed (heap)
+	POSTS: 		     vd  -->  indice:             id_post;  valor: post
+	POSTS_CONTADOR:     int  -->				    valor: cant_posts_publicados
+
+
+POST: post_t*
+	PUBLICADOR:	    int  -->  				    valor: indice_usuario
+	COMENTARIO:	  char*  -->				    valor: publicacion_hecha
+	FECHA_CREACION: fecha_t  -->				    valor: anio_mes_dia_horas_minutos_segundos
+	CANTIDAD_LIKES:     int  -->				    valor: likes_recibidos
+	LISTA_LIKERS:	     vd  -->   orden: heapsort;		    valor: indice_usuario
+	-----------------------------------------------------------------------------------------------------
+	POST_CREAR(usuario, comentario);
+	POST_LIKEAR(usuario, post);
+	POST_VER_LIKES(post);
+	POST_DESTRUIR(post);
+
+
+FUNCIONES DE ALGOGRAM:
+	 LOGIN(usuario);
+	 POST_PUBLICAR(usuario, comentario);
+	 FEED_AGREGAR(usuario, post);     	 -->  heap_encolar(usuario->feed, post);
+	 FEED_VER_PROXIMO_POST(usuario): 	 -->  heap_desencolar(usuario->feed);
+    	 POST_LIKEAR(usuario, post);
+    	 POST_VER_LIKES(post);
+	 LOGOUT();
+
+
+	
+	
+	

@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 
     // Iniciamos la "red social"
     algogram(usuarios);
-
+    
     fclose(usuarios);
     return 0;
 }
