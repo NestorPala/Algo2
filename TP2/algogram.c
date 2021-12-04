@@ -4,7 +4,7 @@
 #include "hash.h"
 #include "heap.h"
 #include "algogram.h"
-#include "post.h"
+// #include "post.h"
 #include "vd.h"  // (¡NUEVO!) Vector Dinámico V2 (¡ahora con voids asteriscos!)
 
 
@@ -12,9 +12,9 @@
 typedef struct red_social {
     hash_t* funciones;
     size_t logueado;
-    vector_t* usuarios;
+    vd_t* usuarios;
     hash_t* usuarios_feed;
-    vector_t* posts;
+    vd_t* posts;
     size_t posts_contador;
 } algogram_s;
 
@@ -25,7 +25,7 @@ typedef struct post {
     char* comentario;
     int fecha_creacion;
     size_t cant_likes;      // Algogram todavia no tiene dislikes (?
-    vector_t likers;        // O para los amigos, "personas que dieron me gusta"
+    vd_t* likers;        // O para los amigos, "personas que dieron me gusta"
 } post_s;
 
 

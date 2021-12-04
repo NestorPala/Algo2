@@ -3,8 +3,8 @@
 #include <stddef.h>
 
 
-const size_t CAPACIDAD_INICIAL = 10;
-const size_t FACTOR_CARGA      =  2;    // Se utiliza para las redimensiones del Heap
+const size_t CAPACIDAD_INICIAL_HEAP = 10;
+const size_t FACTOR_CARGA_HEAP      =  2;    // Se utiliza para las redimensiones del Heap
 
 
 typedef void (*destr_t)(void *e);       // Funcion de destruccion de dato
@@ -161,19 +161,19 @@ heap_t *heap_crear(cmp_func_t cmp) {
         return NULL;
     }
 
-    void** arr = malloc(CAPACIDAD_INICIAL * sizeof(void*));
+    void** arr = malloc(CAPACIDAD_INICIAL_HEAP * sizeof(void*));
     if (!arr) {
         free(heap);
         return NULL;
     }
 
-    for (size_t i=0; i<CAPACIDAD_INICIAL; i++) {
+    for (size_t i=0; i<CAPACIDAD_INICIAL_HEAP; i++) {
         arr[i] = NULL;
     }
 
     heap->arr = arr;
     heap->cantidad = 0;
-    heap->capacidad = CAPACIDAD_INICIAL;
+    heap->capacidad = CAPACIDAD_INICIAL_HEAP;
     heap->cmp = cmp;
 
     return heap;
@@ -191,7 +191,7 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
         return NULL;
     }
 
-    size_t nueva_capacidad = FACTOR_CARGA * n;
+    size_t nueva_capacidad = FACTOR_CARGA_HEAP * n;
 
     void** datos = arreglo_copiar_arreglo(arreglo, n, nueva_capacidad);
     if (!datos) {
@@ -248,7 +248,7 @@ bool heap_encolar(heap_t *heap, void *elem) {
 
     // Redimensionamos el arreglo si es necesario
     float carga        =  1;
-    float redimension  =  (float)FACTOR_CARGA;
+    float redimension  =  (float)FACTOR_CARGA_HEAP;
     heap_redimensionar(heap, carga, redimension);
     
     // Guardamos el elemento y lo "ordenamos" como un heap
@@ -267,8 +267,8 @@ void *heap_desencolar(heap_t *heap) {
     }
 
     //Redimensionamos el arreglo si es necesario
-    float carga         =   ( 1  / ( 2 * (float)FACTOR_CARGA ) );
-    float redimension   =   ( 1  / (     (float)FACTOR_CARGA ) );
+    float carga         =   ( 1  / ( 2 * (float)FACTOR_CARGA_HEAP ) );
+    float redimension   =   ( 1  / (     (float)FACTOR_CARGA_HEAP ) );
     heap_redimensionar(heap, carga, redimension);
 
     // Elemento a devolver

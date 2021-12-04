@@ -142,7 +142,7 @@ size_t vd_largo(vd_t* vector) {
 
 bool vd_redimensionar(vd_t* vector, size_t capacidad) {
 
-	if (vd_esta_vacio(vector)) {
+	if (capacidad == 0 || vd_esta_vacio(vector)) {
 		return false;
 	}
 
