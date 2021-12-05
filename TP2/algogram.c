@@ -19,33 +19,33 @@ typedef struct red_social {
     char* logueado;
     hash_t* usuarios;
     vd_t* posts;
-    size_t posts_contador;
+    size_t contador_posts;
 } algogram_s;
 
 
 typedef struct post {
     size_t autor;
-    char* comentario;
+    char* contenido;
     int fecha_creacion;
     size_t cant_likes; 
-    vd_t* likers;        
+    vd_t* likes;        
 } post_s;
 
 
-char* quitar_barra_n(char* string) {
-    int i, len;
-    len = strlen(string);
-    char* newstring;
+char* quitar_barra_n(char* cadena) {
+    int i, largo;
+    largo = strlen(cadena);
+    char* nueva_cadena;
  
-    newstring = malloc(len-2);
+    nueva_cadena = malloc(largo-2);
  
-    for(i = 0; i < len-2; i++){
-        newstring[i] = string[i]; 
+    for(i = 0; i < largo-2; i++){
+        nueva_cadena[i] = cadena[i]; 
     }
 
-    newstring[len - 2] = '\0';
+    nueva_cadena[largo - 2] = '\0';
  
-    return newstring;
+    return nueva_cadena;
 }
 
 
@@ -62,69 +62,69 @@ char* entrada_usuario() {
 }
 
 
-void logout(algogram_s* red) {
+void logout(algogram_s* algogram) {
     printf("\nLOGOUT"); //debug
 }
 
 
-void post_ver_likes(algogram_s* red) {
+void post_ver_likes(algogram_s* algogram) {
     printf("\nPOST VER LIKES"); //debug
 }
 
 
-void post_likear(algogram_s* red) {
+void post_likear(algogram_s* algogram) {
     printf("\nPOST LIKEAR"); //debug
 }
 
 
-void post_ver_siguiente(algogram_s* red) {
+void post_ver_siguiente(algogram_s* algogram) {
     printf("\nPOST VER SIGUIENTE"); //debug
 }
 
 
-void post_publicar(algogram_s* red) {
+void post_publicar(algogram_s* algogram) {
     printf("\nPOST PUBLICAR"); //debug
 }
 
 
-void login(algogram_s* red) {
+void login(algogram_s* algogram) {
     printf("\nLOGIN"); //debug
 }
 
 
-void ejecutar_comando(char* comando, algogram_s* red) {
-         if (strcmp(comando, LOGIN)              == 0)  login(red);
-    else if (strcmp(comando, LOGOUT)             == 0)  logout(red);
-    else if (strcmp(comando, PUBLICAR_POST)      == 0)  post_publicar(red);
-    else if (strcmp(comando, VER_SIGUIENTE_FEED) == 0)  post_ver_siguiente(red);
-    else if (strcmp(comando, LIKEAR_POST)        == 0)  post_likear(red);
-    else if (strcmp(comando, MOSTRAR_LIKES)      == 0)  post_ver_likes(red);
+void ejecutar_comando(char* comando, algogram_s* algogram) {
+         if (strcmp(comando, LOGIN)              == 0)  login(algogram);
+    else if (strcmp(comando, LOGOUT)             == 0)  logout(algogram);
+    else if (strcmp(comando, PUBLICAR_POST)      == 0)  post_publicar(algogram);
+    else if (strcmp(comando, VER_SIGUIENTE_FEED) == 0)  post_ver_siguiente(algogram);
+    else if (strcmp(comando, LIKEAR_POST)        == 0)  post_likear(algogram);
+    else if (strcmp(comando, MOSTRAR_LIKES)      == 0)  post_ver_likes(algogram);
     else if (strcmp(comando, "clear\n")          == 0)  exit(0); //debug
 }
 
 
-bool es_comando(char* string) {
-    return     strcmp(string, LOGIN)               == 0
-            || strcmp(string, LOGOUT)              == 0
-            || strcmp(string, PUBLICAR_POST)       == 0
-            || strcmp(string, VER_SIGUIENTE_FEED)  == 0
-            || strcmp(string, LIKEAR_POST)         == 0
-            || strcmp(string, MOSTRAR_LIKES)       == 0
-            || strcmp(string, "clear\n")           == 0;  //debug
+bool es_comando(char* cadena) {
+    return     strcmp(cadena, LOGIN)               == 0
+            || strcmp(cadena, LOGOUT)              == 0
+            || strcmp(cadena, PUBLICAR_POST)       == 0
+            || strcmp(cadena, VER_SIGUIENTE_FEED)  == 0
+            || strcmp(cadena, LIKEAR_POST)         == 0
+            || strcmp(cadena, MOSTRAR_LIKES)       == 0
+            || strcmp(cadena, "clear\n")           == 0;  //debug
 }
 
 
-void algogram_ingresar_comandos(algogram_s* red) {
+void algogram_ingresar_comandos(algogram_s* algogram) {
 
-    char* string = entrada_usuario();
+    char* cadena = entrada_usuario();
 
-    if (!es_comando(string)) {
+    if (!es_comando(cadena)) {
         printf("Comando inválido.");
         return;
     }
     
-    ejecutar_comando(string, red);
-    free(string);
+    ejecutar_comando(cadena, algogram);
+    free(cadena);
 }
 
 
@@ -173,17 +173,17 @@ algogram_s* algogram_crear(FILE* usuarios) {
     hash_iter_destruir(iter);                                   //
 
     algogram->posts = NULL;
-    algogram->posts_contador = 0;
+    algogram->contador_posts = 0;
 
     return algogram;
 }
 
 
 void algogram(FILE* usuarios) {
-    algogram_s* red = algogram_crear(usuarios);
-    if (!red) return;
+    algogram_s* algogram = algogram_crear(usuarios);
+    if (!algogram) return;
 
     while (true) {
-        algogram_ingresar_comandos(red);
+        algogram_ingresar_comandos(algogram);
     }
 }
