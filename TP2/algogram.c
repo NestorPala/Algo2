@@ -67,42 +67,52 @@ char* entrada_usuario() {
 
 
 void logout(algogram_s* algogram) {
-    printf("\nLOGOUT"); //debug
+    printf("---------------LOGOUT---------------\n"); //debug
+
+    if (algogram->logueado == NADIE_LOGUEADO) {
+        printf("Error: no habia usuario loggeado\n");
+        return;
+    }
+
+    free(algogram->logueado);
+    algogram->logueado = NADIE_LOGUEADO;
+
+    printf("Adios\n");
 }
 
 
 void post_ver_likes(algogram_s* algogram) {
-    printf("\nPOST VER LIKES"); //debug
+    printf("---------------POST VER LIKES---------------\n"); //debug
 }
 
 
 void post_likear(algogram_s* algogram) {
-    printf("\nPOST LIKEAR"); //debug
+    printf("---------------POST LIKEAR---------------\n"); //debug
 }
 
 
 void post_ver_siguiente(algogram_s* algogram) {
-    printf("\nPOST VER SIGUIENTE"); //debug
+    printf("---------------POST VER SIGUIENTE---------------\n"); //debug
 }
 
 
 void post_publicar(algogram_s* algogram) {
-    printf("\nPOST PUBLICAR"); //debug
+    printf("---------------POST PUBLICAR---------------\n"); //debug
 }
 
 
 void login(algogram_s* algogram) {
-    printf("\nLOGIN\n"); //debug
+    printf("---------------LOGIN---------------\n"); //debug
 
     char* cadena = entrada_usuario();
 
     if (algogram->logueado != NADIE_LOGUEADO) {
-        printf("Error: Ya habia un usuario loggeado");
+        printf("Error: Ya habia un usuario loggeado\n");
         return;
     }
 
     if (!hash_pertenece(algogram->usuarios, cadena)) {
-        printf("Error: usuario no existente");
+        printf("Error: usuario no existente\n");
         return;
     }
 
@@ -145,7 +155,7 @@ void algogram_ingresar_comandos(algogram_s* algogram) {
     char* cadena = entrada_usuario();
 
     if (!es_comando(cadena)) {
-        printf("Comando inválido.");
+        printf("Comando inválido.\n");
         return;
     }
     
@@ -197,6 +207,7 @@ algogram_s* algogram_crear(FILE* usuarios) {
         hash_iter_avanzar(iter);                                //
     }                                                           //
     hash_iter_destruir(iter);                                   //
+    printf("\n");                                               //
 
     algogram->posts = NULL;
     algogram->contador_posts = 0;
