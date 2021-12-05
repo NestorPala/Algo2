@@ -24,7 +24,7 @@ typedef struct red_social {
 
 
 typedef struct post {
-    size_t autor;
+    char* autor;
     char* contenido;
     int fecha_creacion;
     size_t cant_likes; 
@@ -53,7 +53,7 @@ char* quitar_barra_n(char* cadena, bool ingresar_usuarios) {
 char* entrada_usuario() {
     char* buffer;
     size_t buf_tam = 32;
-    buffer = (char *)malloc(buf_tam * sizeof(char));
+    buffer = malloc(buf_tam * sizeof(char));
 
     //printf("\n>>>>>  "); //debug
 
@@ -101,6 +101,43 @@ void post_ver_siguiente(algogram_s* algogram) {
 }
 
 
+int obtener_fecha_actual() {
+    //...
+    return 0;
+}
+
+
+// DEBUG
+void mostrar_posts(algogram_s* algogram) {
+    for (size_t i=0; i<algogram->contador_posts; i++) {
+
+        bool resultado = true;
+        post_s* post = vd_obtener(algogram->posts, i, &resultado);
+
+        if (!resultado) {
+            break;
+        }
+
+        printf("\n----------------------------------------------------\n");
+        printf("POST NUMERO %zu\n", i+1);
+
+        char* autor       = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> autor;
+        char* contenido   = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> contenido;
+        int fecha_creac   = 0;
+        size_t cant_likes = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> cant_likes;
+        vd_t* likes       = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> likes;
+
+        printf("AUTOR:  %s\n", autor);
+        printf("CONTENIDO:  %s\n", contenido);
+        printf("FECHA DE CREACION:  %d\n", fecha_creac);
+        printf("CANTIDAD DE LIKES: %zu\n", cant_likes);
+
+        // printf("LIKES: ");
+        // vd_print(likes);
+    }
+}
+
+
 void post_publicar(algogram_s* algogram) {
     printf("---------------POST PUBLICAR---------------\n"); //debug
 
@@ -110,8 +147,40 @@ void post_publicar(algogram_s* algogram) {
     }
 
     char* comentario = entrada_usuario();
+    printf("USTED HA COMENTADO: %s\n", comentario); //debug
 
-    printf("USTED HA COMENTADO: %s\n", comentario);
+    // Creo el post
+
+    post_s* post = malloc(sizeof(post_s));
+    if (!post) {
+        free(comentario);
+        return;
+    }
+
+    post->autor = strdup(algogram->logueado);
+    post->cant_likes = 0;
+    post->contenido = strdup(comentario);
+    post->fecha_creacion = obtener_fecha_actual();
+    post->likes = NULL;
+
+    // Publico el post
+
+    if (!algogram->posts) {
+        algogram->posts = vd_crear(5);
+    }
+
+    size_t cant_posts = algogram->contador_posts;
+    size_t max_posts = vd_largo(algogram->posts);
+
+    if (cant_posts == max_posts) {
+        vd_redimensionar(algogram->posts, 2 * max_posts);
+    }
+
+    vd_guardar(algogram->posts, cant_posts, post);
+    algogram->contador_posts++;
+
+
+    mostrar_posts(algogram); //debug
 }
 
 
@@ -149,7 +218,7 @@ void ejecutar_comando(char* comando, algogram_s* algogram) {
     else if (strcmp(comando, VER_SIGUIENTE_FEED) == 0)  post_ver_siguiente(algogram);
     else if (strcmp(comando, LIKEAR_POST)        == 0)  post_likear(algogram);
     else if (strcmp(comando, MOSTRAR_LIKES)      == 0)  post_ver_likes(algogram);
-    else if (strcmp(comando, "clear")          == 0)  exit(0); //debug
+    else if (strcmp(comando, "clear")            == 0)  exit(0); //debug
 }
 
 
@@ -160,7 +229,7 @@ bool es_comando(char* cadena) {
             || strcmp(cadena, VER_SIGUIENTE_FEED)  == 0
             || strcmp(cadena, LIKEAR_POST)         == 0
             || strcmp(cadena, MOSTRAR_LIKES)       == 0
-            || strcmp(cadena, "clear")           == 0;  //debug
+            || strcmp(cadena, "clear")             == 0;  //debug
 }
 
 
