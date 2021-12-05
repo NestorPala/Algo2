@@ -5,13 +5,13 @@
 #include "hash.h"
 #include "heap.h"
 #include "algogram.h"
-#include "vd.h" 
-#define LOGIN "login\n"
-#define LOGOUT "logout\n"
-#define PUBLICAR_POST "publicar\n"
-#define VER_SIGUIENTE_FEED "ver_siguiente_feed\n"
-#define LIKEAR_POST "likear_post\n"
-#define MOSTRAR_LIKES "mostrar_likes\n"
+#include "vd.h" //vector dinamico
+#define LOGIN "login"
+#define LOGOUT "logout"
+#define PUBLICAR_POST "publicar"
+#define VER_SIGUIENTE_FEED "ver_siguiente_feed"
+#define LIKEAR_POST "likear_post"
+#define MOSTRAR_LIKES "mostrar_likes"
 #define NADIE_LOGUEADO " "
 
 
@@ -32,18 +32,19 @@ typedef struct post {
 } post_s;
 
 
-char* quitar_barra_n(char* cadena) {
+char* quitar_barra_n(char* cadena, bool ingresar_usuarios) {
     int i, largo;
     largo = strlen(cadena);
     char* nueva_cadena;
+    size_t u = ingresar_usuarios ? 2 : 1;
  
-    nueva_cadena = malloc(largo-2);
+    nueva_cadena = malloc(largo - u);
  
-    for(i = 0; i < largo-2; i++){
+    for(i = 0; i < largo-u; i++){
         nueva_cadena[i] = cadena[i]; 
     }
 
-    nueva_cadena[largo - 2] = '\0';
+    nueva_cadena[largo - u] = '\0';
  
     return nueva_cadena;
 }
@@ -54,11 +55,14 @@ char* entrada_usuario() {
     size_t buf_tam = 32;
     buffer = (char *)malloc(buf_tam * sizeof(char));
 
-    printf("\nHOLA: "); //debug
-    ssize_t input = getline(&buffer, &buf_tam, stdin);
-    printf("\nINGRESADO: %s", buffer);  //debug
+    //printf("\n>>>>>  "); //debug
 
-    return buffer;
+    getline(&buffer, &buf_tam, stdin);
+    char* nuevo_buffer = quitar_barra_n(buffer, false);
+
+    //printf("\nINGRESADO: %s", nuevo_buffer);  //debug
+
+    return nuevo_buffer;
 }
 
 
@@ -88,7 +92,29 @@ void post_publicar(algogram_s* algogram) {
 
 
 void login(algogram_s* algogram) {
-    printf("\nLOGIN"); //debug
+    printf("\nLOGIN\n"); //debug
+
+    char* cadena = entrada_usuario();
+
+    if (algogram->logueado != NADIE_LOGUEADO) {
+        printf("Error: Ya habia un usuario loggeado");
+        return;
+    }
+
+    if (!hash_pertenece(algogram->usuarios, cadena)) {
+        printf("Error: usuario no existente");
+        return;
+    }
+
+    // if (algogram->logueado) {
+    //     free(algogram->logueado);
+    // }
+
+    algogram->logueado = strdup(cadena);
+
+    printf("Hola %s\n", algogram->logueado);
+
+    free(cadena);
 }
 
 
@@ -99,7 +125,7 @@ void ejecutar_comando(char* comando, algogram_s* algogram) {
     else if (strcmp(comando, VER_SIGUIENTE_FEED) == 0)  post_ver_siguiente(algogram);
     else if (strcmp(comando, LIKEAR_POST)        == 0)  post_likear(algogram);
     else if (strcmp(comando, MOSTRAR_LIKES)      == 0)  post_ver_likes(algogram);
-    else if (strcmp(comando, "clear\n")          == 0)  exit(0); //debug
+    else if (strcmp(comando, "clear")          == 0)  exit(0); //debug
 }
 
 
@@ -110,7 +136,7 @@ bool es_comando(char* cadena) {
             || strcmp(cadena, VER_SIGUIENTE_FEED)  == 0
             || strcmp(cadena, LIKEAR_POST)         == 0
             || strcmp(cadena, MOSTRAR_LIKES)       == 0
-            || strcmp(cadena, "clear\n")           == 0;  //debug
+            || strcmp(cadena, "clear")           == 0;  //debug
 }
 
 
@@ -144,7 +170,7 @@ hash_t* algogram_cargar_usuarios(FILE* archivo_usuarios) {
     char* buffer = (char*)malloc(n * sizeof(char));
 
     while(getline(&buffer, &n, archivo_usuarios) != EOF) {
-        char* nuevo_buffer = quitar_barra_n(buffer);
+        char* nuevo_buffer = quitar_barra_n(buffer, true);
         hash_guardar(usuarios, nuevo_buffer, NULL);
     }
 
