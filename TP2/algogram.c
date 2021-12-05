@@ -38,7 +38,7 @@ char* quitar_barra_n(char* cadena, bool ingresar_usuarios) {
     char* nueva_cadena;
     size_t u = ingresar_usuarios ? 2 : 1;
  
-    nueva_cadena = malloc(largo - u);
+    nueva_cadena = malloc(largo - u + 1);
  
     for(i = 0; i < largo-u; i++){
         nueva_cadena[i] = cadena[i]; 
@@ -66,10 +66,15 @@ char* entrada_usuario() {
 }
 
 
+bool hay_logueado(algogram_s* algogram) {
+    return algogram->logueado != NADIE_LOGUEADO;
+}
+
+
 void logout(algogram_s* algogram) {
     printf("---------------LOGOUT---------------\n"); //debug
 
-    if (algogram->logueado == NADIE_LOGUEADO) {
+    if (!hay_logueado(algogram)) {
         printf("Error: no habia usuario loggeado\n");
         return;
     }
@@ -98,6 +103,15 @@ void post_ver_siguiente(algogram_s* algogram) {
 
 void post_publicar(algogram_s* algogram) {
     printf("---------------POST PUBLICAR---------------\n"); //debug
+
+    if (!hay_logueado(algogram)) {
+        printf("Error: no habia usuario loggeado\n");
+        return;
+    }
+
+    char* comentario = entrada_usuario();
+
+    printf("USTED HA COMENTADO: %s\n", comentario);
 }
 
 
@@ -106,7 +120,7 @@ void login(algogram_s* algogram) {
 
     char* cadena = entrada_usuario();
 
-    if (algogram->logueado != NADIE_LOGUEADO) {
+    if (hay_logueado(algogram)) {
         printf("Error: Ya habia un usuario loggeado\n");
         return;
     }
