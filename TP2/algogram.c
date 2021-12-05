@@ -12,13 +12,12 @@
 #define VER_SIGUIENTE_FEED "ver_siguiente_feed\n"
 #define LIKEAR_POST "likear_post\n"
 #define MOSTRAR_LIKES "mostrar_likes\n"
-#define NADIE_LOGUEADO -1
+#define NADIE_LOGUEADO " "
 
 
 typedef struct red_social {
-    int logueado;
-    vd_t* usuarios;
-    hash_t* usuarios_feed;
+    char* logueado;
+    hash_t* usuarios;
     vd_t* posts;
     size_t posts_contador;
 } algogram_s;
@@ -31,6 +30,23 @@ typedef struct post {
     size_t cant_likes; 
     vd_t* likers;        
 } post_s;
+
+
+char* quitar_barra_n(char* string) {
+    int i, len;
+    len = strlen(string);
+    char* newstring;
+ 
+    newstring = malloc(len-2);
+ 
+    for(i = 0; i < len-2; i++){
+        newstring[i] = string[i]; 
+    }
+
+    newstring[len - 2] = '\0';
+ 
+    return newstring;
+}
 
 
 char* entrada_usuario() {
@@ -83,6 +99,7 @@ void ejecutar_comando(char* comando, algogram_s* red) {
     else if (strcmp(comando, VER_SIGUIENTE_FEED) == 0)  post_ver_siguiente(red);
     else if (strcmp(comando, LIKEAR_POST)        == 0)  post_likear(red);
     else if (strcmp(comando, MOSTRAR_LIKES)      == 0)  post_ver_likes(red);
+    else if (strcmp(comando, "clear\n")          == 0)  exit(0); //debug
 }
 
 
@@ -92,7 +109,8 @@ bool es_comando(char* string) {
             || strcmp(string, PUBLICAR_POST)       == 0
             || strcmp(string, VER_SIGUIENTE_FEED)  == 0
             || strcmp(string, LIKEAR_POST)         == 0
-            || strcmp(string, MOSTRAR_LIKES)       == 0;
+            || strcmp(string, MOSTRAR_LIKES)       == 0
+            || strcmp(string, "clear\n")           == 0;  //debug
 }
 
 
@@ -110,31 +128,29 @@ void algogram_ingresar_comandos(algogram_s* red) {
 }
 
 
-vd_t* algogram_cargar_usuarios(FILE* archivo_usuarios) {
+void heap_destruir_aux(void* heap) {
+    heap_destruir(heap, NULL);
+}
 
-    vd_t* lista_usuarios = vd_crear(5);
 
-    if (!lista_usuarios) {
+hash_t* algogram_cargar_usuarios(FILE* archivo_usuarios) {
+
+    hash_t* usuarios = hash_crear(heap_destruir_aux);
+    if (!usuarios) {
         return NULL;
     }
 
-    size_t n = 16, i = 0;
+    size_t n = 16;
     char* buffer = (char*)malloc(n * sizeof(char));
 
     while(getline(&buffer, &n, archivo_usuarios) != EOF) {
-        if (i == vd_largo(lista_usuarios)) {
-            vd_redimensionar(lista_usuarios, 2*i);
-        }
-
-        printf("USUARIO A GUARDAR: %s\n", buffer); //debug
-        vd_guardar(lista_usuarios, i, buffer);
-
-        i++;
+        char* nuevo_buffer = quitar_barra_n(buffer);
+        hash_guardar(usuarios, nuevo_buffer, NULL);
     }
 
     free(buffer);
 
-    return lista_usuarios;
+    return usuarios;
 }
 
 
@@ -148,17 +164,13 @@ algogram_s* algogram_crear(FILE* usuarios) {
     algogram->logueado = NADIE_LOGUEADO;
     algogram->usuarios = algogram_cargar_usuarios(usuarios);
 
-    // hash_t* usuarios_feed = hash_crear(heap_destruir);
-    // if (!usuarios_feed) {
-    //     free(algogram);
-    //     return NULL;
-    // }
-    // algogram->usuarios_feed = usuarios_feed;
-
-    for (size_t i=0; i<vd_largo(algogram->usuarios); i++) {
-        void* usuario = vd_obtener(algogram->usuarios, i, NULL);
-        usuario ? printf("%s\t", (char*)vd_obtener(algogram->usuarios, i, NULL)) : printf("NULL\t");
-    }
+    hash_iter_t* iter = hash_iter_crear(algogram->usuarios);    //
+    while (!hash_iter_al_final(iter)) {                         //
+        const char* elem_actual = hash_iter_ver_actual(iter);   //
+        printf("%s, ", elem_actual);                            //
+        hash_iter_avanzar(iter);                                //
+    }                                                           //
+    hash_iter_destruir(iter);                                   //
 
     algogram->posts = NULL;
     algogram->posts_contador = 0;
