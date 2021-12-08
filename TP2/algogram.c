@@ -15,13 +15,15 @@
 #define VER_SIGUIENTE_FEED "ver_siguiente_feed"
 #define LIKEAR_POST "likear_post"
 #define MOSTRAR_LIKES "mostrar_likes"
-#define NADIE_LOGUEADO " "
+#define NADIE_LOGUEADO -1
+
+#define DEBUG false //debug
 
 
 typedef struct red_social {
-    char* logueado;     // Usamos char* para poder buscar al usuario en O(1) en el hash de feed
-    vd_t* usuarios_id;  // Se utiliza para crear los feeds de los usuarios
-    hash_t* usuarios;   // Se utiliza para obtener en O(1) los feeds de los usuarios
+    size_t logueado;
+    vd_t* usuarios_id;       // Se utiliza para crear los feeds de los usuarios
+    hash_t* usuarios_feed;   // Se utiliza para obtener en O(1) los feeds de los usuarios
     vd_t* posts;
     size_t contador_posts;
 } algogram_s;
@@ -36,7 +38,8 @@ typedef struct usuario {
 
 typedef struct post {
     algogram_s* red;
-    char* autor;
+    size_t id;
+    size_t autor;
     char* contenido;
     int fecha_creacion;
     size_t cant_likes; 
@@ -58,13 +61,13 @@ void mostrar_posts(algogram_s* algogram) {
         printf("\n----------------------------------------------------\n");
         printf("POST NUMERO %zu\n", i+1);
 
-        char* autor       = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> autor;
+        size_t autor      = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> autor;
         char* contenido   = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> contenido;
         int fecha_creac   = 0;
         size_t cant_likes = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> cant_likes;
         abb_t* likes      = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> likes;
 
-        printf("AUTOR:  %s\n", autor);
+        printf("AUTOR:  %zu\n", autor);
         printf("CONTENIDO:  %s\n", contenido);
         printf("FECHA DE CREACION:  %d\n", fecha_creac);
         printf("CANTIDAD DE LIKES: %zu\n", cant_likes);
@@ -162,12 +165,13 @@ int obtener_fecha_actual() {
 
 
 // AUXILIAR 
-post_s* post_crear(algogram_s* algogram, char* comentario) {
+post_s* post_crear(algogram_s* algogram, size_t id, char* comentario) {
 
     post_s* post = malloc(sizeof(post_s));
 
+    post->id = id;
     post->red = algogram;
-    post->autor = strdup(algogram->logueado);
+    post->autor = algogram->logueado;
     post->cant_likes = 0;
     post->contenido = strdup(comentario);
     post->fecha_creacion = obtener_fecha_actual(); //
@@ -182,6 +186,11 @@ post_s* post_crear(algogram_s* algogram, char* comentario) {
 }
 
 
+size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
+    return (size_t)abs((int)usuario_a - (int)usuario_b);
+}
+
+
 // AUXILIAR  
 // Sirve para comparar dos posts para saber cual va primero en el feed
 int postcmp(const void* a, const void* b) {
@@ -189,33 +198,45 @@ int postcmp(const void* a, const void* b) {
     const post_s* post_a = a;
     const post_s* post_b = b;
 
-    //char* logueado = post_a->red->logueado;
-    
-    //...
+    size_t logueado = post_a->red->logueado;
 
-    return 0;
+    size_t usuario_post_a = post_a->autor;
+    size_t usuario_post_b = post_b->autor;
+
+    size_t dist_a = calcular_distancia_usuarios(logueado, usuario_post_a);
+    size_t dist_b = calcular_distancia_usuarios(logueado, usuario_post_b);
+
+    if (dist_a == dist_b) {
+        return 0;
+    } else if (dist_a < dist_b) {
+        return 1;
+    } else {
+        return -1;
+    }
 }
 
 
 // AUXILIAR
 void post_agregar_feed(algogram_s* algogram, post_s* post) {
 
-    hash_iter_t* iter = hash_iter_crear(algogram->usuarios);
+    hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);
     if (!iter) return;
 
     while(!hash_iter_al_final(iter)) {
-        const char* usuario_actual = hash_iter_ver_actual(iter);
-        heap_t* feed_actual = hash_obtener(algogram->usuarios, usuario_actual);
+        const char* usuario_actual_nombre = hash_iter_ver_actual(iter);
+        usuario_s* usuario_actual = hash_obtener(algogram->usuarios_feed, usuario_actual_nombre);
 
-        // Si el feed esta vacio
-        if (!feed_actual) { 
-            heap_t* feed = heap_crear(postcmp);
-            if (!feed) return;
-            hash_guardar(algogram->usuarios, usuario_actual, feed);
+        if (usuario_actual->id != algogram->logueado) {
+            // Si el feed esta vacio
+            if (!usuario_actual->feed) { 
+                heap_t* feed = heap_crear(postcmp);
+                if (!feed) return;
+                usuario_actual->feed = feed;
+            }
+
+            // Agrego el post al feed del usuario
+            heap_encolar(usuario_actual->feed, post);
         }
-
-        // Agrego el post al feed del usuario
-        heap_encolar(feed_actual, post);
 
         hash_iter_avanzar(iter);
     }
@@ -236,21 +257,48 @@ bool post_enviar(algogram_s* algogram, post_s* post) {
 }
 
 
-// AUXILIAR 
-void heap_destruir_aux(void* heap) {
-    heap_destruir(heap, NULL);
+// // AUXILIAR 
+// void heap_destruir_aux(void* heap) {
+//     heap_destruir(heap, NULL);
+// }
+
+
+// AUXILIAR
+void usuario_destruir(void* usuario) {
+    if (!usuario) return;
+    usuario_s* aux_usuario = usuario;
+    heap_destruir(aux_usuario->feed, NULL); //
+    free(usuario);
+}
+
+
+// AUXILIAR
+usuario_s* usuario_crear(size_t id) {
+
+    usuario_s* usuario = malloc(sizeof(usuario_s));
+    if (!usuario) return NULL;
+
+    heap_t* feed = heap_crear(postcmp);
+    if (!feed) {
+        free(usuario);
+        return NULL;
+    }
+
+    usuario->id = id;
+    usuario->feed = feed;
+
+    return usuario;
 }
 
 
 void logout(algogram_s* algogram) {
-    printf("---------------LOGOUT---------------\n"); //debug
+    DEBUG ? printf("---------------LOGOUT---------------\n") : false; //debug
 
     if (!hay_logueado(algogram)) {
         printf("Error: no habia usuario loggeado\n");
         return;
     }
 
-    free(algogram->logueado);
     algogram->logueado = NADIE_LOGUEADO;
 
     printf("Adios\n");
@@ -258,22 +306,46 @@ void logout(algogram_s* algogram) {
 
 
 void post_ver_likes(algogram_s* algogram) {
-    printf("---------------POST VER LIKES---------------\n"); //debug
+    DEBUG ? printf("---------------POST VER LIKES---------------\n") : false; //debug
 }
 
 
 void post_likear(algogram_s* algogram) {
-    printf("---------------POST LIKEAR---------------\n"); //debug
+    DEBUG ? printf("---------------POST LIKEAR---------------\n") : false; //debug
 }
 
 
 void post_ver_siguiente(algogram_s* algogram) {
-    printf("---------------POST VER SIGUIENTE---------------\n"); //debug
+    DEBUG ? printf("---------------POST VER SIGUIENTE---------------\n") : false; //debug
+
+    if (!hay_logueado(algogram)) {
+        printf("Usuario no loggeado o no hay mas posts para ver\n");
+        return;
+    }
+
+    const char* usuario_nombre = vd_obtener(algogram->usuarios_id, algogram->logueado, NULL);
+    heap_t* usuario_feed = ((usuario_s*)hash_obtener(algogram->usuarios_feed, usuario_nombre))->feed;
+
+    if (heap_esta_vacio(usuario_feed)) {
+        printf("Usuario no loggeado o no hay mas posts para ver\n");
+        return;
+    }
+
+    post_s* post_siguiente = heap_desencolar(usuario_feed);
+
+    size_t post_id = post_siguiente->id;
+    char* post_autor = vd_obtener(algogram->usuarios_id, post_siguiente->autor, NULL);
+    char* post_comentario = post_siguiente->contenido;
+    size_t post_cant_likes = post_siguiente->cant_likes;
+
+    printf("Post ID %zu\n", post_id);
+    printf("%s dijo: %s\n", post_autor, post_comentario);
+    printf("Likes: %zu\n", post_cant_likes);
 }
 
 
 void post_publicar(algogram_s* algogram) {
-    printf("---------------POST PUBLICAR---------------\n"); //debug
+    DEBUG ? printf("---------------POST PUBLICAR---------------\n") : false; //debug
 
     if (!hay_logueado(algogram)) {
         printf("Error: no habia usuario loggeado\n");
@@ -281,10 +353,10 @@ void post_publicar(algogram_s* algogram) {
     }
 
     char* comentario = entrada_usuario();
-    printf("USTED HA COMENTADO: %s\n", comentario); //debug
+    DEBUG ? printf("USTED HA COMENTADO: %s\n", comentario) : false; //debug
 
     // Creo el post
-    post_s* post = post_crear(algogram, comentario);
+    post_s* post = post_crear(algogram, algogram->contador_posts, comentario);
     if (!post) {
         free(comentario);
         return;
@@ -294,14 +366,15 @@ void post_publicar(algogram_s* algogram) {
     if (post_enviar(algogram, post)) {
         algogram->contador_posts++;
         post_agregar_feed(algogram, post);
+        printf("Post publicado\n");
     }
 
-    //mostrar_posts(algogram); //debug
+    DEBUG ? mostrar_posts(algogram) : false; //debug
 }
 
 
 void login(algogram_s* algogram) {
-    printf("---------------LOGIN---------------\n"); //debug
+    DEBUG ? printf("---------------LOGIN---------------\n") : false; //debug
 
     char* cadena = entrada_usuario();
 
@@ -310,18 +383,14 @@ void login(algogram_s* algogram) {
         return;
     }
 
-    if (!hash_pertenece(algogram->usuarios, cadena)) {
+    if (!hash_pertenece(algogram->usuarios_feed, cadena)) {
         printf("Error: usuario no existente\n");
         return;
     }
 
-    // if (algogram->logueado) {
-    //     free(algogram->logueado);
-    // }
+    algogram->logueado = ((usuario_s*)hash_obtener(algogram->usuarios_feed, cadena))->id;
 
-    algogram->logueado = strdup(cadena);
-
-    printf("Hola %s\n", algogram->logueado);
+    printf("Hola %s\n", cadena);
 
     free(cadena);
 }
@@ -369,7 +438,8 @@ void algogram_ingresar_comandos(algogram_s* algogram) {
 // AUXILIAR 
 hash_t* algogram_cargar_usuarios(vd_t* usuarios_id) {
 
-    hash_t* usuarios = hash_crear(heap_destruir_aux);
+    hash_t* usuarios = hash_crear(usuario_destruir);
+
     if (!usuarios) {
         return NULL;
     }
@@ -377,7 +447,13 @@ hash_t* algogram_cargar_usuarios(vd_t* usuarios_id) {
     size_t largo = vd_largo(usuarios_id);
 
     for (size_t i=0; i<largo; i++) {
-        hash_guardar(usuarios, (const char*)vd_obtener(usuarios_id, i, NULL), NULL);
+        const char* usuario_actual_nombre = vd_obtener(usuarios_id, i, NULL);
+
+        // Creo un usuario que contiene el ID usuario y su respectivo feed (vacio por ahora)
+        usuario_s* usuario_actual = usuario_crear(i);
+        if (!usuario_actual) return NULL;
+
+        hash_guardar(usuarios, usuario_actual_nombre, usuario_actual);
     }
 
     return usuarios;
@@ -395,11 +471,14 @@ vd_t* algogram_cargar_usuarios_id(FILE* archivo_usuarios) {
 
     while(getline(&buffer, &n, archivo_usuarios) != EOF) {
         char* nuevo_buffer = quitar_barra_n(buffer, true);
+
+        if (strcmp(nuevo_buffer, "") == 0) continue;
+
         vd_insertar(usuarios_id, i, nuevo_buffer);
         i++;
     }
 
-    vd_print(usuarios_id, 1); //debug
+    DEBUG ? vd_print(usuarios_id, 1) : false; //debug
 
     free(buffer);
 
@@ -407,8 +486,23 @@ vd_t* algogram_cargar_usuarios_id(FILE* archivo_usuarios) {
 }
 
 
+// DEBUG
+void mostrar_usuarios(algogram_s* algogram) {
+    hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);                                       
+    while (!hash_iter_al_final(iter)) {                                                                 
+        const char* usuario_actual = hash_iter_ver_actual(iter);                                        
+        size_t id_usuario_actual = ((usuario_s*)hash_obtener(algogram->usuarios_feed, usuario_actual))->id;  
+        printf("USUARIO %zu: %s\n", id_usuario_actual, usuario_actual);                                 
+        hash_iter_avanzar(iter);                                                                        
+    }                                                                                                   
+    hash_iter_destruir(iter);                                                                           
+    printf("\n");                                                                                   
+}
+
+
 // AUXILIAR 
 algogram_s* algogram_crear(FILE* usuarios) {
+    
     algogram_s* algogram = malloc(sizeof(algogram_s));
     if (!algogram) return NULL;
 
@@ -420,21 +514,14 @@ algogram_s* algogram_crear(FILE* usuarios) {
         return NULL;
     }
 
-    algogram->usuarios = algogram_cargar_usuarios(algogram->usuarios_id);
-    if (!algogram->usuarios) {
+    algogram->usuarios_feed = algogram_cargar_usuarios(algogram->usuarios_id);
+    if (!algogram->usuarios_feed) {
         vd_destruir(algogram->usuarios_id);
         free(algogram);
         return NULL;
     }
 
-    hash_iter_t* iter = hash_iter_crear(algogram->usuarios);    //
-    while (!hash_iter_al_final(iter)) {                         //
-        const char* elem_actual = hash_iter_ver_actual(iter);   //
-        printf("%s, ", elem_actual);                            //
-        hash_iter_avanzar(iter);                                //
-    }                                                           //
-    hash_iter_destruir(iter);                                   //
-    printf("\n");                                               //
+    DEBUG ? mostrar_usuarios(algogram) : false; //DEBUG
 
     algogram->posts = NULL;
     algogram->contador_posts = 0;
