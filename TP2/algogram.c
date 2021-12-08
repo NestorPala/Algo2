@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "string.h" 
+#include <string.h> 
+#include <time.h>
+
 #include "algogram.h"
 #include "hash.h"
 #include "abb.h"
@@ -18,6 +20,9 @@
 #define NADIE_LOGUEADO -1
 
 #define DEBUG false //debug
+
+
+///////////////////////////////////////////////////////////////
 
 
 typedef struct red_social {
@@ -41,10 +46,20 @@ typedef struct post {
     size_t id;
     size_t autor;
     char* contenido;
-    int fecha_creacion;
+    time_t fecha_creacion;
     size_t cant_likes; 
-    abb_t* likes;        
+    abb_t* likes;       
 } post_s;
+
+
+// Sirve para poder comparar los posts usando postcmp()
+typedef struct post_autor_distancia {
+    post_s* post;
+    size_t dist;
+} postdist_s;
+
+
+///////////////////////////////////////////////////////////////
 
 
 // DEBUG
@@ -52,7 +67,7 @@ void mostrar_posts(algogram_s* algogram) {
     for (size_t i=0; i<algogram->contador_posts; i++) {
 
         bool resultado = true;
-        post_s* post = vd_obtener(algogram->posts, i, &resultado);
+        post_s* post_actual = vd_obtener(algogram->posts, i, NULL);
 
         if (!resultado) {
             break;
@@ -61,11 +76,11 @@ void mostrar_posts(algogram_s* algogram) {
         printf("\n----------------------------------------------------\n");
         printf("POST NUMERO %zu\n", i+1);
 
-        size_t autor      = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> autor;
-        char* contenido   = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> contenido;
+        size_t autor      = post_actual -> autor;
+        char* contenido   = post_actual -> contenido;
         int fecha_creac   = 0;
-        size_t cant_likes = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> cant_likes;
-        abb_t* likes      = ((post_s*)vd_obtener(algogram->posts, i, NULL)) -> likes;
+        size_t cant_likes = post_actual -> cant_likes;
+        abb_t* likes      = post_actual -> likes;
 
         printf("AUTOR:  %zu\n", autor);
         printf("CONTENIDO:  %s\n", contenido);
@@ -104,8 +119,63 @@ void vd_print(vd_t* vector, size_t tipo_dato) {
 }
 
 
-// Wrapper de vd_guardar con redimension automatica
+// DEBUG
+void* vd_obtener_2(vd_t* vd, size_t pos) {
+    return vd_obtener(vd, pos, NULL);
+}
+
+
+// DEBUG
+void heap_mostrar(heap_t* heap) {
+
+    postdist_s* actual = NULL;
+
+    printf("\n\nHEAP DE FEED:   (( ");
+
+    for (size_t i=0; i<heap->capacidad; i++) {
+        actual = heap->arr[i];
+
+        actual ? printf("%zu, ", actual->post->autor) : printf("__, ");
+    }
+
+    printf(" ))\n\n");
+}
+
+
+// DEBUG
+void mostrar_feed(algogram_s* algogram, size_t id) {
+
+    heap_t* feed = ((usuario_s*)hash_obtener(algogram->usuarios_feed, (char*)vd_obtener_2(algogram->usuarios_id, id)))->feed;
+    heap_mostrar(feed);
+}
+
+
+// DEBUG
+void mostrar_usuarios(algogram_s* algogram) {
+    vd_print(algogram->usuarios_id, 1);
+
+    hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);    
+
+    while (!hash_iter_al_final(iter)) {                                                                 
+        const char* usuario_actual = hash_iter_ver_actual(iter);                                        
+        size_t id_usuario_actual = ((usuario_s*)hash_obtener(algogram->usuarios_feed, usuario_actual))->id;  
+        printf("USUARIO %zu: %s\n", id_usuario_actual, usuario_actual);                                 
+        hash_iter_avanzar(iter);                                                                        
+    }              
+
+    hash_iter_destruir(iter);      
+                                                                        
+    printf("\n"); 
+    printf("CANTIDAD DE IDS DE USUARIOS: %zu\n", vd_cantidad(algogram->usuarios_id));
+    printf("CANTIDAD DE FEEDS DE USUARIOS: %zu\n", hash_cantidad(algogram->usuarios_feed));                                                               
+}
+
+
+///////////////////////////////////////////////////////////////
+
+
 // AUXILIAR
+// Wrapper de vd_guardar con redimension automatica
 void vd_insertar(vd_t* vector, size_t pos, void* dato) {
     if (vd_cantidad(vector) == vd_largo(vector)) {
         vd_redimensionar(vector, 2 * vd_largo(vector));
@@ -157,35 +227,7 @@ bool hay_logueado(algogram_s* algogram) {
 }
 
 
-// AUXILIAR
-int obtener_fecha_actual() {
-    //...
-    return 0;
-}
-
-
 // AUXILIAR 
-post_s* post_crear(algogram_s* algogram, size_t id, char* comentario) {
-
-    post_s* post = malloc(sizeof(post_s));
-
-    post->id = id;
-    post->red = algogram;
-    post->autor = algogram->logueado;
-    post->cant_likes = 0;
-    post->contenido = strdup(comentario);
-    post->fecha_creacion = obtener_fecha_actual(); //
-
-    post->likes = abb_crear(strcmp, NULL);
-    if (!post->likes) {
-        free(post);
-        return NULL;
-    }
-
-    return post;
-}
-
-
 size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
     return (size_t)abs((int)usuario_a - (int)usuario_b);
 }
@@ -195,24 +237,28 @@ size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
 // Sirve para comparar dos posts para saber cual va primero en el feed
 int postcmp(const void* a, const void* b) {
 
-    const post_s* post_a = a;
-    const post_s* post_b = b;
+    const postdist_s* post_a = a;
+    const postdist_s* post_b = b;
 
-    size_t logueado = post_a->red->logueado;
-
-    size_t usuario_post_a = post_a->autor;
-    size_t usuario_post_b = post_b->autor;
-
-    size_t dist_a = calcular_distancia_usuarios(logueado, usuario_post_a);
-    size_t dist_b = calcular_distancia_usuarios(logueado, usuario_post_b);
-
-    if (dist_a == dist_b) {
-        return 0;
-    } else if (dist_a < dist_b) {
+    if (post_a->dist == post_b->dist) {
+        return post_b->post->fecha_creacion - post_a->post->fecha_creacion;
+    } else if (post_a->dist < post_b->dist) {
         return 1;
     } else {
         return -1;
     }
+}
+
+
+// AUXILIAR
+postdist_s* postdist_crear(algogram_s* algogram, size_t usuario_actual, post_s* post) {
+    postdist_s* postdist = malloc(sizeof(postdist_s));
+    if (!post) return NULL;
+
+    postdist->post = post;
+    postdist->dist = calcular_distancia_usuarios(usuario_actual, algogram->logueado);
+
+    return postdist;
 }
 
 
@@ -227,6 +273,7 @@ void post_agregar_feed(algogram_s* algogram, post_s* post) {
         usuario_s* usuario_actual = hash_obtener(algogram->usuarios_feed, usuario_actual_nombre);
 
         if (usuario_actual->id != algogram->logueado) {
+
             // Si el feed esta vacio
             if (!usuario_actual->feed) { 
                 heap_t* feed = heap_crear(postcmp);
@@ -234,8 +281,12 @@ void post_agregar_feed(algogram_s* algogram, post_s* post) {
                 usuario_actual->feed = feed;
             }
 
-            // Agrego el post al feed del usuario
-            heap_encolar(usuario_actual->feed, post);
+            // Calculo la distancia del usuario actual al logueado; así obtengo un 'post comparable'
+            postdist_s* post_d = postdist_crear(algogram, usuario_actual->id, post);
+            if (!post_d) return;
+
+            // Agrego el post comparable al feed del usuario
+            heap_encolar(usuario_actual->feed, post_d);
         }
 
         hash_iter_avanzar(iter);
@@ -248,7 +299,7 @@ void post_agregar_feed(algogram_s* algogram, post_s* post) {
 // AUXILIAR 
 bool post_enviar(algogram_s* algogram, post_s* post) {
     if (!algogram->posts) {
-        algogram->posts = vd_crear(5);
+        algogram->posts = vd_crear(6);
     }
 
     vd_insertar(algogram->posts, algogram->contador_posts, post);
@@ -257,17 +308,33 @@ bool post_enviar(algogram_s* algogram, post_s* post) {
 }
 
 
-// // AUXILIAR 
-// void heap_destruir_aux(void* heap) {
-//     heap_destruir(heap, NULL);
-// }
+// AUXILIAR 
+post_s* post_crear(algogram_s* algogram, size_t id, char* comentario) {
+
+    post_s* post = malloc(sizeof(post_s));
+
+    post->id = id;
+    post->red = algogram;
+    post->autor = algogram->logueado;
+    post->cant_likes = 0;
+    post->contenido = strdup(comentario);
+    post->fecha_creacion = time(NULL);
+
+    post->likes = abb_crear(strcmp, NULL);
+    if (!post->likes) {
+        free(post);
+        return NULL;
+    }
+
+    return post;
+}
 
 
 // AUXILIAR
 void usuario_destruir(void* usuario) {
     if (!usuario) return;
     usuario_s* aux_usuario = usuario;
-    heap_destruir(aux_usuario->feed, NULL); //
+    heap_destruir(aux_usuario->feed, NULL);
     free(usuario);
 }
 
@@ -289,6 +356,9 @@ usuario_s* usuario_crear(size_t id) {
 
     return usuario;
 }
+
+
+///////////////////////////////////////////////////////////////
 
 
 void logout(algogram_s* algogram) {
@@ -330,8 +400,11 @@ void post_ver_siguiente(algogram_s* algogram) {
         printf("Usuario no loggeado o no hay mas posts para ver\n");
         return;
     }
+    
+    DEBUG ? mostrar_feed(algogram, algogram->logueado) : false;    //debug
 
-    post_s* post_siguiente = heap_desencolar(usuario_feed);
+    postdist_s* postdist_siguiente = heap_desencolar(usuario_feed);
+    post_s* post_siguiente = postdist_siguiente->post;
 
     size_t post_id = post_siguiente->id;
     char* post_autor = vd_obtener(algogram->usuarios_id, post_siguiente->autor, NULL);
@@ -394,6 +467,9 @@ void login(algogram_s* algogram) {
 
     free(cadena);
 }
+
+
+///////////////////////////////////////////////////////////////
 
 
 // AUXILIAR
@@ -478,25 +554,9 @@ vd_t* algogram_cargar_usuarios_id(FILE* archivo_usuarios) {
         i++;
     }
 
-    DEBUG ? vd_print(usuarios_id, 1) : false; //debug
-
     free(buffer);
 
     return usuarios_id;
-}
-
-
-// DEBUG
-void mostrar_usuarios(algogram_s* algogram) {
-    hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);                                       
-    while (!hash_iter_al_final(iter)) {                                                                 
-        const char* usuario_actual = hash_iter_ver_actual(iter);                                        
-        size_t id_usuario_actual = ((usuario_s*)hash_obtener(algogram->usuarios_feed, usuario_actual))->id;  
-        printf("USUARIO %zu: %s\n", id_usuario_actual, usuario_actual);                                 
-        hash_iter_avanzar(iter);                                                                        
-    }                                                                                                   
-    hash_iter_destruir(iter);                                                                           
-    printf("\n");                                                                                   
 }
 
 
@@ -528,6 +588,9 @@ algogram_s* algogram_crear(FILE* usuarios) {
 
     return algogram;
 }
+
+
+///////////////////////////////////////////////////////////////
 
 
 // INICIADOR 

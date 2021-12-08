@@ -31,7 +31,13 @@ void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp);
  */
 
 /* Tipo utilizado para el heap. */
-typedef struct heap heap_t;
+//debug tp2
+typedef struct heap {
+	void** arr;
+	size_t cantidad;
+	size_t capacidad;
+	cmp_func_t cmp;
+} heap_t;
 
 /* Crea un heap. Recibe como único parámetro la función de comparación a
  * utilizar. Devuelve un puntero al heap, el cual debe ser destruido con

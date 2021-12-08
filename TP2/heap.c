@@ -10,16 +10,12 @@ const size_t FACTOR_CARGA_HEAP      =  2;    // Se utiliza para las redimensione
 typedef void (*destr_t)(void *e);       // Funcion de destruccion de dato
 
 
-struct heap {
-	void** arr;
-	size_t cantidad;
-	size_t capacidad;
-	cmp_func_t cmp;
-};
-
-
 // AUXILIAR
-// Permite redimension "hacia abajo" y "hacia arriba"
+// Permite redimensión "hacia abajo" y "hacia arriba".
+// Devuelve una copia en memoria dinámica del arreglo, con la capacidad nueva_capacidad. 
+// Si la nueva capacidad es igual a la vieja capacidad, el arreglo no se copia.
+// Pre: el arreglo existe.
+// Post: el arreglo original no se modifica.
 void** arreglo_copiar_arreglo(void** datos, size_t vieja_capacidad, size_t nueva_capacidad) {
 
     void** nuevo_arreglo = malloc(nueva_capacidad * sizeof(void*));
@@ -49,14 +45,17 @@ void** arreglo_copiar_arreglo(void** datos, size_t vieja_capacidad, size_t nueva
 
 
 // AUXILIAR
+// Destruye el arreglo y todo su contenido, si la función destruir_dato fue especificada.
+// Pre: el arreglo existe.
+// Post: el arreglo ya no existe.
 void arreglo_destruir(void** datos, size_t n, destr_t destruir_dato) {
 
     if (!datos || n == 0) {
         return;
     }
 
-    for (size_t i=0; i<n; i++) {
-        if (destruir_dato) {
+    if (destruir_dato) {
+        for (size_t i=0; i<n; i++) {
             destruir_dato(datos[i]);
         }
     }
@@ -66,6 +65,9 @@ void arreglo_destruir(void** datos, size_t n, destr_t destruir_dato) {
 
 
 // AUXILIAR
+// Intercambia dos posiciones de un arreglo.
+// Pre: las dos posiciones son válidas.
+// Post: la cantidad de elementos del arreglo no se modifica, pero sí su ordenamiento.
 void arreglo_swap(void** datos, size_t a, size_t b) {
     void* aux = NULL;
     aux = datos[a];
@@ -75,19 +77,28 @@ void arreglo_swap(void** datos, size_t a, size_t b) {
 
 
 // AUXILIAR
-void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cmp) {                // DOWNHEAP
-
+// Realiza la operación de "down-heap" a partir de una posición 'padre' del arreglo, 
+// mientras éste (a partir de 'padre') no cumpla con la condición de heap.
+// Pre: el arreglo existe.
+// Post: el arreglo cumple (a partir de 'padre') con la condición de heap.
+void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cmp) {                    // DOWNHEAP
     size_t izq = 2 * padre + 1;
 	size_t der = 2 * padre + 2;
     size_t max = 0;
 
-    if (izq < cantidad && datos[izq] && datos[padre] && cmp(datos[izq], datos[padre]) > 0) {
+    if (izq < cantidad 
+            && datos[izq] 
+            && datos[padre] 
+            && cmp(datos[izq], datos[padre]) > 0) {
         max = izq;
     } else {
         max = padre;
     }
 
-    if (der < cantidad && datos[der] && datos[max] && cmp(datos[der], datos[max]) > 0) {
+    if (der < cantidad 
+            && datos[der] 
+            && datos[max] 
+            && cmp(datos[der], datos[max]) > 0) {
         max = der;
     }
 
@@ -99,34 +110,45 @@ void arreglo_downheap(void** datos, size_t cantidad, size_t padre, cmp_func_t cm
 }
 
 
-// AUXILIAR
-void arreglo_upheap(void** datos, size_t hijo, cmp_func_t cmp) {                                    // UPHEAP
+// AUXILIAR                                                                                         
+// Realiza la operación de "up-heap" a partir de una posición 'pos_hijo' del arreglo, 
+// mientras éste (a partir de 'pos_hijo') no cumpla con la condición de heap.
+// Pre: el arreglo existe.
+// Post: el arreglo cumple (a partir de 'pos_hijo') con la condición de heap.
+void arreglo_upheap(heap_t* heap, size_t pos_hijo) {                                                    // UPHEAP
     
     // Caso base: llego al inicio del arreglo
-    if (hijo == 0) {
+    if (pos_hijo == 0) {
         return; 
     }
 
     // La posicion del arreglo donde se encuentra el "nodo padre"
-    size_t padre = (hijo - 1) / 2;
+    size_t padre = (pos_hijo - 1) / 2;
 
     // Chequeamos la condicion de Heap
-    if (cmp(datos[padre], datos[hijo]) < 0) {
-        arreglo_swap(datos, padre, hijo);
-        arreglo_upheap(datos, padre, cmp);
+    if (heap->cmp(heap->arr[padre], heap->arr[pos_hijo]) < 0) {
+        arreglo_swap(heap->arr, padre, pos_hijo);
+        arreglo_upheap(heap, padre);
     }
 } 
 
 
 // AUXILIAR
-void arreglo_heapify(void** datos, size_t n, cmp_func_t cmp) {                                      // HEAPIFY
-    for (size_t i=0; i<n/2; i++) {
-        arreglo_downheap(datos, n, (n/2 - 1) - i, cmp);
+// Convierte un arreglo en su totalidad en un heap, aplicando desde la mitad del mismo, en reversa, 
+// hasta la primera posición, la operación "down-heap" en cada posicion del arreglo.
+// Pre: el arreglo existe.
+// Post: el arreglo en su totalidad cumple con la condición de heap.
+void arreglo_heapify(void** datos, size_t n, cmp_func_t cmp) {                                          // HEAPIFY
+    for (int i = ((int)n) / 2;  i >= 0;  i--) {
+        arreglo_downheap(datos, n, (size_t)i, cmp);
     }
 }
 
 
 // AUXILIAR
+// Agranda o achica el heap según sea necesario o no. No se crea un heap nuevo. No se borra el heap original.
+// Pre: el heap existe.
+// Post: el arreglo original del heap ya no existe. Su memoria ha sido borrada y en su lugar se encuentra un nuevo arreglo.
 void heap_redimensionar(heap_t* heap, float carga, float redimension) {
 
     if ( (float)(heap->cantidad)  !=  carga * (float)(heap->capacidad) ) {
@@ -147,10 +169,11 @@ void heap_redimensionar(heap_t* heap, float carga, float redimension) {
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-heap_t *heap_crear(cmp_func_t cmp) {
+// AUXILIAR 
+// Modularización de heap_crear() para su uso en la funcion en heap_crear_arr().
+// Devuelve un heap completo o NULL en caso de error.
+// Post: el arreglo original (si existía) no fue modificado.
+heap_t* heap_crear_general(void *arr[], size_t n, cmp_func_t cmp) {
 
     if (!cmp) {
         return NULL;
@@ -161,46 +184,24 @@ heap_t *heap_crear(cmp_func_t cmp) {
         return NULL;
     }
 
-    void** arr = malloc(CAPACIDAD_INICIAL_HEAP * sizeof(void*));
-    if (!arr) {
-        free(heap);
-        return NULL;
-    }
+    size_t nueva_capacidad = arr ? (FACTOR_CARGA_HEAP * n) 
+                                 : CAPACIDAD_INICIAL_HEAP;
 
-    for (size_t i=0; i<CAPACIDAD_INICIAL_HEAP; i++) {
-        arr[i] = NULL;
-    }
+    void** datos = arr ? arreglo_copiar_arreglo(arr, n, nueva_capacidad)
+                       : malloc(nueva_capacidad * sizeof(void*));
 
-    heap->arr = arr;
-    heap->cantidad = 0;
-    heap->capacidad = CAPACIDAD_INICIAL_HEAP;
-    heap->cmp = cmp;
-
-    return heap;
-}
-
-
-heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
-    
-    if (!cmp) {
-        return NULL;
-    }
-
-    heap_t* heap = malloc(sizeof(heap_t));
-    if (!heap) {
-        return NULL;
-    }
-
-    size_t nueva_capacidad = FACTOR_CARGA_HEAP * n;
-
-    void** datos = arreglo_copiar_arreglo(arreglo, n, nueva_capacidad);
     if (!datos) {
         free(heap);
         return NULL;
     }
 
-    // Aplicamos la conversion de arreglo comun a arreglo heap 
-    arreglo_heapify(datos, n, cmp);
+    if (arr) {
+        arreglo_heapify(datos, n, cmp);
+    } else {
+        for (size_t i=0; i<nueva_capacidad; i++) {
+            datos[i] = NULL;
+        }
+    }
 
     heap->arr = datos;
     heap->cantidad = n;
@@ -208,6 +209,19 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
     heap->cmp = cmp;
 
     return heap;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+heap_t *heap_crear(cmp_func_t cmp) {
+    return heap_crear_general(NULL, 0, cmp);
+}
+
+
+heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
+    return heap_crear_general(arreglo, n, cmp);
 }
 
 
@@ -253,7 +267,7 @@ bool heap_encolar(heap_t *heap, void *elem) {
     
     // Guardamos el elemento y lo "ordenamos" como un heap
     heap->arr[heap->cantidad] = elem;
-    arreglo_upheap(heap->arr, heap->cantidad, heap->cmp);
+    arreglo_upheap(heap, heap->cantidad);
 
     heap->cantidad++;
     return true;
