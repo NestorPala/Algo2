@@ -1,16 +1,9 @@
 #define _POSIX_C_SOURCE 200809L
 #define USUARIOS "usuarios.txt"
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include "algogram.h"
-
-
-bool hay_usuarios(FILE* usuarios) {
-    //...
-    return true;
-}
 
 
 bool es_usuarios_txt(char* archivo) {
@@ -47,12 +40,6 @@ int main(int argc, char** argv) {
     if (!usuarios) {
         fprintf(stderr, "%s", "Error: Archivo fuente inaccesible");
         return -2;
-    }
-
-    if (!hay_usuarios(usuarios)) {
-        fprintf(stderr, "%s", "Error: No se han encontrado usuarios");
-        fclose(usuarios);
-        return -3;
     }
 
     // Iniciamos la ""red social""

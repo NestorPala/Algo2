@@ -1,0 +1,109 @@
+
+// DEBUG
+void mostrar_posts(algogram_s* algogram) {
+    for (size_t i=0; i<algogram->contador_posts; i++) {
+
+        bool resultado = true;
+        post_s* post_actual = vd_obtener(algogram->posts, i, NULL);
+
+        if (!resultado) {
+            break;
+        }
+
+        printf("\n----------------------------------------------------\n");
+        printf("POST NUMERO %zu\n", i+1);
+
+        size_t autor      = post_actual -> autor;
+        char* contenido   = post_actual -> contenido;
+        int fecha_creac   = 0;
+        size_t cant_likes = post_actual -> cant_likes;
+        abb_t* likes      = post_actual -> likes;
+
+        printf("AUTOR:  %zu\n", autor);
+        printf("CONTENIDO:  %s\n", contenido);
+        printf("FECHA DE CREACION:  %d\n", fecha_creac);
+        printf("CANTIDAD DE LIKES: %zu\n", cant_likes);
+
+        // printf("LIKES: ");
+        // vd_print(likes);
+    }
+}
+
+
+// DEBUG
+// tipo_dato: 0: int, 1: char*, >1: void*
+void vd_print(vd_t* vector, size_t tipo_dato) {
+
+    size_t largo = vd_largo(vector);
+    void* actual = NULL;
+
+    printf("\n[");
+
+    for (size_t i=0; i<largo; i++) {
+        
+        actual = vd_obtener(vector, i, NULL);
+
+        if (tipo_dato == 0) {
+            actual ? printf("%d, ", *(int*)actual) : printf("NULL, ");
+        } else if (tipo_dato == 1) {
+            actual ? printf("%s, ", (char*)actual) : printf("NULL, ");
+        } else {
+            actual ? printf("%p, ", actual) : printf("NULL, ");
+        }
+    }
+
+    printf("]\n");
+}
+
+
+// DEBUG
+void* vd_obtener_2(vd_t* vd, size_t pos) {
+    return vd_obtener(vd, pos, NULL);
+}
+
+
+// DEBUG
+void heap_mostrar(heap_t* heap) {
+
+    postdist_s* actual = NULL;
+
+    printf("\nHEAP DE FEED:   (( ");
+
+    for (size_t i=0; i<heap->capacidad; i++) {
+        actual = heap->arr[i];
+
+        actual ? printf("%zu, ", actual->post->autor) : printf("__, ");
+    }
+
+    printf(" ))\n\n\n");
+}
+
+
+// DEBUG
+void mostrar_feed(algogram_s* algogram, size_t id) {
+
+    heap_t* feed = ((usuario_s*)hash_obtener(algogram->usuarios_feed, (char*)vd_obtener_2(algogram->usuarios_id, id)))->feed;
+    printf("USUARIO ID %zu:",id);
+    heap_mostrar(feed);
+}
+
+
+// DEBUG
+void mostrar_usuarios(algogram_s* algogram) {
+    vd_print(algogram->usuarios_id, 1);
+
+    hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);    
+
+    while (!hash_iter_al_final(iter)) {                                                                 
+        const char* usuario_actual = hash_iter_ver_actual(iter);                                        
+        size_t id_usuario_actual = ((usuario_s*)hash_obtener(algogram->usuarios_feed, usuario_actual))->id;  
+        printf("USUARIO %zu: %s\n", id_usuario_actual, usuario_actual);                                 
+        hash_iter_avanzar(iter);                                                                        
+    }              
+
+    hash_iter_destruir(iter);      
+                                                                        
+    printf("\n"); 
+    printf("CANTIDAD DE IDS DE USUARIOS: %zu\n", vd_cantidad(algogram->usuarios_id));
+    printf("CANTIDAD DE FEEDS DE USUARIOS: %zu\n", hash_cantidad(algogram->usuarios_feed));                                                               
+}

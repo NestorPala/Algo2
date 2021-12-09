@@ -1,17 +1,14 @@
 #define _POSIX_C_SOURCE 200809L
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> 
 #include <time.h>
-
 #include "algogram.h"
 #include "cola.h"
 #include "hash.h"
 #include "abb.h"
 #include "heap.h"
 #include "vd.h" //vector dinamico
-
 #define LOGIN "login"
 #define LOGOUT "logout"
 #define PUBLICAR_POST "publicar"
@@ -19,11 +16,7 @@
 #define LIKEAR_POST "likear_post"
 #define MOSTRAR_LIKES "mostrar_likes"
 #define NADIE_LOGUEADO -1
-
 #define DEBUG false //debug
-
-
-///////////////////////////////////////////////////////////////
 
 
 typedef struct red_social {
@@ -58,9 +51,6 @@ typedef struct post_autor_distancia {
     post_s* post;
     size_t dist;
 } postdist_s;
-
-
-///////////////////////////////////////////////////////////////
 
 
 // DEBUG
@@ -131,7 +121,7 @@ void heap_mostrar(heap_t* heap) {
 
     postdist_s* actual = NULL;
 
-    printf("\n\nHEAP DE FEED:   (( ");
+    printf("\nHEAP DE FEED:   (( ");
 
     for (size_t i=0; i<heap->capacidad; i++) {
         actual = heap->arr[i];
@@ -139,7 +129,7 @@ void heap_mostrar(heap_t* heap) {
         actual ? printf("%zu, ", actual->post->autor) : printf("__, ");
     }
 
-    printf(" ))\n\n");
+    printf(" ))\n\n\n");
 }
 
 
@@ -147,6 +137,7 @@ void heap_mostrar(heap_t* heap) {
 void mostrar_feed(algogram_s* algogram, size_t id) {
 
     heap_t* feed = ((usuario_s*)hash_obtener(algogram->usuarios_feed, (char*)vd_obtener_2(algogram->usuarios_id, id)))->feed;
+    printf("USUARIO ID %zu:",id);
     heap_mostrar(feed);
 }
 
@@ -282,6 +273,8 @@ void post_destruir(post_s* post) {
 
 // AUXILIAR
 void postdist_destruir(postdist_s* postdist) {
+    postdist ? printf("POSTDIST DESTRUIR\n") : 0; //debug
+    postdist ? printf("POSTDIST AUTOR: %zu\n", postdist->post->autor) : 0; //debug
     free(postdist);
 }
 
@@ -314,18 +307,6 @@ post_s* post_crear(algogram_s* algogram, size_t id, char* comentario) {
 }
 
 
-// AUXILIAR 
-bool post_enviar(algogram_s* algogram, post_s* post) {
-    if (!algogram->posts) {
-        algogram->posts = vd_crear(6);
-    }
-
-    vd_insertar(algogram->posts, algogram->contador_posts, post);
-
-    return true;
-}
-
-
 // AUXILIAR
 bool post_existe(algogram_s* algogram, int id_post) {
 
@@ -351,6 +332,9 @@ void post_agregar_feed(algogram_s* algogram, post_s* post) {
 
             // Calculo la distancia del usuario actual al logueado; así obtengo un 'post comparable'
             postdist_s* post_d = postdist_crear(algogram, usuario_actual->id, post);
+
+            printf("POSTDIST CREAR\n"); //debug
+
             if (!post_d) return;
 
             // Agrego el post comparable al feed del usuario
@@ -394,6 +378,7 @@ usuario_s* usuario_crear(size_t id) {
 // AUXILIAR
 void usuario_destruir(void* usuario) {
     if (!usuario) return;
+    printf("DESTRUYENDO USUARIO %zu\n", ((usuario_s*)usuario)->id ); //debug
     heap_destruir(((usuario_s*)usuario)->feed, postdist_destruir_aux);
     free(usuario);
 }
@@ -526,14 +511,24 @@ void post_publicar(algogram_s* algogram) {
     }
 
     // Publico el post
-    if (post_enviar(algogram, post)) {
-        algogram->contador_posts++;
-        post_agregar_feed(algogram, post);
-        printf("Post publicado\n");
+    if (!algogram->posts) {
+        algogram->posts = vd_crear(6);
     }
+
+    vd_insertar(algogram->posts, algogram->contador_posts, post);
+    algogram->contador_posts++;
+    post_agregar_feed(algogram, post);
+
+    printf("Post publicado\n");
 
     DEBUG ? mostrar_posts(algogram) : false; //debug
 
+    for (size_t i=0; i<vd_largo(algogram->usuarios_id); i++) { //debug
+        if (i != algogram->logueado) {
+            mostrar_feed(algogram, i);
+        }
+    }
+    
     free(comentario);
 }
 
@@ -630,6 +625,8 @@ hash_t* algogram_cargar_usuarios(vd_t* usuarios_id) {
     for (size_t i=0; i<largo; i++) {
         const char* usuario_actual_nombre = vd_obtener(usuarios_id, i, NULL);
 
+        if (!usuario_actual_nombre) continue;
+
         // Creo un usuario que contiene el ID usuario y su respectivo feed (vacio por ahora)
         usuario_s* usuario_actual = usuario_crear(i);
         if (!usuario_actual) return NULL;
@@ -703,9 +700,9 @@ void post_destruir_aux(void* post) {
 
 // AUXILIAR
 void algogram_destruir(algogram_s* algogram) {
+    hash_destruir(algogram->usuarios_feed);
     vd_destruir(algogram->usuarios_id, free);
     vd_destruir(algogram->posts, post_destruir_aux);
-    hash_destruir(algogram->usuarios_feed);
     free(algogram);
 }
 
