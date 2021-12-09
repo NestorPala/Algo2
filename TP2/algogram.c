@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "algogram.h"
+#include "cola.h"
 #include "hash.h"
 #include "abb.h"
 #include "heap.h"
@@ -234,7 +235,7 @@ size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
 
 
 // AUXILIAR  
-// Sirve para comparar dos posts para saber cual va primero en el feed
+// Sirve para comparar dos posts para saber cual va primero en el feed del usuario.
 int postcmp(const void* a, const void* b) {
 
     const postdist_s* post_a = a;
@@ -375,13 +376,86 @@ void logout(algogram_s* algogram) {
 }
 
 
+// AUXILIAR
+int convertir_cadena_a_numero(char* cadena) {
+    return (int)strtol(cadena, NULL, 10);
+}
+
+
+// AUXILIAR
+bool post_existe(algogram_s* algogram, int id_post) {
+
+    if (id_post < 0) return false;
+
+    bool ok = false;
+    post_s* post = vd_obtener(algogram->posts, id_post, &ok);
+    return ok && post;
+}
+
+
+// AUXILIAR
+// Se utiliza para "recolectar" los likes de un post.
+bool recolectar_likes(const char* clave, void* dato, void* likes) {
+    cola_encolar((cola_t*)likes, strdup(clave));
+    return true;
+}
+
+
 void post_ver_likes(algogram_s* algogram) {
     DEBUG ? printf("---------------POST VER LIKES---------------\n") : false; //debug
+
+    char* cadena = entrada_usuario();
+    int id_post = convertir_cadena_a_numero(cadena);
+    post_s* post = vd_obtener(algogram->posts, id_post, NULL);
+
+    if (!post_existe(algogram, id_post) || post->cant_likes == 0) {
+        printf("Error: Post inexistente o sin likes\n");
+        return;
+    }
+
+    cola_t* likes = cola_crear();
+    if (!likes) return;
+
+    abb_in_order(post->likes, recolectar_likes, likes);
+
+    printf("El post tiene %zu likes:\n", post->cant_likes);
+
+    while(!cola_esta_vacia(likes)) {
+        char* like_actual = cola_desencolar(likes);
+        printf("\t%s\n", like_actual);
+    }
+
+    cola_destruir(likes, free);
+    free(cadena);
 }
 
 
 void post_likear(algogram_s* algogram) {
     DEBUG ? printf("---------------POST LIKEAR---------------\n") : false; //debug
+
+    if (!hay_logueado(algogram)) {
+        printf("Error: Usuario no loggeado o Post inexistente\n");
+        return;
+    }
+   
+    char* cadena = entrada_usuario();
+    int id_post = convertir_cadena_a_numero(cadena);
+
+    if (!post_existe(algogram, id_post)) {
+        printf("Error: Usuario no loggeado o Post inexistente\n");
+        return;
+    }
+
+    post_s* post_gustado = vd_obtener(algogram->posts, id_post, NULL);
+    char* logueado = vd_obtener(algogram->usuarios_id, algogram->logueado, NULL);
+
+    if (!abb_pertenece(post_gustado->likes, logueado)) {
+        if (abb_guardar(post_gustado->likes, logueado, NULL)) {
+            post_gustado->cant_likes++;
+        }
+    }
+
+    printf("Post likeado\n");
 }
 
 
