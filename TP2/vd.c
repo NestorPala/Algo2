@@ -169,8 +169,15 @@ bool vd_redimensionar(vd_t* vector, size_t capacidad) {
 }
 
 
-void vd_destruir(vd_t* vector) {
+void vd_destruir(vd_t* vector, void (*destruir_dato)(void *e)) {
 	if (!vector) return;
+
+	if (destruir_dato) {
+		for (size_t i=0; i<vector->capacidad; i++) {
+			vector->datos[i] ? destruir_dato(vector->datos[i]) : false;
+		}
+	}
+
 	free(vector->datos);
 	free(vector);
 }

@@ -176,13 +176,8 @@ void mostrar_usuarios(algogram_s* algogram) {
 
 
 // AUXILIAR
-// Wrapper de vd_guardar con redimension automatica
-void vd_insertar(vd_t* vector, size_t pos, void* dato) {
-    if (vd_cantidad(vector) == vd_largo(vector)) {
-        vd_redimensionar(vector, 2 * vd_largo(vector));
-    }
-
-    vd_guardar(vector, pos, dato);
+int convertir_cadena_a_numero(char* cadena) {
+    return (int)strtol(cadena, NULL, 10);
 }
 
 
@@ -216,6 +211,8 @@ char* entrada_usuario() {
     getline(&buffer, &buf_tam, stdin);
     char* nuevo_buffer = quitar_barra_n(buffer, false);
 
+    free(buffer);////
+
     //printf("\nINGRESADO: %s", nuevo_buffer);  //debug
 
     return nuevo_buffer;
@@ -223,14 +220,19 @@ char* entrada_usuario() {
 
 
 // AUXILIAR
-bool hay_logueado(algogram_s* algogram) {
-    return algogram->logueado != NADIE_LOGUEADO;
+// Wrapper de vd_guardar con redimension automatica
+void vd_insertar(vd_t* vector, size_t pos, void* dato) {
+    if (vd_cantidad(vector) >= vd_largo(vector)) {
+        vd_redimensionar(vector, 2 * vd_largo(vector));
+    }
+
+    vd_guardar(vector, pos, dato);
 }
 
 
-// AUXILIAR 
-size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
-    return (size_t)abs((int)usuario_a - (int)usuario_b);
+// AUXILIAR
+bool hay_logueado(algogram_s* algogram) {
+    return algogram->logueado != NADIE_LOGUEADO;
 }
 
 
@@ -251,6 +253,12 @@ int postcmp(const void* a, const void* b) {
 }
 
 
+// AUXILIAR 
+size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
+    return (size_t)abs((int)usuario_a - (int)usuario_b);
+}
+
+
 // AUXILIAR
 postdist_s* postdist_crear(algogram_s* algogram, size_t usuario_actual, post_s* post) {
     postdist_s* postdist = malloc(sizeof(postdist_s));
@@ -264,48 +272,23 @@ postdist_s* postdist_crear(algogram_s* algogram, size_t usuario_actual, post_s* 
 
 
 // AUXILIAR
-void post_agregar_feed(algogram_s* algogram, post_s* post) {
-
-    hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);
-    if (!iter) return;
-
-    while(!hash_iter_al_final(iter)) {
-        const char* usuario_actual_nombre = hash_iter_ver_actual(iter);
-        usuario_s* usuario_actual = hash_obtener(algogram->usuarios_feed, usuario_actual_nombre);
-
-        if (usuario_actual->id != algogram->logueado) {
-
-            // Si el feed esta vacio
-            if (!usuario_actual->feed) { 
-                heap_t* feed = heap_crear(postcmp);
-                if (!feed) return;
-                usuario_actual->feed = feed;
-            }
-
-            // Calculo la distancia del usuario actual al logueado; así obtengo un 'post comparable'
-            postdist_s* post_d = postdist_crear(algogram, usuario_actual->id, post);
-            if (!post_d) return;
-
-            // Agrego el post comparable al feed del usuario
-            heap_encolar(usuario_actual->feed, post_d);
-        }
-
-        hash_iter_avanzar(iter);
-    }
-
-    hash_iter_destruir(iter);
+void post_destruir(post_s* post) {
+    if (!post) return;
+    free(post->contenido);
+    abb_destruir(post->likes);
+    free(post);
 }
 
 
-// AUXILIAR 
-bool post_enviar(algogram_s* algogram, post_s* post) {
-    if (!algogram->posts) {
-        algogram->posts = vd_crear(6);
-    }
+// AUXILIAR
+void postdist_destruir(postdist_s* postdist) {
+    free(postdist);
+}
 
-    vd_insertar(algogram->posts, algogram->contador_posts, post);
 
-    return true;
+// AUXILIAR
+void postdist_destruir_aux(void* postdist) {
+    postdist_destruir(postdist);
 }
 
 
@@ -331,12 +314,61 @@ post_s* post_crear(algogram_s* algogram, size_t id, char* comentario) {
 }
 
 
+// AUXILIAR 
+bool post_enviar(algogram_s* algogram, post_s* post) {
+    if (!algogram->posts) {
+        algogram->posts = vd_crear(6);
+    }
+
+    vd_insertar(algogram->posts, algogram->contador_posts, post);
+
+    return true;
+}
+
+
 // AUXILIAR
-void usuario_destruir(void* usuario) {
-    if (!usuario) return;
-    usuario_s* aux_usuario = usuario;
-    heap_destruir(aux_usuario->feed, NULL);
-    free(usuario);
+bool post_existe(algogram_s* algogram, int id_post) {
+
+    if (id_post < 0) return false;
+
+    bool ok = false;
+    post_s* post = vd_obtener(algogram->posts, id_post, &ok);
+    return ok && post;
+}
+
+
+// AUXILIAR
+void post_agregar_feed(algogram_s* algogram, post_s* post) {
+
+    hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);
+    if (!iter) return;
+
+    while(!hash_iter_al_final(iter)) {
+        const char* usuario_actual_nombre = hash_iter_ver_actual(iter);
+        usuario_s* usuario_actual = hash_obtener(algogram->usuarios_feed, usuario_actual_nombre);
+
+        if (usuario_actual->id != algogram->logueado) {
+
+            // Calculo la distancia del usuario actual al logueado; así obtengo un 'post comparable'
+            postdist_s* post_d = postdist_crear(algogram, usuario_actual->id, post);
+            if (!post_d) return;
+
+            // Agrego el post comparable al feed del usuario
+            heap_encolar(usuario_actual->feed, post_d);
+        }
+
+        hash_iter_avanzar(iter);
+    }
+
+    hash_iter_destruir(iter);
+}
+
+
+// AUXILIAR
+// Se utiliza para "recolectar" los likes de un post.
+bool post_recolectar_likes(const char* clave, void* dato, void* likes) {
+    cola_encolar((cola_t*)likes, strdup(clave));
+    return true;
 }
 
 
@@ -359,6 +391,14 @@ usuario_s* usuario_crear(size_t id) {
 }
 
 
+// AUXILIAR
+void usuario_destruir(void* usuario) {
+    if (!usuario) return;
+    heap_destruir(((usuario_s*)usuario)->feed, postdist_destruir_aux);
+    free(usuario);
+}
+
+
 ///////////////////////////////////////////////////////////////
 
 
@@ -373,31 +413,6 @@ void logout(algogram_s* algogram) {
     algogram->logueado = NADIE_LOGUEADO;
 
     printf("Adios\n");
-}
-
-
-// AUXILIAR
-int convertir_cadena_a_numero(char* cadena) {
-    return (int)strtol(cadena, NULL, 10);
-}
-
-
-// AUXILIAR
-bool post_existe(algogram_s* algogram, int id_post) {
-
-    if (id_post < 0) return false;
-
-    bool ok = false;
-    post_s* post = vd_obtener(algogram->posts, id_post, &ok);
-    return ok && post;
-}
-
-
-// AUXILIAR
-// Se utiliza para "recolectar" los likes de un post.
-bool recolectar_likes(const char* clave, void* dato, void* likes) {
-    cola_encolar((cola_t*)likes, strdup(clave));
-    return true;
 }
 
 
@@ -416,7 +431,7 @@ void post_ver_likes(algogram_s* algogram) {
     cola_t* likes = cola_crear();
     if (!likes) return;
 
-    abb_in_order(post->likes, recolectar_likes, likes);
+    abb_in_order(post->likes, post_recolectar_likes, likes);
 
     printf("El post tiene %zu likes:\n", post->cant_likes);
 
@@ -456,6 +471,7 @@ void post_likear(algogram_s* algogram) {
     }
 
     printf("Post likeado\n");
+    free(cadena);
 }
 
 
@@ -517,6 +533,8 @@ void post_publicar(algogram_s* algogram) {
     }
 
     DEBUG ? mostrar_posts(algogram) : false; //debug
+
+    free(comentario);
 }
 
 
@@ -547,7 +565,12 @@ void login(algogram_s* algogram) {
 
 
 // AUXILIAR
-void ejecutar_comando(char* comando, algogram_s* algogram) {
+bool ejecutar_comando(char* comando, algogram_s* algogram) {
+
+    if (strcmp(comando, "salir") == 0) { //debug
+        return false;
+    }
+    
          if (strcmp(comando, LOGIN)              == 0)  login(algogram);
     else if (strcmp(comando, LOGOUT)             == 0)  logout(algogram);
     else if (strcmp(comando, PUBLICAR_POST)      == 0)  post_publicar(algogram);
@@ -555,6 +578,8 @@ void ejecutar_comando(char* comando, algogram_s* algogram) {
     else if (strcmp(comando, LIKEAR_POST)        == 0)  post_likear(algogram);
     else if (strcmp(comando, MOSTRAR_LIKES)      == 0)  post_ver_likes(algogram);
     else if (strcmp(comando, "clear")            == 0)  exit(0); //debug
+
+    return true;
 }
 
 
@@ -566,22 +591,28 @@ bool es_comando(char* cadena) {
             || strcmp(cadena, VER_SIGUIENTE_FEED)  == 0
             || strcmp(cadena, LIKEAR_POST)         == 0
             || strcmp(cadena, MOSTRAR_LIKES)       == 0
-            || strcmp(cadena, "clear")             == 0;  //debug
+            || strcmp(cadena, "clear")             == 0  //debug
+            || strcmp(cadena, "salir")             == 0; //debug
 }
 
 
 // AUXILIAR
-void algogram_ingresar_comandos(algogram_s* algogram) {
+bool algogram_ingresar_comandos(algogram_s* algogram) {
 
     char* cadena = entrada_usuario();
 
     if (!es_comando(cadena)) {
         printf("Comando inválido.\n");
-        return;
+        return true;
     }
     
-    ejecutar_comando(cadena, algogram);
+    if (!ejecutar_comando(cadena, algogram)) {
+        free(cadena);
+        return false;
+    }
+
     free(cadena);
+    return true;
 }
 
 
@@ -650,7 +681,7 @@ algogram_s* algogram_crear(FILE* usuarios) {
 
     algogram->usuarios_feed = algogram_cargar_usuarios(algogram->usuarios_id);
     if (!algogram->usuarios_feed) {
-        vd_destruir(algogram->usuarios_id);
+        vd_destruir(algogram->usuarios_id, usuario_destruir);
         free(algogram);
         return NULL;
     }
@@ -664,18 +695,34 @@ algogram_s* algogram_crear(FILE* usuarios) {
 }
 
 
+// AUXILIAR
+void post_destruir_aux(void* post) {
+    post_destruir(post);
+}
+
+
+// AUXILIAR
+void algogram_destruir(algogram_s* algogram) {
+    vd_destruir(algogram->usuarios_id, free);
+    vd_destruir(algogram->posts, post_destruir_aux);
+    hash_destruir(algogram->usuarios_feed);
+    free(algogram);
+}
+
+
 ///////////////////////////////////////////////////////////////
 
 
 // INICIADOR 
 void algogram(FILE* usuarios) {
+
     algogram_s* algogram = algogram_crear(usuarios);
     if (!algogram) {
         printf("ERROR FATAL\n");
         return;
     }
 
-    while (true) {
-        algogram_ingresar_comandos(algogram);
-    }
+    while (algogram_ingresar_comandos(algogram));
+
+    algogram_destruir(algogram);
 }

@@ -56,9 +56,9 @@ size_t vd_largo(vd_t* vector);
 bool vd_redimensionar(vd_t* vector, size_t capacidad);
 
 
-// Destruye el vector. No destruye los elementos originales apuntados por los elementos guardados en este vector.
+// Destruye el vector. Destruye los elementos originales apuntados por los elementos guardados en este vector si se ha especificado una funcion para ello.
 // Post: el vector original ya no existe.
-void vd_destruir(vd_t* vector);
+void vd_destruir(vd_t* vector, void (*destruir_elemento)(void *e));
 
 
 #endif  // _VD_H
