@@ -15,19 +15,18 @@
 #include "hash.h"
 #include "abb.h"
 #include "heap.h"
-#include "vd.h" //vector dinamico
+#include "vd.h" //vector dinámico
 
 
 typedef struct red_social {
     size_t logueado;
-    vd_t* usuarios_id;       // Se utiliza para crear los feeds de los usuarios
-    hash_t* usuarios_feed;   // Se utiliza para obtener en O(1) los feeds de los usuarios
+    vd_t* usuarios_id;       
+    hash_t* usuarios_feed; 
     vd_t* posts;
     size_t contador_posts;
 } algogram_s;
 
 
-// Sirve para poder obtener en O(1) las posiciones adyacentes al usuario en el vector usuarios_id
 typedef struct usuario {
     size_t id;
     heap_t* feed;
@@ -59,6 +58,7 @@ int convertir_cadena_a_numero(char* cadena) {
 
 
 // AUXILIAR
+// Normaliza las cadenas recibidas por el usuario en una cadena nueva y devuelve la cadena nueva.
 char* quitar_barra_n(char* cadena, bool ingresar_usuarios) {
 
     int i = 0, largo = 0;
@@ -79,6 +79,7 @@ char* quitar_barra_n(char* cadena, bool ingresar_usuarios) {
 
 
 // AUXILIAR
+// Recibe los entradas del usuario por consola.
 char* entrada_usuario() {
     char* buffer;
     size_t buf_tam = 32;
@@ -94,7 +95,7 @@ char* entrada_usuario() {
 
 
 // AUXILIAR
-// Wrapper de vd_guardar con redimension automatica
+// Wrapper de vd_guardar con redimension automática.
 void vd_insertar(vd_t* vector, size_t pos, void* dato) {
     
     if (vd_cantidad(vector) >= vd_largo(vector)) {
@@ -106,13 +107,17 @@ void vd_insertar(vd_t* vector, size_t pos, void* dato) {
 
 
 // AUXILIAR
+// Devuelve true si ya existe alguien utilizando la red social, y false si no.
 bool hay_logueado(algogram_s* algogram) {
     return algogram->logueado != NADIE_LOGUEADO;
 }
 
 
 // AUXILIAR  
-// Sirve para comparar dos posts para saber cual va primero en el feed del usuario.
+// Compara dos posts para saber cual debe mostrarse primero en el feed del usuario.
+// Devuelve 0 si los dos posts pertenecen al mismo usuario y fueron publicados al mismo tiempo (prácticamente imposible), 
+// un número mayor a cero si el usuario del post A está más cerca del logueado que B o ambos usuarios son el mismo pero el post A fue publicado antes que el B,
+// y un número menor a cero si el usuario del post B está más cerca del logueado que A o ambos usuarios son el mismo pero el post B fue publicado antes que el A.
 int postcmp(const void* a, const void* b) {
 
     const postdist_s* post_a = a;
@@ -131,6 +136,7 @@ int postcmp(const void* a, const void* b) {
 
 
 // AUXILIAR 
+// Calcula la distancia en el archivo usuarios.txt que hay entre dos usuarios de la plataforma.
 size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
 
     return (size_t) abs( (int)usuario_a - (int)usuario_b );
@@ -138,22 +144,27 @@ size_t calcular_distancia_usuarios(size_t usuario_a, size_t usuario_b) {
 
 
 // AUXILIAR
+// Crea un wrapper de Post que contiene, adicionalmente, la distancia del usuario que lo publicó al usuario que contiene la referencia del post en su feed.
+// Pre: el post existe.
+// Postcondición: el post "wrappereado" está listo para ser guardado en el feed de un usuario de esta plataforma.
 postdist_s* postdist_crear(algogram_s* algogram, size_t usuario_actual, post_s* post) {
 
-    postdist_s* postdist = malloc(sizeof(postdist_s));
+    postdist_s* post_d = malloc(sizeof(postdist_s));
 
     if (!post) {
         return NULL;
     }
 
-    postdist->post = post;
-    postdist->dist = calcular_distancia_usuarios(usuario_actual, algogram->logueado);
+    post_d->post = post;
+    post_d->dist = calcular_distancia_usuarios(usuario_actual, algogram->logueado);
 
-    return postdist;
+    return post_d;
 }
 
 
 // AUXILIAR
+// Borra un post y libera todos los datos que éste contiene.
+// Postcondición: el post ya no existe.
 void post_destruir(post_s* post) {
 
     if (!post) {
@@ -167,18 +178,25 @@ void post_destruir(post_s* post) {
 
 
 // AUXILIAR
-void postdist_destruir(postdist_s* postdist) {
-    free(postdist);
+// Destruye el wrapper de un post.
+// Pre: el postdist existe.
+// Postcondición: el wrapper ya no existe. El post original no se ha destruido.
+void postdist_destruir(postdist_s* post_d) {
+    free(post_d);
 }
 
 
 // AUXILIAR
-void postdist_destruir_aux(void* postdist) {
-    postdist_destruir(postdist);
+// Wrapper para destruir un post dentro de un feed.
+void postdist_destruir_aux(void* post_d) {
+    postdist_destruir(post_d);
 }
 
 
 // AUXILIAR 
+// Crea un post nuevo, que incluye el id del autor, el comentario realizado, los likes y la fecha de creación.
+// Pre: el id existe.
+// Post: el post está listo para pasar a la siguiente fase del proceso de publicación.
 post_s* post_crear(algogram_s* algogram, size_t id, char* comentario) {
 
     post_s* post = malloc(sizeof(post_s));
@@ -219,6 +237,9 @@ bool post_existe(algogram_s* algogram, int id_post) {
 
 
 // AUXILIAR
+// Luego de publicado el post, agrega el mismo a los feeds de todos los usuarios, menos el logueado, quien está realizando dicha publicación.
+// Pre: el post existe.
+// Postcondición: todos los usuarios menos el logueado ahora poseen 1 post más para ver.
 void post_agregar_feed(algogram_s* algogram, post_s* post) {
 
     hash_iter_t* iter = hash_iter_crear(algogram->usuarios_feed);
@@ -253,6 +274,8 @@ void post_agregar_feed(algogram_s* algogram, post_s* post) {
 
 // AUXILIAR
 // Se utiliza para "recolectar" los likes de un post.
+// Pre: la clave existe.
+// Post: la clave original no se destruye.
 bool post_recolectar_likes(const char* clave, void* dato, void* likes) {
 
     cola_encolar((cola_t*)likes, strdup(clave));
@@ -261,6 +284,9 @@ bool post_recolectar_likes(const char* clave, void* dato, void* likes) {
 
 
 // AUXILIAR
+// Crea un nuevo usuario, el cual contiene su ID y su respectivo feed de publicaciones.
+// Pre: el ID es válido.
+// Post: la red social Algogram tiene un nuevo miembro en su comunidad.
 usuario_s* usuario_crear(size_t id) {
 
     usuario_s* usuario = malloc(sizeof(usuario_s));
@@ -284,6 +310,9 @@ usuario_s* usuario_crear(size_t id) {
 
 
 // AUXILIAR
+// Borra el usuario de la red social Algogram y libera todo su contenido.
+// Pre: el usuario existe.
+// Post: el usuario ya no existe en la red social Algogram. Los posts originales no se han destruido.
 void usuario_destruir(void* usuario) {
 
     if (!usuario) {
@@ -295,6 +324,8 @@ void usuario_destruir(void* usuario) {
 }
 
 
+// Termina la sesión de la persona actual utilizando la red social.
+// En caso de que no haya un usuario logueado, se muestra un mensaje de error por pantalla y se termina la operación actual.
 void logout(algogram_s* algogram) {
 
     if (!hay_logueado(algogram)) {
@@ -308,6 +339,8 @@ void logout(algogram_s* algogram) {
 }
 
 
+// Muestra las personas que dieron like a un determinado post. No hace falta estar logueado para realizar esta operación.
+// Si el post no existe o no posee likes, se muestra un mensaje de error por pantalla y se termina la operación actual.
 void post_ver_likes(algogram_s* algogram) {
 
     char* cadena = entrada_usuario();
@@ -339,6 +372,8 @@ void post_ver_likes(algogram_s* algogram) {
 }
 
 
+// Permite dejar un "like" (me gusta) a un post en particular.
+// Si el post no existe o no hay un usuario logueado, se muestra un mensaje de error por pantalla y se termina la operación actual.
 void post_likear(algogram_s* algogram) {
 
     if (!hay_logueado(algogram)) {
@@ -369,6 +404,8 @@ void post_likear(algogram_s* algogram) {
 }
 
 
+// Permite ver el siguiente post en el feed de publicaciones. 
+// Si no hay más posts para ver o no hay un usuario logueado, se muestra un mensaje de error por pantalla y se termina la operación actual.
 void post_ver_siguiente(algogram_s* algogram) {
 
     if (!hay_logueado(algogram)) {
@@ -399,6 +436,8 @@ void post_ver_siguiente(algogram_s* algogram) {
 }
 
 
+// Permite generar un nuevo post con un nuevo comentario.
+// En caso de que no haya un usuario logueado, se muestra un mensaje de error por pantalla y se termina la operación actual.
 void post_publicar(algogram_s* algogram) {
 
     if (!hay_logueado(algogram)) {
@@ -433,6 +472,8 @@ void post_publicar(algogram_s* algogram) {
 }
 
 
+// Permite a un usuario ingresar a la red social Algogram.
+// En caso de que ya haya un usuario logueado o el usuario no exista, se muestra un mensaje de error por pantalla y se termina la operación actual.
 void login(algogram_s* algogram) {
 
     char* cadena = entrada_usuario();
@@ -455,6 +496,7 @@ void login(algogram_s* algogram) {
 
 
 // AUXILIAR
+// Ejecuta la parte correspondiente del programa a la acción solicitada por el usuario.
 bool ejecutar_comando(char* comando, algogram_s* algogram) {
 
     if (strcmp(comando, "exit") == 0) {
@@ -484,6 +526,7 @@ bool ejecutar_comando(char* comando, algogram_s* algogram) {
 
 
 // AUXILIAR
+// Devuelve true si la cadena ingresada por el usuario es un comando válido de Algogramm, y false si no.
 bool es_comando(char* cadena) {
     return     strcmp(cadena, LOGIN)               == 0
             || strcmp(cadena, LOGOUT)              == 0
@@ -496,6 +539,7 @@ bool es_comando(char* cadena) {
 
 
 // AUXILIAR
+// Permite al usuario ingresar una cadena de caracteres por entrada estándar, y si esa cadena representa un comando válido, ésta acción se realiza.
 bool algogram_ingresar_comandos(algogram_s* algogram) {
 
     char* cadena = entrada_usuario();
@@ -519,6 +563,9 @@ bool algogram_ingresar_comandos(algogram_s* algogram) {
 
 
 // AUXILIAR 
+// Crea los usuarios de la red social a partir de la lista de nombres recogidos de usuarios.txt.
+// Pre: la lista de usuarios no está vacía.
+// Post: los usuarios están completamente creados en el sistema.
 hash_t* algogram_cargar_usuarios(vd_t* usuarios_id) {
 
     hash_t* usuarios = hash_crear(usuario_destruir);
@@ -550,7 +597,10 @@ hash_t* algogram_cargar_usuarios(vd_t* usuarios_id) {
 }
 
 
-// AUXILIAR 
+// AUXILIAR
+// Crea la lista de nombres de usuarios de la red social a partir del archivo usuarios.txt. 
+// Pre: el archivo usuarios.txt es válido.
+// Post: los usuarios ya están cargados en el sistema.
 vd_t* algogram_cargar_usuarios_id(FILE* archivo_usuarios) {
 
     vd_t* usuarios_id = vd_crear(5);
@@ -579,6 +629,9 @@ vd_t* algogram_cargar_usuarios_id(FILE* archivo_usuarios) {
 
 
 // AUXILIAR 
+// Crea la estructura principal de la red social Algogram.
+// Pre: el archivo usuarios.txt es válido.
+// Post: la red social está lista para ser utilizada.
 algogram_s* algogram_crear(FILE* usuarios) {
     
     algogram_s* algogram = malloc(sizeof(algogram_s));
@@ -612,12 +665,15 @@ algogram_s* algogram_crear(FILE* usuarios) {
 
 
 // AUXILIAR
+// Wrapper para destruir los posts.
 void post_destruir_aux(void* post) {
     post_destruir(post);
 }
 
 
 // AUXILIAR
+// Destruye todos los datos de la red social Algogram.
+// Post: se acabó todo, todillo.
 void algogram_destruir(algogram_s* algogram) {
     hash_destruir(algogram->usuarios_feed);
     vd_destruir(algogram->usuarios_id, free);
@@ -630,6 +686,8 @@ void algogram_destruir(algogram_s* algogram) {
 
 
 // INICIADOR 
+// Recibe el archivo usuarios.txt, crea la red social e inicia un bucle de recibir comandos y realizar acciones dentro de la red social Algogram.
+// Pre: el archivo usuarios.txt es válido.
 void algogram(FILE* usuarios) {
 
     algogram_s* algogram = algogram_crear(usuarios);

@@ -10,6 +10,14 @@ const size_t FACTOR_CARGA_HEAP      =  2;    // Se utiliza para las redimensione
 typedef void (*destr_t)(void *e);       // Funcion de destruccion de dato
 
 
+struct heap {
+	void** arr;
+	size_t cantidad;
+	size_t capacidad;
+	cmp_func_t cmp;
+};
+
+
 // AUXILIAR
 // Permite redimensión "hacia abajo" y "hacia arriba".
 // Devuelve una copia en memoria dinámica del arreglo, con la capacidad nueva_capacidad. 

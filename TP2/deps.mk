@@ -1,0 +1,1 @@
+algogram: tp2.o vd.o algogram.o heap.o abb.o lista.o hash.o cola.o pila.o
