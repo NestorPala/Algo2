@@ -49,6 +49,14 @@ struct hash_iter {
 };
 
 
+char* strdup_(const char* org) {
+    char* cpy = malloc(sizeof(char) * (strlen(org) + 1));
+    if (!cpy) return NULL;
+    strcpy(cpy, org);
+    return cpy;
+}
+
+
 //https://gist.github.com/MohamedTaha98/ccdf734f13299efb73ff0b12f7ce429f
 unsigned long hash_(const char* clave, size_t largo) {
 
@@ -103,7 +111,7 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato) {
 // Contiene el par clave-valor de un elemento que el usuario guarda en el Hash.
 campo_t* campo_crear(const char* clave, void* dato) {
     campo_t* campo = malloc(sizeof(campo_t));
-    campo->clave = strdup(clave);
+    campo->clave = strdup_(clave);
     campo->dato = dato;
     return campo;
 }

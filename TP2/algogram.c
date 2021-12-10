@@ -61,7 +61,8 @@ int convertir_cadena_a_numero(char* cadena) {
 // Normaliza las cadenas recibidas por el usuario en una cadena nueva y devuelve la cadena nueva.
 char* quitar_barra_n(char* cadena, bool ingresar_usuarios) {
 
-    int i = 0, largo = 0;
+    int i = 0;
+    size_t largo = 0;
     largo = strlen(cadena);
     size_t u = ingresar_usuarios ? 2 : 1;
     
@@ -85,7 +86,11 @@ char* entrada_usuario() {
     size_t buf_tam = 32;
     buffer = malloc(buf_tam * sizeof(char));
 
-    getline(&buffer, &buf_tam, stdin);
+    ssize_t aux = getline(&buffer, &buf_tam, stdin);
+    if (aux == EOF) {
+        return NULL;
+    }
+
     char* nuevo_buffer = quitar_barra_n(buffer, false);
 
     free(buffer);
@@ -125,7 +130,7 @@ int postcmp(const void* a, const void* b) {
 
     if (post_a->dist == post_b->dist) {
 
-        return post_b->post->fecha_creacion - post_a->post->fecha_creacion;
+        return (int)post_b->post->fecha_creacion - (int)post_a->post->fecha_creacion;
 
     } else if (post_a->dist < post_b->dist) {
         return 1;

@@ -174,7 +174,9 @@ void vd_destruir(vd_t* vector, void (*destruir_dato)(void *e)) {
 
 	if (destruir_dato) {
 		for (size_t i=0; i<vector->capacidad; i++) {
-			vector->datos[i] ? destruir_dato(vector->datos[i]) : false;
+			if (vector->datos[i]) {
+				destruir_dato(vector->datos[i]);
+			}
 		}
 	}
 

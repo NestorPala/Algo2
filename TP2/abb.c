@@ -33,6 +33,14 @@ struct abb_iter {
 };
 
 
+char* strdup(const char* org) {
+    char* cpy = malloc(sizeof(char) * (strlen(org) + 1));
+    if (!cpy) return NULL;
+    strcpy(cpy, org);
+    return cpy;
+}
+
+
 // AUXILIAR
 abb_nodo_t* abb_nodo_crear(abb_nodo_t* izq, abb_nodo_t* der, const char* clave, void* dato) {
 
