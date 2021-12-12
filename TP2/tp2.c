@@ -10,14 +10,16 @@ int main(int argc, char** argv) {
     // Chequeo de parámetros
     if (argc != 2) {
         fprintf(stderr, "%s", "Error: Cantidad erronea de parametros");
-        return -1;
+        return 1;
     }
 
-    FILE* usuarios = fopen(argv[1], "r");
+    FILE* usuarios = NULL;
+    
+    usuarios = fopen(argv[1], "rb");
 
     if (!usuarios) {
         fprintf(stderr, "%s", "Error: Archivo fuente inaccesible");
-        return -2;
+        return 1;
     }
 
     // Iniciamos la red social

@@ -127,10 +127,10 @@ char* entrada_usuario() {
 
     ssize_t aux = getline(&buffer, &buf_tam, stdin);
     if (aux == EOF) {
+        free(buffer);
         return NULL;
     }
 
-    //char* nuevo_buffer = quitar_barra_n(buffer, false);
     char* nuevo_buffer = quitar_caracteres_espciales(buffer);
 
     free(buffer);
@@ -391,9 +391,9 @@ void logout(algogram_s* algogram) {
 
 // Muestra las personas que dieron like a un determinado post. No hace falta estar logueado para realizar esta operación.
 // Si el post no existe o no posee likes, se muestra un mensaje de error por pantalla y se termina la operación actual.
-void post_ver_likes(algogram_s* algogram) {
+void post_ver_likes(algogram_s* algogram, char* parametro) {
 
-    char* cadena = entrada_usuario();
+    char* cadena = parametro;
     int id_post = convertir_cadena_a_numero(cadena);
     post_s* post = vd_obtener(algogram->posts, id_post, NULL);
 
@@ -418,20 +418,20 @@ void post_ver_likes(algogram_s* algogram) {
     }
 
     cola_destruir(likes, free);
-    free(cadena);
+    //free(cadena);//
 }
 
 
 // Permite dejar un "like" (me gusta) a un post en particular.
 // Si el post no existe o no hay un usuario logueado, se muestra un mensaje de error por pantalla y se termina la operación actual.
-void post_likear(algogram_s* algogram) {
+void post_likear(algogram_s* algogram, char* parametro) {
 
     if (!hay_logueado(algogram)) {
         printf("Error: Usuario no loggeado o Post inexistente\n");
         return;
     }
    
-    char* cadena = entrada_usuario();
+    char* cadena = parametro;
     int id_post = convertir_cadena_a_numero(cadena);
 
     if (!post_existe(algogram, id_post)) {
@@ -450,7 +450,7 @@ void post_likear(algogram_s* algogram) {
 
     printf("Post likeado\n");
 
-    free(cadena);
+    //free(cadena);//
 }
 
 
@@ -488,14 +488,14 @@ void post_ver_siguiente(algogram_s* algogram) {
 
 // Permite generar un nuevo post con un nuevo comentario.
 // En caso de que no haya un usuario logueado, se muestra un mensaje de error por pantalla y se termina la operación actual.
-void post_publicar(algogram_s* algogram) {
+void post_publicar(algogram_s* algogram, char* parametro) {
 
     if (!hay_logueado(algogram)) {
         printf("Error: no habia usuario loggeado\n");
         return;
     }
 
-    char* comentario = entrada_usuario();
+    char* comentario = parametro;
 
     // Creo el post
 
@@ -518,15 +518,15 @@ void post_publicar(algogram_s* algogram) {
 
     printf("Post publicado\n");
 
-    free(comentario);
+    //free(comentario); //
 }
 
 
 // Permite a un usuario ingresar a la red social Algogram.
 // En caso de que ya haya un usuario logueado o el usuario no exista, se muestra un mensaje de error por pantalla y se termina la operación actual.
-void login(algogram_s* algogram) {
+void login(algogram_s* algogram, char* parametro) {
 
-    char* cadena = entrada_usuario();
+    char* cadena = parametro;
 
     if (hay_logueado(algogram)) {
         printf("Error: Ya habia un usuario loggeado\n");
@@ -541,34 +541,38 @@ void login(algogram_s* algogram) {
     algogram->logueado = ((usuario_s*) hash_obtener(algogram->usuarios_feed, cadena)) -> id;
     printf("Hola %s\n", cadena);
 
-    free(cadena);
+    //free(cadena); //
 }
 
 
 // AUXILIAR
 // Ejecuta la parte correspondiente del programa a la acción solicitada por el usuario.
-bool ejecutar_comando(char* comando, algogram_s* algogram) {
+bool ejecutar_comando(char* comando, char* parametro, algogram_s* algogram) {
+
+    if (!comando) {
+        return false;
+    }
 
     if (strcmp(comando, "exit") == 0) {
         return false;
     }
     else if (strcmp(comando, LOGIN) == 0) {
-        login(algogram);
+        login(algogram, parametro);
     }
     else if (strcmp(comando, LOGOUT) == 0) {
         logout(algogram);
     }
     else if (strcmp(comando, PUBLICAR_POST) == 0) {
-        post_publicar(algogram);
+        post_publicar(algogram, parametro);
     } 
     else if (strcmp(comando, VER_SIGUIENTE_FEED) == 0) {
         post_ver_siguiente(algogram);
     } 
     else if (strcmp(comando, LIKEAR_POST) == 0) {
-        post_likear(algogram);
+        post_likear(algogram, parametro);
     } 
     else if (strcmp(comando, MOSTRAR_LIKES) == 0) {
-         post_ver_likes(algogram);
+        post_ver_likes(algogram, parametro);
     }
 
     return true;
@@ -578,6 +582,9 @@ bool ejecutar_comando(char* comando, algogram_s* algogram) {
 // AUXILIAR
 // Devuelve true si la cadena ingresada por el usuario es un comando válido de Algogramm, y false si no.
 bool es_comando(char* cadena) {
+    if (!cadena) {
+        return true;
+    }
     return     strcmp(cadena, LOGIN)               == 0
             || strcmp(cadena, LOGOUT)              == 0
             || strcmp(cadena, PUBLICAR_POST)       == 0
@@ -592,19 +599,35 @@ bool es_comando(char* cadena) {
 // Permite al usuario ingresar una cadena de caracteres por entrada estándar, y si esa cadena representa un comando válido, ésta acción se realiza.
 bool algogram_ingresar_comandos(algogram_s* algogram) {
 
-    char* cadena = entrada_usuario();
+    char* cadena = entrada_usuario();   //comando principal, ej: login
+    char* cadena2 = NULL;               //parametro para el comando principal, ej. login  -->  mondi
+
+    if (!cadena) {
+        return false;
+    }
 
     if (!es_comando(cadena)) {
         free(cadena);
         return true;
     }
+
+    if (strcmp(cadena, LOGIN)          == 0 || 
+        strcmp(cadena, PUBLICAR_POST)  == 0 || 
+        strcmp(cadena, LIKEAR_POST)    == 0 ||
+        strcmp(cadena, MOSTRAR_LIKES)  == 0
+    ) 
+    {
+        cadena2 = entrada_usuario(); 
+    }
     
-    if (!ejecutar_comando(cadena, algogram)) {
+    if (!ejecutar_comando(cadena, cadena2, algogram)) {
         free(cadena);
+        free(cadena2);
         return false;
     }
 
     free(cadena);
+    free(cadena2);
     return true;
 }
 
@@ -660,7 +683,6 @@ vd_t* algogram_cargar_usuarios_id(FILE* archivo_usuarios) {
     char* buffer = (char*)malloc(n * sizeof(char));
 
     while(getline(&buffer, &n, archivo_usuarios) != EOF) {
-        //char* nuevo_buffer = quitar_barra_n(buffer, true);
         char* nuevo_buffer = quitar_caracteres_espciales(buffer);
 
         if (strcmp(nuevo_buffer, "") == 0) {
