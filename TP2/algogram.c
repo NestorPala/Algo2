@@ -55,34 +55,6 @@ int convertir_cadena_a_numero(char* cadena) {
 }
 
 
-// // DEBUG
-// void imprimir_cadena(char* cadena) {
-
-//     size_t largo = strlen(cadena);
-
-//     printf("\n\n[");
-
-//     for (size_t i=0; i<=largo; i++) {
-
-//         if (cadena[i] == '\0') {
-//             printf("/0");
-//         } else if (cadena[i] == '\n') {
-//             printf("/n");
-//         } else if (cadena[i] == '\r') {
-//             printf("/r");
-//         } else {
-//             printf("%c", cadena[i]);
-//         }
-
-//         if (i != largo) {
-//             printf(", ");
-//         }
-//     }
-
-//     printf("]\n\n");
-// }
-
-
 // AUXILIAR
 // Devuelve una nueva cadena normalizada (sin basura de la consola o del archivo de usuarios) a partir de la original. 
 // Quita de los strings los elementos '\n' y '\r' si existe. 
@@ -414,7 +386,7 @@ void post_ver_likes(algogram_s* algogram, char* parametro) {
         free(like_actual);
     }
 
-    cola_destruir(likes, free);
+    cola_destruir(likes, NULL);
 }
 
 
