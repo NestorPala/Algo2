@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> 
-#include <time.h>
 #include "algogram.h"
 #include "cola.h"
 #include "hash.h"
@@ -38,7 +37,6 @@ typedef struct post {
     size_t id;
     size_t autor;
     char* contenido;
-    time_t fecha_creacion;
     size_t cant_likes; 
     abb_t* likes;       
 } post_s;
@@ -57,23 +55,64 @@ int convertir_cadena_a_numero(char* cadena) {
 }
 
 
-// AUXILIAR
-// Normaliza las cadenas recibidas por el usuario en una cadena nueva y devuelve la cadena nueva.
-char* quitar_barra_n(char* cadena, bool ingresar_usuarios) {
+// DEBUG
+void imprimir_cadena(char* cadena) {
 
-    int i = 0;
-    size_t largo = 0;
-    largo = strlen(cadena);
-    size_t u = ingresar_usuarios ? 2 : 1;
-    
-    char* nueva_cadena;
-    nueva_cadena = malloc(largo - u + 1);
- 
-    for(i = 0; i < largo-u; i++){
-        nueva_cadena[i] = cadena[i]; 
+    size_t largo = strlen(cadena);
+
+    printf("\n\n[");
+
+    for (size_t i=0; i<=largo; i++) {
+
+        if (cadena[i] == '\0') {
+            printf("/0");
+        } else if (cadena[i] == '\n') {
+            printf("/n");
+        } else if (cadena[i] == '\r') {
+            printf("/r");
+        } else {
+            printf("%c", cadena[i]);
+        }
+
+        if (i != largo) {
+            printf(", ");
+        }
     }
 
-    nueva_cadena[largo - u] = '\0';
+    printf("]\n\n");
+}
+
+
+// AUXILIAR
+char* quitar_caracteres_espciales(char* cadena) {
+
+    size_t largo = strlen(cadena);
+    size_t chars_quitados = 0;
+
+    for (size_t i=0; i<=largo; i++) {
+        if (cadena[i] == '\n' || cadena[i] == '\r') {
+            largo--;
+            chars_quitados++;
+        }
+    }
+
+    char* nueva_cadena = malloc(largo + 1);
+
+    size_t largo_viejo = strlen(cadena);
+
+    for (size_t i=0; i<(largo_viejo - chars_quitados); i++) {
+        if (cadena[i] != '\n' && cadena[i] != '\r') {
+            nueva_cadena[i] = cadena[i]; 
+        }
+    }
+
+    nueva_cadena[largo] = '\0';
+
+    // printf("CADENA VIEJA:"); //debug
+    // imprimir_cadena(cadena); //debug
+    // printf("\nCADENA NUEVA:"); //debug
+    // imprimir_cadena(nueva_cadena); //debug
+    // printf("\n\n"); //debug
 
     return nueva_cadena;
 }
@@ -91,7 +130,8 @@ char* entrada_usuario() {
         return NULL;
     }
 
-    char* nuevo_buffer = quitar_barra_n(buffer, false);
+    //char* nuevo_buffer = quitar_barra_n(buffer, false);
+    char* nuevo_buffer = quitar_caracteres_espciales(buffer);
 
     free(buffer);
 
@@ -130,7 +170,13 @@ int postcmp(const void* a, const void* b) {
 
     if (post_a->dist == post_b->dist) {
 
-        return (int)post_b->post->fecha_creacion - (int)post_a->post->fecha_creacion;
+        if (post_a->post->id == post_b->post->id) { 
+            return 0;
+        } else if (post_a->post->id < post_b->post->id) {
+            return 1;
+        } else {
+            return -1;
+        }
 
     } else if (post_a->dist < post_b->dist) {
         return 1;
@@ -215,7 +261,6 @@ post_s* post_crear(algogram_s* algogram, size_t id, char* comentario) {
     post->autor = algogram->logueado;
     post->cant_likes = 0;
     post->contenido = strdup(comentario);
-    post->fecha_creacion = time(NULL);
     post->likes = abb_crear(strcmp, NULL);
 
     if (!post->likes) {
@@ -550,9 +595,6 @@ bool algogram_ingresar_comandos(algogram_s* algogram) {
     char* cadena = entrada_usuario();
 
     if (!es_comando(cadena)) {
-
-        printf("Comando inválido.\n");
-
         free(cadena);
         return true;
     }
@@ -618,7 +660,8 @@ vd_t* algogram_cargar_usuarios_id(FILE* archivo_usuarios) {
     char* buffer = (char*)malloc(n * sizeof(char));
 
     while(getline(&buffer, &n, archivo_usuarios) != EOF) {
-        char* nuevo_buffer = quitar_barra_n(buffer, true);
+        //char* nuevo_buffer = quitar_barra_n(buffer, true);
+        char* nuevo_buffer = quitar_caracteres_espciales(buffer);
 
         if (strcmp(nuevo_buffer, "") == 0) {
             continue;
@@ -698,7 +741,6 @@ void algogram(FILE* usuarios) {
     algogram_s* algogram = algogram_crear(usuarios);
 
     if (!algogram) {
-        printf("ERROR FATAL\n");
         return;
     }
 

@@ -1,3 +1,17 @@
+USUARIOS:
+
+
+chorch
+cacatua2030
+mondi
+chicho1994
+eldiego
+
+
+----------------------------------------------------------------------------
+COMANDOS:
+
+
 login
 chicho1994
 publicar
