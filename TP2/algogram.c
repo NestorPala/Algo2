@@ -411,6 +411,7 @@ void post_ver_likes(algogram_s* algogram, char* parametro) {
     while(!cola_esta_vacia(likes)) {
         char* like_actual = cola_desencolar(likes);
         printf("\t%s\n", like_actual);
+        free(like_actual);
     }
 
     cola_destruir(likes, free);
