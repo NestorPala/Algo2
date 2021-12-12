@@ -55,35 +55,37 @@ int convertir_cadena_a_numero(char* cadena) {
 }
 
 
-// DEBUG
-void imprimir_cadena(char* cadena) {
+// // DEBUG
+// void imprimir_cadena(char* cadena) {
 
-    size_t largo = strlen(cadena);
+//     size_t largo = strlen(cadena);
 
-    printf("\n\n[");
+//     printf("\n\n[");
 
-    for (size_t i=0; i<=largo; i++) {
+//     for (size_t i=0; i<=largo; i++) {
 
-        if (cadena[i] == '\0') {
-            printf("/0");
-        } else if (cadena[i] == '\n') {
-            printf("/n");
-        } else if (cadena[i] == '\r') {
-            printf("/r");
-        } else {
-            printf("%c", cadena[i]);
-        }
+//         if (cadena[i] == '\0') {
+//             printf("/0");
+//         } else if (cadena[i] == '\n') {
+//             printf("/n");
+//         } else if (cadena[i] == '\r') {
+//             printf("/r");
+//         } else {
+//             printf("%c", cadena[i]);
+//         }
 
-        if (i != largo) {
-            printf(", ");
-        }
-    }
+//         if (i != largo) {
+//             printf(", ");
+//         }
+//     }
 
-    printf("]\n\n");
-}
+//     printf("]\n\n");
+// }
 
 
 // AUXILIAR
+// Devuelve una nueva cadena normalizada (sin basura de la consola o del archivo de usuarios) a partir de la original. 
+// Quita de los strings los elementos '\n' y '\r' si existe. 
 char* quitar_caracteres_espciales(char* cadena) {
 
     size_t largo = strlen(cadena);
@@ -107,12 +109,6 @@ char* quitar_caracteres_espciales(char* cadena) {
     }
 
     nueva_cadena[largo] = '\0';
-
-    // printf("CADENA VIEJA:"); //debug
-    // imprimir_cadena(cadena); //debug
-    // printf("\nCADENA NUEVA:"); //debug
-    // imprimir_cadena(nueva_cadena); //debug
-    // printf("\n\n"); //debug
 
     return nueva_cadena;
 }
@@ -369,7 +365,7 @@ void usuario_destruir(void* usuario) {
         return;
     }
 
-    heap_destruir( ((usuario_s*)usuario) -> feed, postdist_destruir_aux );
+    heap_destruir( ((usuario_s*) usuario) -> feed, postdist_destruir_aux );
     free(usuario);
 }
 
@@ -418,7 +414,6 @@ void post_ver_likes(algogram_s* algogram, char* parametro) {
     }
 
     cola_destruir(likes, free);
-    //free(cadena);//
 }
 
 
@@ -449,8 +444,6 @@ void post_likear(algogram_s* algogram, char* parametro) {
     }
 
     printf("Post likeado\n");
-
-    //free(cadena);//
 }
 
 
@@ -483,6 +476,8 @@ void post_ver_siguiente(algogram_s* algogram) {
     printf("Post ID %zu\n", post_id);
     printf("%s dijo: %s\n", post_autor, post_comentario);
     printf("Likes: %zu\n", post_cant_likes);
+
+    free(postdist_siguiente);
 }
 
 
@@ -517,8 +512,6 @@ void post_publicar(algogram_s* algogram, char* parametro) {
     post_agregar_feed(algogram, post);
 
     printf("Post publicado\n");
-
-    //free(comentario); //
 }
 
 
@@ -540,8 +533,6 @@ void login(algogram_s* algogram, char* parametro) {
 
     algogram->logueado = ((usuario_s*) hash_obtener(algogram->usuarios_feed, cadena)) -> id;
     printf("Hola %s\n", cadena);
-
-    //free(cadena); //
 }
 
 
@@ -585,13 +576,13 @@ bool es_comando(char* cadena) {
     if (!cadena) {
         return true;
     }
-    return     strcmp(cadena, LOGIN)               == 0
-            || strcmp(cadena, LOGOUT)              == 0
-            || strcmp(cadena, PUBLICAR_POST)       == 0
-            || strcmp(cadena, VER_SIGUIENTE_FEED)  == 0
-            || strcmp(cadena, LIKEAR_POST)         == 0
-            || strcmp(cadena, MOSTRAR_LIKES)       == 0
-            || strcmp(cadena, "exit")              == 0;
+    return  strcmp(cadena, LOGIN)               == 0 || 
+            strcmp(cadena, LOGOUT)              == 0 || 
+            strcmp(cadena, PUBLICAR_POST)       == 0 || 
+            strcmp(cadena, VER_SIGUIENTE_FEED)  == 0 || 
+            strcmp(cadena, LIKEAR_POST)         == 0 || 
+            strcmp(cadena, MOSTRAR_LIKES)       == 0 || 
+            strcmp(cadena, "exit")              == 0;
 }
 
 
@@ -756,8 +747,8 @@ void algogram_destruir(algogram_s* algogram) {
 
 
 // INICIADOR 
-// Recibe el archivo usuarios.txt, crea la red social e inicia un bucle de recibir comandos y realizar acciones dentro de la red social Algogram.
-// Pre: el archivo usuarios.txt es válido.
+// Recibe el archivo de usuarios, crea la red social e inicia un bucle de recibir comandos y realizar acciones dentro de la red social Algogram.
+// Pre: el archivo de usuarios es válido.
 void algogram(FILE* usuarios) {
 
     algogram_s* algogram = algogram_crear(usuarios);

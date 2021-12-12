@@ -1,20 +1,11 @@
-No libera a veces todos los datos antes de salir (postdist, quitar_barra_n...)
-a veces se pisan las salidas (en pruebas manuales siempre funciona, obviamente)
-no carga el archivo de usuarios de las pruebas
+revision archivo 03
 
------------------------------------------------------------
+publicaciones
 
-solucion a alguno o varios de los bugs de arriba
+alan: 3
+dieguitoessaya: 2
+rosita: 2
+barbara: 3
+--------------------------------
 
-Windows: las cadenas terminan con /r/n
-Unix: las cadenas terminan con /n
-
-SOLUCION: remover /r si existe, no hardcodear truncamiento porque va a fallar en unix
-
------------------------------------------------------------
-
-solucion a no libera los datos
-
-poner todos los segundos inputs fuera de sus respectivas funciones para poder siempre atajar ctrl D o ctrl C
-
------------------------------------------------------------
+cantidad de publicaciones que deberia tener cada uno en su feed
