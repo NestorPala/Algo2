@@ -23,7 +23,10 @@ ARBOL DE TENDIDO CON LA MINIMA SUMA DE PESOS, SI EL GRAFO TIENE PESOS
 
 * Hay 2 algoritmos: 
 	1) PRIM (Usamos BFS o DFS, heap, orden O(E LOG V))
+		* Prim es un algoritmo eficiente, siempre encuentra la solucion optima
 	2) KRUSKAL (usamos conjuntos disjuntos (union-find), ordenamos las aristas, orden O(E LOG V))
+		* Utiliza el TDA Union-Find para chequear pertenencia a la misma componente conexa
+		* Encuentra automaticamente todos los arboles de tendido minimo, no hace falta modificar el algoritmo
 
 * No importa por que vertice comencemos, siempre obtenemos el resultado correcto.
 
