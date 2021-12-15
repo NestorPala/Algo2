@@ -1,0 +1,39 @@
+TP3: grafos para modelar Internet
+
+
+CONSIGNA
+
+Nos dan: 
+	* un grafo reducido de wikipedia
+Hacer:
+	* TDA grafo
+	* Biblioteca con las funciones que usen grafo para resolver las consignas
+	* el tp3 con las consignas elegidas resueltas
+
+------------------------------------------------------------------------
+Funciones a implementar:
+
+
+OBLIGATORIO
+	* Listar operaciones
+
+1 ESTRELLAS
+	* Camino mas corto
+	* Diametro
+	* Todos en rango
+	* Navegacion por primer link
+
+2 ESTRELLAS
+	* Conectividad
+	* Comunidades
+	* Lectura a las 2 am
+	* Coeficiente de clustering
+
+3 ESTRELLAS
+	* Articulos mas importantes
+	* Ciclo de n articulos
+
+
+Conseguir al menos 7 puntos para aprobar el TP
+(ej: todos los de 1 estrellas + 2 de 2 estrellas o 1 de 3 estrellas)
+
