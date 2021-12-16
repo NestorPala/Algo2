@@ -3,7 +3,58 @@ from grafo import Grafo
 # python3 ./netstats.py wiki-reducido-75000.tsv
 
 
-def leer_archivo(ruta_archivo):
+# borrar luego los que no usemos
+COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegación", "comunidad", "conectados", "lectura", "clustering", "mas_importantes",  "ciclo")
+
+
+def ciclo(grafo):
+    pass
+
+
+def mas_importantes(grafo):
+    pass
+
+
+def clustering(grafo):
+    pass
+
+
+def lectura(grafo):
+    pass
+
+
+def conectados(grafo):
+    pass
+
+
+def comunidad(grafo):
+    pass
+
+
+def navegacion(grafo):
+    pass
+
+
+def rango(grafo):
+    pass
+
+
+def diametro(grafo):
+    pass
+
+
+def camino(grafo):
+    print("camino") #debug
+
+    pass
+
+
+def listar_operaciones():
+    for comando in COMANDOS:
+        print(comando)
+
+
+def cargar_grafo_wiki(ruta_archivo):
 
     wiki = Grafo(True)
 
@@ -11,7 +62,6 @@ def leer_archivo(ruta_archivo):
 
         # cargamos los vertices
         for linea in archivo:
-
             clave = ""
 
             for caracter in linea:
@@ -26,13 +76,11 @@ def leer_archivo(ruta_archivo):
         
         # cargamos las aristas
         for linea in archivo:
-
             contador_palabras = 0
             vertice = ""
             nodo_actual = ""
 
             for caracter in linea:
-
                 if caracter == "\t" or caracter == "\n":
                     contador_palabras += 1
                     
@@ -45,28 +93,33 @@ def leer_archivo(ruta_archivo):
 
                 if caracter == "\t":
                     nodo_actual = ""
+    
+    return wiki
 
-            '''
-            Pagina1\tLink1\tLink2\n
-            Pagina2\tLink3\n
-            '''
 
-    print(wiki.map) #debug
-    print(len(wiki))
+def main():
+    inputs = sys.argv
+    arguments = inputs[1:]
+    ruta_archivo = arguments[0]
+    wiki = cargar_grafo_wiki(ruta_archivo)
 
-    #print(wiki.adyacentes("España"))
+    while(True):
+        comando = input()
+        
+        if comando not in COMANDOS:
+            continue
 
-    # grafo2 = Grafo(True)
-    # grafo2.agregar_vertice("a")
-    # grafo2.agregar_vertice("b")
-    # grafo2.agregar_arista("a", "b")
-    # print(grafo2.map)
-    # grafo2.agregar_arista("b", "a")
-    # print(grafo2.map)
-            
+        if   comando == "listar_operaciones": listar_operaciones()
+        elif comando == "camino":             camino(wiki)
+        elif comando == "diametro":           diametro(wiki)
+        elif comando == "rango":              rango(wiki)
+        elif comando == "navegación":         navegacion(wiki)
+        elif comando == "comunidad":          comunidad(wiki)
+        elif comando == "conectados":         conectados(wiki)
+        elif comando == "lectura":            lectura(wiki)
+        elif comando == "clustering":         clustering(wiki)
+        elif comando == "mas_importantes":    mas_importantes(wiki)
+        elif comando == "ciclo":              ciclo(wiki)
 
-inputs = sys.argv
-arguments = inputs[1:]
-ruta_archivo = arguments[0]
 
-leer_archivo(ruta_archivo)
+main()
