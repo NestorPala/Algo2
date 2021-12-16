@@ -3,39 +3,39 @@ from grafo import Grafo
 # python3 ./netstats.py wiki-reducido-75000.tsv
 
 
-# borrar luego los que no usemos
+# borrar luego las funciones que no implementemos
 COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegación", "comunidad", "conectados", "lectura", "clustering", "mas_importantes",  "ciclo")
 
 
-def ciclo(grafo):
+def ciclo(grafo, parametros):
     pass
 
 
-def mas_importantes(grafo):
+def mas_importantes(grafo, parametros):
     pass
 
 
-def clustering(grafo):
+def clustering(grafo, parametros):
     pass
 
 
-def lectura(grafo):
+def lectura(grafo, parametros):
     pass
 
 
-def conectados(grafo):
+def conectados(grafo, parametros):
     pass
 
 
-def comunidad(grafo):
+def comunidad(grafo, parametros):
     pass
 
 
-def navegacion(grafo):
+def navegacion(grafo, parametros):
     pass
 
 
-def rango(grafo):
+def rango(grafo, parametros):
     pass
 
 
@@ -43,8 +43,7 @@ def diametro(grafo):
     pass
 
 
-def camino(grafo):
-    print("camino") #debug
+def camino(grafo, parametros):
 
     pass
 
@@ -97,29 +96,70 @@ def cargar_grafo_wiki(ruta_archivo):
     return wiki
 
 
+def obtener_parametros(cadena):
+    comando = ""
+    inicio_parametros = 0
+
+    for caracter in cadena:
+        if caracter == "\n" and " " not in cadena:
+            inicio_parametros = -1
+            break
+
+        if caracter == " ": 
+            break
+
+        comando += caracter
+        inicio_parametros += 1
+
+    if inicio_parametros == -1:
+        return comando, list()
+
+    cadena_parametros = cadena[inicio_parametros + 1:]
+    parametros = cadena_parametros.split(",")
+
+    return comando, parametros
+    
+
 def main():
-    inputs = sys.argv
-    arguments = inputs[1:]
-    ruta_archivo = arguments[0]
-    wiki = cargar_grafo_wiki(ruta_archivo)
+    # inputs = sys.argv
+    # arguments = inputs[1:]
+    # ruta_archivo = arguments[0]
+    # wiki = cargar_grafo_wiki(ruta_archivo)
+
+    wiki = Grafo() #debug
 
     while(True):
-        comando = input()
-        
+        cadena = input()
+        comando, parametros = obtener_parametros(cadena)
+
+        print(comando, parametros) #debug
+
         if comando not in COMANDOS:
             continue
-
-        if   comando == "listar_operaciones": listar_operaciones()
-        elif comando == "camino":             camino(wiki)
-        elif comando == "diametro":           diametro(wiki)
-        elif comando == "rango":              rango(wiki)
-        elif comando == "navegación":         navegacion(wiki)
-        elif comando == "comunidad":          comunidad(wiki)
-        elif comando == "conectados":         conectados(wiki)
-        elif comando == "lectura":            lectura(wiki)
-        elif comando == "clustering":         clustering(wiki)
-        elif comando == "mas_importantes":    mas_importantes(wiki)
-        elif comando == "ciclo":              ciclo(wiki)
+        
+        # borrar luego las funciones que no implementemos
+        if   comando == "listar_operaciones": 
+            listar_operaciones()
+        elif comando == "camino":             
+            camino(wiki, parametros)
+        elif comando == "diametro":           
+            diametro(wiki)
+        elif comando == "rango":              
+            rango(wiki, parametros)
+        elif comando == "navegación":         
+            navegacion(wiki, parametros)
+        elif comando == "comunidad":          
+            comunidad(wiki, parametros)
+        elif comando == "conectados":         
+            conectados(wiki, parametros)
+        elif comando == "lectura":            
+            lectura(wiki, parametros)
+        elif comando == "clustering":         
+            clustering(wiki, parametros)
+        elif comando == "mas_importantes":    
+            mas_importantes(wiki, parametros)
+        elif comando == "ciclo":              
+            ciclo(wiki, parametros)
 
 
 main()
