@@ -45,8 +45,32 @@ def diametro(grafo):
 
 
 def camino(grafo, parametros):
+    padres, orden = biblioteca.bfs(grafo, parametros[0])
 
-    pass
+    valor = parametros[1]
+    camino = list()
+
+    while (valor != None):
+        camino.append(valor)
+        try:
+            valor = padres[valor]
+        except KeyError:
+            valor = None
+
+    camino.reverse()
+    largo_camino = len(camino)
+
+    if largo_camino > 1:
+        for i in range(largo_camino):
+            print(camino[i], end="")
+            if i < largo_camino - 1:
+                print(" -> ", end="")
+        print("\n",end="")
+
+    if largo_camino > 1:
+        print(f"Costo: {largo_camino - 1}\n", end="")
+    else:
+        print(f"No se encontro recorrido\n", end="")
 
 
 def listar_operaciones():
@@ -133,7 +157,7 @@ def main():
         cadena = input()
         comando, parametros = obtener_parametros(cadena)
 
-        print(comando, parametros) #debug
+        #print(comando, parametros) #debug
 
         if comando not in COMANDOS:
             continue
