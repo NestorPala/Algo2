@@ -68,12 +68,12 @@ class Grafo:
 
 
     def agregar_arista(self, v, w, peso = PESO_ARISTA_DEFAULT): #O(1)
-        if v not in self or w not in self:
-            return PESO_ARISTA_DESCONECTADOS
+        if v not in self:
+            return
         
         self.map[v][w] = peso
 
-        if not self.es_dirigido:
+        if w in self and not self.es_dirigido:
             self.map[w][v] = peso
         
 

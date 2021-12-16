@@ -1,4 +1,5 @@
 import sys
+import biblioteca
 from grafo import Grafo
 # python3 ./netstats.py wiki-reducido-75000.tsv
 
@@ -121,12 +122,12 @@ def obtener_parametros(cadena):
     
 
 def main():
-    # inputs = sys.argv
-    # arguments = inputs[1:]
-    # ruta_archivo = arguments[0]
-    # wiki = cargar_grafo_wiki(ruta_archivo)
+    inputs = sys.argv
+    arguments = inputs[1:]
+    ruta_archivo = arguments[0]
+    wiki = cargar_grafo_wiki(ruta_archivo)
 
-    wiki = Grafo() #debug
+    #print(wiki.map) #debug
 
     while(True):
         cadena = input()
