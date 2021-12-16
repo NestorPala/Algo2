@@ -1,0 +1,22 @@
+EJECUTAR ARCHIVO:
+
+Pruebas rapidas: python3 ./netstats.py wiki-reducido-75000.tsv > salida.txt
+
+$ ./netstats wiki-reducido-75000.tsv
+
+--------------------------------------------------------------------
+
+El programa debe recibir por parámetro, cargar en memoria el set de datos:
+
+	$ ./netstats wiki-reducido-75000.tsv 
+
+
+y luego solicitar el ingreso de comandos por entrada estándar, del estilo:
+
+	<comando> 'parametro' 
+
+
+Notar que esto permite tener un archivo de instrucciones a ser ejecutadas, por ejemplo:
+
+	$ ./netstats wiki-reducido-75000.tsv < entrada.txt
+--------------------------------------------------------------------

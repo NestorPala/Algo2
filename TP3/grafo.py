@@ -1,42 +1,3 @@
-'''
-Implementar grafo
-    *diccionarios de diccionarios:
-        clave: VERTICE V, valor: DICCIONARIO DE ADYACENTES
-                                *clave: VERTICE ADYACENTE W
-                                *valor: PESO DE LA ARISTA ENTRE V y W
-
-
-Para un grafo no dirigido, la relacion A <---> B aparece dos veces, tanto en A como en B, es decir, B va a aparecer en
-el diccionario de adyacentes de A, y viceversa:
-    * Si el grafo es no dirigido, en ambos casos aparecerá el mismo peso
-    * Si el grafo es dirigido, en ambos casos podrían aparecer pesos diferentes
-
-
-Metodos:
-
-    * agregar_vertice(self, v)
-    * borrar_vertice(self, v)
-    * obtener_vertices(self)                        ==>   Devuelve una lista con todos los vértices del grafo
-    * vertice_aleatorio(self)                       ==>   Devuelve un vertice cualquiera de un grafo
-    * agregar_arista(self, v, w, peso = 1)          ==>   el resultado será v <--> w
-    * borrar_arista(self, v, w)
-
-    * adyacentes(self, v)                           ==>   obtener todos los adyacentes de un vertice
-    * estan_unidos(self, v, w)                      ==>   ver si dos vertices son adyacentes
-    * peso_arista(self, v, w)
-
-
-Costo computacional:
-    * Memoria: O(V+E)
-
-    * Agregar vertice: O(1)
-    * borrar vertice: O(V)
-    * Agregar arista: O(1)
-    * borrar arista: O(1)
-    * Obtener adyacentes de un vertice: O(V)
-    * Ver si A esta conectado con B: O(1)
-'''
-
 import random
 
 
@@ -45,11 +6,6 @@ PESO_ARISTA_DESCONECTADOS = None
 
 
 class Grafo:
-
-
-    # Peso no conectados: None
-    # Peso por defecto:   "PESO_DEFAULT"
-
 
     def __init__(self, es_dirigido = False, lista_vertices = None):
         self.map = dict()
@@ -97,7 +53,7 @@ class Grafo:
         return True
 
 
-    def obtener_vertices(self):
+    def obtener_vertices(self): #O(V)
         vertices = list()
 
         for v in self:
@@ -106,17 +62,20 @@ class Grafo:
         return vertices               
        
 
-    def vertice_aleatorio(self):
+    def vertice_aleatorio(self): #O(1)
         vertices = self.obtener_vertices()
         return random.choice(vertices)
 
 
     def agregar_arista(self, v, w, peso = PESO_ARISTA_DEFAULT): #O(1)
-        if v not in self:
-            self.map[v] = dict()
+        if v not in self or w not in self:
+            return PESO_ARISTA_DESCONECTADOS
         
         self.map[v][w] = peso
 
+        if not self.es_dirigido:
+            self.map[w][v] = peso
+        
 
     def borrar_arista(self, v, w): #O(1)
         if v not in self or w not in self:
@@ -156,26 +115,11 @@ class Grafo:
         return w in self.map[v]
 
 
-    def peso_arista(self, v, w):
+    def peso_arista(self, v, w): #O(1)
         if v not in self or w not in self:
             return PESO_ARISTA_DESCONECTADOS
 
-        return self.map[v][w]
-
-
-
-# pruebas (sacar luego)
-
-grafo = Grafo(False, ("a", "b", "c", "d", "e"))
-
-for v in grafo:
-    print(f"{v}, ", end = '')
-
-print("\n")
-print("a" in grafo)
-print("z" in grafo)
-
-print(len(grafo))
-
-#...
-
+        try:
+            return self.map[v][w]
+        except KeyError:
+            return PESO_ARISTA_DESCONECTADOS
