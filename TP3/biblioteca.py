@@ -44,7 +44,7 @@ def obtener_camino(padres, vertice):
 
 
 # Dado un camino de vertices de un grafo, imprime su recorrido con flechas.
-def imprimir_camino(camino):
+def imprimir_camino(camino, mostrar_costo):
     largo_camino = len(camino)
 
     if largo_camino > 1:
@@ -52,10 +52,16 @@ def imprimir_camino(camino):
             print(camino[i], end="")
             if i < largo_camino - 1:
                 print(" -> ", end="")
+
         print("\n",end="")
-        print(f"Costo: {largo_camino - 1}\n", end="")
+
+        if mostrar_costo:
+            print(f"Costo: {largo_camino - 1}\n", end="")    
     else:
-        print(f"No se encontro recorrido\n", end="")
+        if mostrar_costo:
+            print(f"No se encontro recorrido\n", end="")
+        else:
+            print(camino[0])
 
 
 '''

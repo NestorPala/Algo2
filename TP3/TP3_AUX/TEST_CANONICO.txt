@@ -29,3 +29,18 @@ camino Jeremy Irons,pejerrey
 camino handball,Napoleón Bonaparte
 
 -----------------------------------------------------------------
+RANGO
+rango Tokio,8
+rango Tokio,3
+rango Perón,4
+
+-----------------------------------------------------------------
+NAVEGACION
+
+navegacion Argentina
+navegacion Alemania
+navegacion queso
+navegacion Bolivia
+navegacion Brasil
+
+-----------------------------------------------------------------

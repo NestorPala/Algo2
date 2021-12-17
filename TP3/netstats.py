@@ -7,8 +7,10 @@ import os #debug
 
 
 # borrar luego las funciones que no implementemos
-COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegación", "comunidad", "conectados", "lectura", "clustering", "mas_importantes",  "ciclo")
+COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegacion", "comunidad", "conectados", "lectura", "clustering", "mas_importantes",  "ciclo")
 
+#para navegacion()
+RECURSION_MAXIMA = 20   
 
 #debug
     # i += 1 #debug
@@ -48,8 +50,30 @@ def comunidad(grafo, parametros):
     pass
 
 
-def navegacion(grafo, parametros):
-    pass
+def navegacion(grafo: Grafo, parametros):
+    vertice_origen = parametros[0]
+    camino = list()
+    i = 0
+
+    camino.append(vertice_origen)
+
+    try:
+        siguiente = (grafo.adyacentes(vertice_origen))[0]
+    except:
+        siguiente = None
+    
+    while siguiente:
+        if i == 20: break
+        camino.append(siguiente)
+
+        try:
+            siguiente = (grafo.adyacentes(siguiente))[0]
+        except:
+            siguiente = None
+        
+        i += 1
+    
+    biblioteca.imprimir_camino(camino, False)
 
 
 def rango(grafo, parametros):
@@ -85,13 +109,13 @@ def diametro(grafo: Grafo):
             padres_orden_max = padres
 
     camino = biblioteca.obtener_camino(padres_orden_max, vertice_diametro_maximo)
-    biblioteca.imprimir_camino(camino)
+    biblioteca.imprimir_camino(camino, True)
 
 
 def camino(grafo, parametros):
     padres, orden = biblioteca.bfs(grafo, parametros[0])
     camino = biblioteca.obtener_camino(padres, parametros[1])
-    biblioteca.imprimir_camino(camino)
+    biblioteca.imprimir_camino(camino, True)
 
 
 def listar_operaciones():
@@ -192,7 +216,7 @@ def main():
             diametro(wiki)
         elif comando == "rango":              
             rango(wiki, parametros)
-        elif comando == "navegación":         
+        elif comando == "navegacion":         
             navegacion(wiki, parametros)
         elif comando == "comunidad":          
             comunidad(wiki, parametros)

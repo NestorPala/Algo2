@@ -20,8 +20,8 @@ OBLIGATORIO
 1 ESTRELLAS
 	# Camino mas corto
 	# Diametro
-	* Todos en rango
-	* Navegacion por primer link
+	# Todos en rango
+	# Navegacion por primer link
 
 2 ESTRELLAS
 	* Comunidades
