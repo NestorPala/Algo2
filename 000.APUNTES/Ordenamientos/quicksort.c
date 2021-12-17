@@ -50,7 +50,8 @@ void quicksort(int arreglo[], size_t inicio, size_t fin) {
 
 //     int numeros[] = {32, 54, 65, 45, 3, 4, 87, 6, 57, 89, 10, 0, -12, -7, -23, -6};
 //     size_t n = 16;
-
+    
+//     printf("QUICKSORT\n");
 //     imprimir_vector(numeros, n-1);
 //     quicksort(numeros, 0, n-1);
 //     imprimir_vector(numeros, n-1);
