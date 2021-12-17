@@ -23,6 +23,10 @@ class Grafo:
     def __contains__(self, v):
         return v in self.map
 
+    
+    def __bool__(self):
+        return len(self.map) > 0
+
 
     def __iter__(self):
         return iter(self.map)

@@ -1,11 +1,27 @@
 import sys
 import biblioteca
 from grafo import Grafo
+import math
+import os #debug
 # python3 ./netstats.py wiki-reducido-75000.tsv
 
 
 # borrar luego las funciones que no implementemos
 COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegación", "comunidad", "conectados", "lectura", "clustering", "mas_importantes",  "ciclo")
+
+
+#debug
+    # i += 1 #debug
+    # porcentaje = round(i/len(grafo)*100) #debug
+    # print(f"({porcentaje} %) probando vertice {i}/{len(grafo)}: {v}\n",end="") #debug
+
+
+#debug
+def limpiar_pantalla() -> None:
+    if os.name == "posix":
+        os.system ("clear")
+    elif os.name == "ce" or os.name == "nt" or os.name == "dos":
+        os.system ("cls")
 
 
 def ciclo(grafo, parametros):
@@ -40,37 +56,31 @@ def rango(grafo, parametros):
     pass
 
 
-def diametro(grafo):
-    pass
+def diametro(grafo: Grafo):
+    if not grafo:
+        return 0
+
+    diametro_maximo = -math.inf
+    vertice_diametro_maximo = ""
+    padres_orden_max = None
+
+    for v in grafo:
+        padres, orden = biblioteca.bfs(grafo, v)
+        w, w_orden = biblioteca.obtener_vertice_diametro_maximo(orden)
+
+        if w_orden > diametro_maximo:
+            diametro_maximo = w_orden
+            vertice_diametro_maximo = w
+            padres_orden_max = padres
+
+    camino = biblioteca.obtener_camino(padres_orden_max, vertice_diametro_maximo)
+    biblioteca.imprimir_camino(camino)
 
 
 def camino(grafo, parametros):
     padres, orden = biblioteca.bfs(grafo, parametros[0])
-
-    valor = parametros[1]
-    camino = list()
-
-    while (valor != None):
-        camino.append(valor)
-        try:
-            valor = padres[valor]
-        except KeyError:
-            valor = None
-
-    camino.reverse()
-    largo_camino = len(camino)
-
-    if largo_camino > 1:
-        for i in range(largo_camino):
-            print(camino[i], end="")
-            if i < largo_camino - 1:
-                print(" -> ", end="")
-        print("\n",end="")
-
-    if largo_camino > 1:
-        print(f"Costo: {largo_camino - 1}\n", end="")
-    else:
-        print(f"No se encontro recorrido\n", end="")
+    camino = biblioteca.obtener_camino(padres, parametros[1])
+    biblioteca.imprimir_camino(camino)
 
 
 def listar_operaciones():
