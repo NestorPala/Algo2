@@ -18,8 +18,8 @@ OBLIGATORIO
 	* Listar operaciones
 
 1 ESTRELLAS
-	* Camino mas corto
-	* Diametro
+	# Camino mas corto
+	# Diametro
 	* Todos en rango
 	* Navegacion por primer link
 

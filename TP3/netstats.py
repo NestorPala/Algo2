@@ -53,7 +53,18 @@ def navegacion(grafo, parametros):
 
 
 def rango(grafo, parametros):
-    pass
+    vertice_inicial = parametros[0]
+    cant_saltos = parametros[1]
+
+    padres, orden = biblioteca.bfs(grafo, vertice_inicial)
+
+    vertices_cant_saltos = 0
+
+    for v in orden:
+        if orden[v] == int(cant_saltos):
+            vertices_cant_saltos += 1
+
+    print(f"{vertices_cant_saltos}\n",end="")
 
 
 def diametro(grafo: Grafo):
