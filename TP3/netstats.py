@@ -2,15 +2,13 @@ import sys
 import biblioteca
 from grafo import Grafo
 import math
-import os #debug
+import random
 # python3 ./netstats.py wiki-reducido-75000.tsv
 
 
 # borrar luego las funciones que no implementemos
 COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegacion", "comunidad", "conectados", "lectura", "clustering", "mas_importantes",  "ciclo")
-
-#para navegacion()
-RECURSION_MAXIMA = 20   
+RECURSION_MAXIMA_NAVEGACION = 20   
 
 #debug
     # i += 1 #debug
@@ -42,12 +40,63 @@ def lectura(grafo, parametros):
     pass
 
 
-def conectados(grafo, parametros):
-    pass
+def conectados(grafo, parametros, cfcs, elemento_cfc):
+    pagina = parametros[0]
+
+    if len(cfcs) == 0:
+        biblioteca.obtener_cfcs(grafo, pagina, cfcs, elemento_cfc)
+    
+    cfc_pagina = cfcs[elemento_cfc[pagina]]
+
+    for v in cfc_pagina:
+        print(f"{v}, ", end="")
+    print("\n",end="")
 
 
-def comunidad(grafo, parametros):
-    pass
+# Prototipo: una sola iteración tarda más de una hora. 
+# En una versión temprana de este algoritmo, usando los adyacentes en vez de las entradas, 
+# aunque el algoritmo no es el correcto, 
+# extrañamente el resultado obtenido es casi igual al ejemplo y sale casi al instante.
+def comunidad(grafo: Grafo, parametros):
+    pagina = parametros[0]
+    labels = dict()
+
+    for v in grafo:
+        labels[v] = v
+
+    i = 0 #definimos una cantidad fija de iteraciones para encotrar las comunidades
+    largo = len(grafo)
+
+    while i<largo:
+        recorrido = random.shuffle(grafo.obtener_vertices())
+
+        for x in recorrido:
+            frecuencias = dict()
+            frec_max = (-math.inf, " ")
+
+            for w in grafo: 
+                if grafo.estan_unidos(w, x):
+                    label = labels[w]
+                    if label not in frecuencias:
+                        frecuencias[label] = 1
+                    else:
+                        frecuencias[label] += 1
+
+                    if frecuencias[label] > frec_max[0]:
+                        frec_max = (frecuencias[label], label)
+            
+            labels[x] = frec_max[1]
+        
+        miembros_comunidad_pagina = list()
+        i += 1
+    
+    for z in labels:
+        if labels[z] == labels[pagina]:
+            miembros_comunidad_pagina.append(z)
+    
+    for miembro in miembros_comunidad_pagina:
+        if miembro:
+            print(f"{miembro}, ",end="")
 
 
 def navegacion(grafo: Grafo, parametros):
@@ -63,7 +112,7 @@ def navegacion(grafo: Grafo, parametros):
         siguiente = None
     
     while siguiente:
-        if i == 20: break
+        if i == RECURSION_MAXIMA_NAVEGACION: break
         camino.append(siguiente)
 
         try:
@@ -196,7 +245,9 @@ def main():
     ruta_archivo = arguments[0]
     wiki = cargar_grafo_wiki(ruta_archivo)
 
-    #print(wiki.map) #debug
+    # para la funcion conectados
+    cfcs = list()
+    elemento_cfc = dict()
 
     while(True):
         cadena = input()
@@ -221,7 +272,7 @@ def main():
         elif comando == "comunidad":          
             comunidad(wiki, parametros)
         elif comando == "conectados":         
-            conectados(wiki, parametros)
+            conectados(wiki, parametros, cfcs, elemento_cfc)
         elif comando == "lectura":            
             lectura(wiki, parametros)
         elif comando == "clustering":         

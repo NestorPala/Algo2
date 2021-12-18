@@ -113,7 +113,7 @@ class Grafo:
 
 
     def estan_unidos(self, v, w): #O(1)
-        if v not in self or w not in self:
+        if v not in self.map:
             return False
 
         return w in self.map[v]

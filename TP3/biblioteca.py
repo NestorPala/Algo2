@@ -1,6 +1,10 @@
 import math
 from grafo import Grafo
 from collections import deque
+import sys
+
+
+sys.setrecursionlimit(150000)
 
 
 # Recorre todas las zonas del grafo a las que se pueden llegar desde un vertice especifico.
@@ -81,3 +85,57 @@ def obtener_vertice_diametro_maximo(orden):
             vertice_max = v
 
     return vertice_max, orden_max
+
+
+# AUXILIAR OBTENER_CFCS
+def obtener_cfcs_(grafo, v, cfcs, elemento_cfc, visitados, apilados, pila, contador_orden, orden, mas_bajo):
+
+    orden[v] = contador_orden[0]
+    contador_orden[0] += 1
+    mas_bajo[v] = orden[v]
+    visitados.add(v)
+
+    pila.append(v)
+    apilados.add(v)
+
+    for w in grafo.adyacentes(v):
+
+        # Evitamos las autoreferencias
+        if v == w:
+            continue
+
+        if w not in visitados:
+            obtener_cfcs_(grafo, w, cfcs, elemento_cfc, visitados, apilados, pila, contador_orden, orden, mas_bajo)
+        if w in apilados:
+            #mas_bajo[v] = min(mas_bajo[v], mas_bajo[w])
+            if mas_bajo[w] < mas_bajo[v]:
+                mas_bajo[v] = mas_bajo[w]
+    
+    if orden[v] == mas_bajo[v] and len(pila) > 0:
+        cfc = list()
+
+        while True:
+            w = pila.pop(len(pila) - 1)
+            cfc.append(w)
+            elemento_cfc[w] = len(cfcs)
+            apilados.remove(w)
+
+            if v == w:
+                break
+
+        cfcs.append(cfc)
+        
+
+def obtener_cfcs(grafo, origen, cfcs, elemento_cfc):
+
+    visitados = set()
+    apilados = set()
+    pila = list()
+
+    contador_orden = list() #de un solo elemento, aprovechamos el pasaje por referencia :D
+    contador_orden.append(0)
+
+    orden = dict()
+    mas_bajo = dict()
+
+    obtener_cfcs_(grafo, origen, cfcs, elemento_cfc, visitados, apilados, pila, contador_orden, orden, mas_bajo)

@@ -24,8 +24,8 @@ OBLIGATORIO
 	# Navegacion por primer link
 
 2 ESTRELLAS
-	* Comunidades
-	* Conectividad
+	#? Comunidades
+	# Conectividad
 	* Lectura a las 2 am
 	* Coeficiente de clustering
 
