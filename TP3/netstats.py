@@ -1,43 +1,14 @@
+#!/usr/bin/env python3
 import sys
 import biblioteca
 from grafo import Grafo
 import math
 import random
-# python3 ./netstats.py wiki-reducido-75000.tsv
 
 
 # borrar luego las funciones que no implementemos
-COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegacion", "comunidad", "conectados", "lectura", "clustering", "mas_importantes",  "ciclo")
+COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegacion", "comunidad", "conectados")
 RECURSION_MAXIMA_NAVEGACION = 20   
-
-#debug
-    # i += 1 #debug
-    # porcentaje = round(i/len(grafo)*100) #debug
-    # print(f"({porcentaje} %) probando vertice {i}/{len(grafo)}: {v}\n",end="") #debug
-
-
-#debug
-def limpiar_pantalla() -> None:
-    if os.name == "posix":
-        os.system ("clear")
-    elif os.name == "ce" or os.name == "nt" or os.name == "dos":
-        os.system ("cls")
-
-
-def ciclo(grafo, parametros):
-    pass
-
-
-def mas_importantes(grafo, parametros):
-    pass
-
-
-def clustering(grafo, parametros):
-    pass
-
-
-def lectura(grafo, parametros):
-    pass
 
 
 def conectados(grafo, parametros, cfcs, elemento_cfc):
@@ -65,9 +36,8 @@ def comunidad(grafo: Grafo, parametros):
         labels[v] = v
 
     i = 0 #definimos una cantidad fija de iteraciones para encotrar las comunidades
-    largo = len(grafo)
 
-    while i<largo:
+    while i < 5:
         recorrido = random.shuffle(grafo.obtener_vertices())
 
         for x in recorrido:
@@ -176,41 +146,44 @@ def cargar_grafo_wiki(ruta_archivo):
 
     wiki = Grafo(True)
 
-    with open(ruta_archivo, 'r', 200, 'utf-8') as archivo:
+    try:
+        with open(ruta_archivo, 'r', 200, 'utf-8') as archivo:
 
-        # cargamos los vertices
-        for linea in archivo:
-            clave = ""
+            # cargamos los vertices
+            for linea in archivo:
+                clave = ""
 
-            for caracter in linea:
-                if caracter == "\t" or caracter == "\n":
-                    if clave != "":
-                        wiki.agregar_vertice(clave)
-                    break
+                for caracter in linea:
+                    if caracter == "\t" or caracter == "\n":
+                        if clave != "":
+                            wiki.agregar_vertice(clave)
+                        break
 
-                clave += caracter
+                    clave += caracter
 
-        archivo.seek(0)
-        
-        # cargamos las aristas
-        for linea in archivo:
-            contador_palabras = 0
-            vertice = ""
-            nodo_actual = ""
+            archivo.seek(0)
+            
+            # cargamos las aristas
+            for linea in archivo:
+                contador_palabras = 0
+                vertice = ""
+                nodo_actual = ""
 
-            for caracter in linea:
-                if caracter == "\t" or caracter == "\n":
-                    contador_palabras += 1
-                    
-                    if contador_palabras == 1:
-                        vertice = nodo_actual
-                    else:
-                        wiki.agregar_arista(vertice, nodo_actual)
+                for caracter in linea:
+                    if caracter == "\t" or caracter == "\n":
+                        contador_palabras += 1
+                        
+                        if contador_palabras == 1:
+                            vertice = nodo_actual
+                        else:
+                            wiki.agregar_arista(vertice, nodo_actual)
 
-                nodo_actual += caracter
+                    nodo_actual += caracter
 
-                if caracter == "\t":
-                    nodo_actual = ""
+                    if caracter == "\t":
+                        nodo_actual = ""
+    except Exception:
+        wiki = None
     
     return wiki
 
@@ -243,22 +216,26 @@ def main():
     inputs = sys.argv
     arguments = inputs[1:]
     ruta_archivo = arguments[0]
+
     wiki = cargar_grafo_wiki(ruta_archivo)
+    if not wiki: return
 
     # para la funcion conectados
     cfcs = list()
     elemento_cfc = dict()
 
     while(True):
-        cadena = input()
-        comando, parametros = obtener_parametros(cadena)
 
-        #print(comando, parametros) #debug
+        try:
+            cadena = input()
+        except EOFError:
+            return
+
+        comando, parametros = obtener_parametros(cadena)
 
         if comando not in COMANDOS:
             continue
         
-        # borrar luego las funciones que no implementemos
         if   comando == "listar_operaciones": 
             listar_operaciones()
         elif comando == "camino":             
@@ -273,14 +250,7 @@ def main():
             comunidad(wiki, parametros)
         elif comando == "conectados":         
             conectados(wiki, parametros, cfcs, elemento_cfc)
-        elif comando == "lectura":            
-            lectura(wiki, parametros)
-        elif comando == "clustering":         
-            clustering(wiki, parametros)
-        elif comando == "mas_importantes":    
-            mas_importantes(wiki, parametros)
-        elif comando == "ciclo":              
-            ciclo(wiki, parametros)
 
 
-main()
+if __name__ == '__main__':
+    sys.exit(main())

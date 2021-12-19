@@ -96,7 +96,8 @@ class Grafo:
         if v not in self.map[w]:
             return True
         
-        # si el grafo no es dirigido, tanto la arista de ida como de vuelta son la misma (es compartida), entonces la borro de los dos lados
+        # si el grafo no es dirigido, tanto la arista de ida como de vuelta son la misma (es compartida), 
+        # entonces la borro de los dos lados
         if not self.es_dirigido:
             self.map[w].pop(v)
 
