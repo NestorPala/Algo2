@@ -216,6 +216,12 @@ def main():
     inputs = sys.argv
     arguments = inputs[1:]
     ruta_archivo = arguments[0]
+    comandos = list()
+
+    for linea in sys.stdin:
+        linea = linea.replace('\n', '')
+        linea = linea.replace('\r', '')
+        comandos.append(linea)
 
     wiki = cargar_grafo_wiki(ruta_archivo)
     if not wiki: return
@@ -224,14 +230,8 @@ def main():
     cfcs = list()
     elemento_cfc = dict()
 
-    while(True):
-
-        try:
-            cadena = input()
-        except EOFError:
-            return
-
-        comando, parametros = obtener_parametros(cadena)
+    for linea in comandos:
+        comando, parametros = obtener_parametros(linea)
 
         if comando not in COMANDOS:
             continue

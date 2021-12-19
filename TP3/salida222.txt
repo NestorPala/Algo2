@@ -1,0 +1,8 @@
+listar_operaciones
+camino
+diametro
+rango
+navegacion
+comunidad
+conectados
+No se encontro recorrido
