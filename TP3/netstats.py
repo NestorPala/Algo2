@@ -6,7 +6,6 @@ import math
 import random
 
 
-# borrar luego las funciones que no implementemos
 COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegacion", "comunidad", "conectados")
 RECURSION_MAXIMA_NAVEGACION = 20   
 
@@ -139,7 +138,8 @@ def camino(grafo, parametros):
 
 def listar_operaciones():
     for comando in COMANDOS:
-        print(comando)
+        if comando != "listar_operaciones":
+            print(comando)
 
 
 def cargar_grafo_wiki(ruta_archivo):
@@ -216,12 +216,6 @@ def main():
     inputs = sys.argv
     arguments = inputs[1:]
     ruta_archivo = arguments[0]
-    comandos = list()
-
-    for linea in sys.stdin:
-        linea = linea.replace('\n', '')
-        linea = linea.replace('\r', '')
-        comandos.append(linea)
 
     wiki = cargar_grafo_wiki(ruta_archivo)
     if not wiki: return
@@ -230,7 +224,13 @@ def main():
     cfcs = list()
     elemento_cfc = dict()
 
-    for linea in comandos:
+    # for linea in comandos:
+    while True:
+        try:
+            linea = input()
+        except EOFError:
+            break
+
         comando, parametros = obtener_parametros(linea)
 
         if comando not in COMANDOS:

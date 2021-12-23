@@ -4,3 +4,7 @@ PUNTOS DE ARTICULACION
 * SOLO APLICA PARA GRAFOS NO DIRIGIDOS
 
 * En el caso de grafos dirigidos se usa un algoritmo para detectar CFC (no es lo mismo que puntos de articulacion)
+
+
+https://www.youtube.com/watch?v=ITborotc4h0
+SEGUIMIENTO: 1:21:10
