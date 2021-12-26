@@ -6,7 +6,7 @@ import math
 import random
 
 
-COMANDOS = ("listar_operaciones", "camino", "diametro", "rango", "navegacion", "comunidad", "conectados")
+COMANDOS = ("listar_operaciones", "camino", "diametro", "navegacion", "comunidad", "conectados")
 RECURSION_MAXIMA_NAVEGACION = 20   
 
 
@@ -18,8 +18,14 @@ def conectados(grafo, parametros, cfcs, elemento_cfc):
     
     cfc_pagina = cfcs[elemento_cfc[pagina]]
 
-    for v in cfc_pagina:
-        print(f"{v}, ", end="")
+    largo_cfc = len(cfc_pagina)
+
+    for i in range(largo_cfc):
+        if i < largo_cfc - 1:
+            print(f"{cfc_pagina[i]}, ", end="")
+        else:
+            print(f"{cfc_pagina[i]} ", end="")
+
     print("\n",end="")
 
 
@@ -92,21 +98,6 @@ def navegacion(grafo: Grafo, parametros):
         i += 1
     
     biblioteca.imprimir_camino(camino, False)
-
-
-def rango(grafo, parametros):
-    vertice_inicial = parametros[0]
-    cant_saltos = parametros[1]
-
-    padres, orden = biblioteca.bfs(grafo, vertice_inicial)
-
-    vertices_cant_saltos = 0
-
-    for v in orden:
-        if orden[v] == int(cant_saltos):
-            vertices_cant_saltos += 1
-
-    print(f"{vertices_cant_saltos}\n",end="")
 
 
 def diametro(grafo: Grafo):
@@ -242,8 +233,6 @@ def main():
             camino(wiki, parametros)
         elif comando == "diametro":           
             diametro(wiki)
-        elif comando == "rango":              
-            rango(wiki, parametros)
         elif comando == "navegacion":         
             navegacion(wiki, parametros)
         elif comando == "comunidad":          
