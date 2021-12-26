@@ -29,10 +29,6 @@ def conectados(grafo, parametros, cfcs, elemento_cfc):
     print("\n",end="")
 
 
-# Prototipo: una sola iteración tarda más de una hora. 
-# En una versión temprana de este algoritmo, usando los adyacentes en vez de las entradas, 
-# aunque el algoritmo no es el correcto, 
-# extrañamente el resultado obtenido es casi igual al ejemplo y sale casi al instante.
 def comunidad(grafo: Grafo, parametros):
     pagina = parametros[0]
     labels = dict()
@@ -40,38 +36,54 @@ def comunidad(grafo: Grafo, parametros):
     for v in grafo:
         labels[v] = v
 
-    i = 0 #definimos una cantidad fija de iteraciones para encotrar las comunidades
+    # Obtenemos el diccionario de anti adyacentes (vertices de entrada) para reducir el tiempo de procesamiento
+    anti_ady = dict()
 
-    while i < 5:
-        recorrido = random.shuffle(grafo.obtener_vertices())
+    for a in grafo:
+        for b in grafo.adyacentes(a):
+            if b not in anti_ady:
+                anti_ady[b] = list()
+            else:
+                anti_ady[b].append(a)
 
-        for x in recorrido:
-            frecuencias = dict()
+    vertices = grafo.obtener_vertices()
+    random.shuffle(vertices)
+    
+    i = 0 
+    max_iter = 8 #definimos una cantidad fija de iteraciones para encotrar las comunidades
+
+    while i < max_iter:
+        for x in vertices:
             frec_max = (-math.inf, " ")
+            frecuencias = dict()
 
-            for w in grafo: 
-                if grafo.estan_unidos(w, x):
-                    label = labels[w]
-                    if label not in frecuencias:
-                        frecuencias[label] = 1
-                    else:
-                        frecuencias[label] += 1
+            for s in anti_ady[x]: 
+                label = labels[s]
+                if label not in frecuencias:
+                    frecuencias[label] = 1
+                else:
+                    frecuencias[label] += 1
 
-                    if frecuencias[label] > frec_max[0]:
-                        frec_max = (frecuencias[label], label)
+                if frecuencias[label] > frec_max[0]:
+                    frec_max = (frecuencias[label], label)
             
             labels[x] = frec_max[1]
-        
-        miembros_comunidad_pagina = list()
+
         i += 1
     
+    miembros_comunidad_pagina = list()
+
     for z in labels:
         if labels[z] == labels[pagina]:
             miembros_comunidad_pagina.append(z)
-    
-    for miembro in miembros_comunidad_pagina:
-        if miembro:
-            print(f"{miembro}, ",end="")
+
+    largo_comunidad = len(miembros_comunidad_pagina)
+        
+    for i in range(largo_comunidad):
+        if i < largo_comunidad - 1:
+            print(f"{miembros_comunidad_pagina[i]}, ", end="")
+        else:
+            print(f"{miembros_comunidad_pagina[i]} ", end="")
 
 
 def navegacion(grafo: Grafo, parametros):
