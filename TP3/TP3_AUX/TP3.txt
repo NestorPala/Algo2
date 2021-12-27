@@ -20,11 +20,11 @@ OBLIGATORIO
 1 ESTRELLAS
 	# Camino mas corto
 	# Diametro
-	# Todos en rango
+	! Todos en rango
 	# Navegacion por primer link
 
 2 ESTRELLAS
-	#? Comunidades
+	# Comunidades
 	# Conectividad
 	* Lectura a las 2 am
 	* Coeficiente de clustering
@@ -38,3 +38,77 @@ Conseguir al menos 7 puntos para aprobar el TP
 (ej: todos los de 1 estrellas + 2 de 2 estrellas o 1 de 3 estrellas)
 Recomendado: implementar el ejercicio de comunidades (2 estrellas)
 
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+
+
+'''
+Implementar grafo
+    *diccionarios de diccionarios:
+        clave: VERTICE V, valor: DICCIONARIO DE ADYACENTES
+                                *clave: VERTICE ADYACENTE W
+                                *valor: PESO DE LA ARISTA ENTRE V y W
+
+
+Para un grafo no dirigido, la relacion A <---> B aparece dos veces, tanto en A como en B, es decir, B va a aparecer en
+el diccionario de adyacentes de A, y viceversa:
+    * Si el grafo es no dirigido, en ambos casos aparecerá el mismo peso
+    * Si el grafo es dirigido, en ambos casos podrían aparecer pesos diferentes
+
+
+Metodos:
+
+    * agregar_vertice(self, v)
+    * borrar_vertice(self, v)
+    * obtener_vertices(self)                        ==>   Devuelve una lista con todos los vértices del grafo
+    * vertice_aleatorio(self)                       ==>   Devuelve un vertice cualquiera de un grafo
+    * agregar_arista(self, v, w, peso = 1)          ==>   el resultado será v <--> w
+    * borrar_arista(self, v, w)
+
+    * adyacentes(self, v)                           ==>   obtener todos los adyacentes de un vertice
+    * estan_unidos(self, v, w)                      ==>   ver si dos vertices son adyacentes
+    * peso_arista(self, v, w)
+
+
+Costo computacional:
+    * Memoria: O(V+E)
+
+    * Agregar vertice: O(1)
+    * borrar vertice: O(V)
+    * Agregar arista: O(1)
+    * borrar arista: O(1)
+    * Obtener adyacentes de un vertice: O(V)
+    * Ver si A esta conectado con B: O(1)
+'''
+
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+
+
+
+EJECUTAR ARCHIVO:
+
+Pruebas rapidas:
+python3 ./netstats.py wiki-reducido-75000.tsv
+python3 ./netstats.py wiki-reducido-75000.tsv < entrada.txt
+python3 ./netstats.py wiki-reducido-75000.tsv > salida.txt 
+
+$ ./netstats wiki-reducido-75000.tsv
+
+--------------------------------------------------------------------
+
+El programa debe recibir por parámetro, cargar en memoria el set de datos:
+
+	$ ./netstats wiki-reducido-75000.tsv 
+
+
+y luego solicitar el ingreso de comandos por entrada estándar, del estilo:
+
+	<comando> 'parametro' 
+
+
+Notar que esto permite tener un archivo de instrucciones a ser ejecutadas, por ejemplo:
+
+	$ ./netstats wiki-reducido-75000.tsv < entrada.txt

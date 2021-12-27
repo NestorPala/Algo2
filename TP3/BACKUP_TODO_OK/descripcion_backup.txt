@@ -1,0 +1,7 @@
+TP3.zip
+
+2021-12-16 21:38
+
+7 puntos (minimo 7)
+
+llegamos hasta clustering (terminado, no debugueado)

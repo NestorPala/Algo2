@@ -6,10 +6,50 @@ import math
 import random
 
 
-COMANDOS = ("listar_operaciones", "camino", "diametro", "navegacion", "comunidad", "conectados")
+COMANDOS = ("listar_operaciones", "camino", "diametro", "navegacion", "comunidad", "conectados", "clustering")
 RECURSION_MAXIMA_NAVEGACION = 20   
 
 
+# AUXILIAR
+def clustering_vertice(grafo: Grafo, vertice):
+    if vertice not in grafo:
+        return 0.0
+
+    ady = grafo.adyacentes(vertice)
+    k = len(ady)
+
+    if k < 2:
+        return 0.0
+
+    cant_conexiones = 0
+
+    for v in ady:
+        for w in ady:
+            if v != w:
+                if grafo.estan_unidos(v, w):
+                    cant_conexiones += 1
+
+    return cant_conexiones / (k * (k - 1))
+
+
+def clustering(grafo: Grafo, parametros):
+    pagina = parametros[0]
+
+    if not pagina:
+        sumatoria_clusterings = 0
+
+        for v in grafo:
+            sumatoria_clusterings += clustering_vertice(grafo, v)
+
+        coeficiente_clustering = sumatoria_clusterings / len(grafo)
+        print("{:.3f}".format(round(coeficiente_clustering, 3)), "\n", end="")
+        return
+    else:
+        coeficiente_clustering = clustering_vertice(grafo, pagina)
+        print("{:.3f}".format(round(coeficiente_clustering, 3)), "\n", end="")
+        return 
+
+                    
 def conectados(grafo, parametros, cfcs, elemento_cfc):
     pagina = parametros[0]
 
@@ -50,7 +90,7 @@ def comunidad(grafo: Grafo, parametros):
     random.shuffle(vertices)
     
     i = 0 
-    max_iter = 8 #definimos una cantidad fija de iteraciones para encotrar las comunidades
+    max_iter = 15 #definimos una cantidad fija de iteraciones para encotrar las comunidades
 
     while i < max_iter:
         for x in vertices:
@@ -251,6 +291,8 @@ def main():
             comunidad(wiki, parametros)
         elif comando == "conectados":         
             conectados(wiki, parametros, cfcs, elemento_cfc)
+        elif comando == "clustering":
+            clustering(wiki, parametros)
 
 
 if __name__ == '__main__':
