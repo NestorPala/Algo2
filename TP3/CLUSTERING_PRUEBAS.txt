@@ -6,7 +6,7 @@ clustering Ámsterdam
 
 clustering
 
-
+Luna	
 
 -------------------------------------------------------
 
@@ -16,3 +16,39 @@ clustering
 
         Error: Coeficiente erroneo. Esperado 0.105 obtenido 0.109
         Comandos de la prueba:
+
+	--------------------------------------------------------------
+
+	Pruebas Coeficiente de Clustering
+        Prueba 1
+        OK
+        Prueba 2
+        OK
+        Prueba 3
+        OK
+        Prueba 4
+        Error: Coeficiente erroneo. Esperado 0.105 obtenido 0.1
+        Comandos de la prueba:
+                clustering Luna
+        Prueba 5
+        OK
+        Prueba 6
+        Error: Coeficiente erroneo. Esperado 0.068 obtenido 0.07266009852216748
+        Comandos de la prueba:
+                clustering The Beatles
+        Prueba 7
+        Error: Coeficiente erroneo. Esperado 0.105 obtenido 0.11001335469649233
+
+
+clustering
+clustering Luna
+
+-------------------------------------------------------
+* Vale contar un vertice relacionado consigo mismo?
+clustering
+	v == w   ==>  0.099 
+	v != w   ==>  0.084
+
+
+
+

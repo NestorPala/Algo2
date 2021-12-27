@@ -25,7 +25,7 @@ def clustering_vertice(grafo: Grafo, vertice):
 
     for v in ady:
         for w in ady:
-            if v != w:
+            if v != w and v != vertice and w != vertice:
                 if grafo.estan_unidos(v, w):
                     cant_conexiones += 1
 
@@ -42,11 +42,11 @@ def clustering(grafo: Grafo, parametros):
             sumatoria_clusterings += clustering_vertice(grafo, v)
 
         coeficiente_clustering = sumatoria_clusterings / len(grafo)
-        print("{:.3f}".format(round(coeficiente_clustering, 3)), "\n", end="")
+        print(coeficiente_clustering)
         return
     else:
         coeficiente_clustering = clustering_vertice(grafo, pagina)
-        print("{:.3f}".format(round(coeficiente_clustering, 3)), "\n", end="")
+        print(coeficiente_clustering)
         return 
 
                     
@@ -90,7 +90,7 @@ def comunidad(grafo: Grafo, parametros):
     random.shuffle(vertices)
     
     i = 0 
-    max_iter = 15 #definimos una cantidad fija de iteraciones para encotrar las comunidades
+    max_iter = 100 #definimos una cantidad fija de iteraciones para encotrar las comunidades
 
     while i < max_iter:
         for x in vertices:
