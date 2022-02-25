@@ -6,9 +6,38 @@ import math
 import random
 
 
-COMANDOS = ("listar_operaciones", "camino", "diametro", "navegacion", "comunidad", "conectados", "clustering")
+COMANDOS = ("listar_operaciones", "camino", "diametro", "navegacion", "comunidad", "conectados", "clustering", "lectura")
 RECURSION_MAXIMA_NAVEGACION = 20   
 
+
+def lectura(grafo: Grafo, parametros):
+    paginas = set(parametros)
+
+    # Invertimos el grafo para obtener el orden topologico al reves (que es el que nos sirve en este caso)
+    grafo_invertido = Grafo(True)
+
+    for v in grafo:
+        grafo_invertido.agregar_vertice(v)
+        for w in grafo.adyacentes(v):
+            if w in grafo:
+                grafo_invertido.agregar_vertice(w)
+                grafo_invertido.agregar_arista(w, v)
+
+    orden = biblioteca.orden_topologico(grafo_invertido, paginas)
+    largo = len(orden)
+
+    if largo == 0:
+        print("No existe forma de leer las paginas en orden\n",end="")
+        return
+    
+    for i in range(largo):
+        if i < largo - 1:
+            print(f"{orden[i]}, ", end="")
+        else:
+            print(f"{orden[i]}", end="")
+
+    print("\n",end="")
+    
 
 # AUXILIAR
 def clustering_vertice(grafo: Grafo, vertice):
@@ -90,7 +119,7 @@ def comunidad(grafo: Grafo, parametros):
     random.shuffle(vertices)
     
     i = 0 
-    max_iter = 100 #definimos una cantidad fija de iteraciones para encotrar las comunidades
+    max_iter = 200 #definimos una cantidad fija de iteraciones para encotrar las comunidades
 
     while i < max_iter:
         for x in vertices:
@@ -293,6 +322,8 @@ def main():
             conectados(wiki, parametros, cfcs, elemento_cfc)
         elif comando == "clustering":
             clustering(wiki, parametros)
+        elif comando == "lectura":
+            lectura(wiki, parametros)
 
 
 if __name__ == '__main__':

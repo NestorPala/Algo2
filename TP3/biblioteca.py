@@ -139,3 +139,43 @@ def obtener_cfcs(grafo, origen, cfcs, elemento_cfc):
     mas_bajo = dict()
 
     obtener_cfcs_(grafo, origen, cfcs, elemento_cfc, visitados, apilados, pila, contador_orden, orden, mas_bajo)
+
+
+# AUXILIAR
+def obtener_grados_entrada(grafo: Grafo):
+    grent = dict()
+
+    for v in grafo:
+        grent[v] = 0
+
+    for v in grafo:
+        for w in grafo.adyacentes(v):
+            grent[w] += 1
+
+    return grent
+
+
+# Obtiene el orden topologico de todo el grafo, o de un subconjunto del mismo
+def orden_topologico(grafo: Grafo, vertices: set):
+    grent = obtener_grados_entrada(grafo)
+    cola = deque()
+
+    for v in grafo:
+        if grent[v] == 0:
+            cola.appendleft(v)
+
+    orden = list()
+
+    while len(cola) > 0:
+        v = cola.pop()
+
+        if v in vertices:
+            orden.append(v)
+
+        for w in grafo.adyacentes(v):
+            grent[w] -= 1
+
+            if grent[w] == 0:
+                cola.appendleft(w)
+
+    return orden

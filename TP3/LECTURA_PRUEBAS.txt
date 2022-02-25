@@ -1,0 +1,15 @@
+Pruebas de Lecturas
+
+        Prueba 1
+        Error: La cantidad de articulos de la lectura no coincide con las que se quieren leer
+        Comandos de la prueba:
+                lectura Eduardo VI de Inglaterra,siglo XV,Inglaterra,Polonia,París,Milán,España
+        
+        
+        Prueba 2
+        Error: La cantidad de articulos de la lectura no coincide con las que se quieren leer
+        Comandos de la prueba:
+                lectura Napoleón,Milán,Egipto,Bellagio,Gottfried Leibniz,Suiza,República Popular China,Thomas Hardy,Rusia,The Beatles,Inglaterra,Ferrocarril,Eslovaquia,Idioma polaco,Discovery Channel,Benedict Cumberbatch,Daniel Radcliffe,televisión,Premios Óscar,Premio Turing,Dennis M. Ritchie,Ciencias de la Computación,John von Neumann,Niels Bohr,Universidad de Mánchester
+       
+        Prueba 3
+        OK
