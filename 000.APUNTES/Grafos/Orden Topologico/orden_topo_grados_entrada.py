@@ -3,7 +3,7 @@ from collections import deque
 
 
 # AUXILIAR
-def obtener_grados_entrada(grafo: Grafo):
+def obtener_grados_entrada(grafo: Grafo) -> dict:
     grent = dict()
 
     for v in grafo:
@@ -16,15 +16,14 @@ def obtener_grados_entrada(grafo: Grafo):
     return grent
 
 
-def orden_topologico(grafo: Grafo):
+def orden_topologico(grafo: Grafo) -> list:
     grent = obtener_grados_entrada(grafo)
     cola = deque()
+    orden = list()
 
     for v in grafo:
         if grent[v] == 0:
             cola.appendleft(v)
-
-    orden = list()
 
     while len(cola) > 0:
         v = cola.pop()
