@@ -1,0 +1,25 @@
+Un vertice A es adyacente a otro B si desde A se puede llegar a B (se tiene en cuenta la direccion del recorrido, A tiene QUE IR a B, no vale que B vaya a A pero no viceversa)   
+----------------------------------------------
+
+GRAFOS  >>>  TIPOS DE RECORRIDOS
+
+
+* Los dos aplican tanto a grafos dirigidos como no dirigidos
+* No se tienen en cuenta los pesos
+
+
+BFS (Breadth First Search)
+	* Recorro el grafo "a lo ancho"
+	* La reconstruccion del recorrido tiene forma de arbol
+	* El orden es igual a la distancia minima en cantidad de saltos de aristas
+	* Se parece a un recorrido por niveles de un ABB
+	* Utiliza colas
+ 
+DFS (Depth First Search)
+	* Recorro el grafo "a lo profundo"
+	* Utiliza recursividad
+	* Se parece a los recorridos inorder, preorder, postorder de un ABB 
+	* Utiliza pilas
+
+----------------------------------------------	
+Revisar codigos en python del profe de DFS y BFS, mas ejercicios de parcial
