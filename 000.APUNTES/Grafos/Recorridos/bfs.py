@@ -10,11 +10,11 @@ def bfs(grafo: Grafo, origen: str) -> set:
     cola = deque()
     cola.appendleft(origen)
 
-    padres = dict()
-    padres[origen] = None
-
     orden = dict()
     orden[origen] = 0
+
+    padres = dict()
+    padres[origen] = None
 
     visitados = set()
     visitados.add(origen)
@@ -25,8 +25,8 @@ def bfs(grafo: Grafo, origen: str) -> set:
         for w in grafo.adyacentes(v):
             if w not in visitados:
                 cola.appendleft(w)
-                padres[w] = v
                 orden[w] = orden[v] + 1
+                padres[w] = v
                 visitados.add(w)
 
-    return padres, orden
+    return orden, padres
