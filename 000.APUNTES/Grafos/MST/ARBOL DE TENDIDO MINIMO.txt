@@ -3,10 +3,9 @@ MST (ARBOL DE TENDIDO MINIMO)
 es un arbol dentro del grafo que:
 	* contiene todos los vertices del grafo original
 	* contiene la minima suma de todos los pesos
-	* Cumple las 3 propiedades de arbol:
+	* Cumple las propiedades de arbol:
 		* aristas = vertices - 1
-		* no hay ciclos
-		* Hay un solo camino para ir de un vertice a otro
+		* no hay ciclos --> hay un solo camino para ir de un vértice a otro
 
 
 Lo aplicamos para grafos no dirigidos.
