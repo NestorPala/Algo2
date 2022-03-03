@@ -30,3 +30,9 @@ def bfs(grafo: Grafo, origen: str) -> set:
                 visitados.add(w)
 
     return orden, padres
+
+
+# cola:      guarda los vértices a procesar                                     (Obligatorio)
+# orden:     es la distancia al origen de cada vértice                          (Opcional, sirve para identificar distancias o "niveles/capas")
+# padres:    guarda el elemento inmediatamente anterior de cada vértice         (Opcional, sirve para reconstruir el recorrido, que queda en forma de árbol)
+# visitados: guarda los vértices ya recorridos, para no recorrerlos de vuelta   (Obligatorio. También sirve, entre otras cosas, para detectar ciclos)
