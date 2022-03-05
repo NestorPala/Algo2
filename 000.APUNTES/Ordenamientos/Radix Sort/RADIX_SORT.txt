@@ -1,0 +1,20 @@
+RADIX SORT
+
+* Es un algoritmo de ordenamiento no comparativo.
+
+* Trabaja con elementos a ordenar que tengan varios digitos o componentes (donde hay algunos que son mas importantes que otros).
+* Necesita datos ennumerables o discretos en un rango acotado y conocido.
+
+* Cada elemento tiene que tener la misma cantidad de cifras (o muy similar, exisitiendo una forma de compensar esa diferencia). Por ejemplo, si ordenamos números de tres cifras (ej. 234, 82, 6, 415), si algún número tiene menos de 3 cifras, completamos con ceros a la izquierda (234, 082, 006, 415). En otros casos, el "completar con elementos" puede ser a la derecha; dependerá de qué queramos ordenar.
+
+* Utiliza un ordenamiento auxiliar que sí o sí tiene que ser ESTABLE, idealmente que sea lineal.
+* Normalmente vamos a utilizar Counting Sort como algoritmo auxiliar.
+
+* Ordena (utilizando el ordenamiento auxiliar) de la cifra MENOS significativa a la cifra MÁS significativa. Por ejemplo, para ordenar números de tres cifras, la cifra más significativa es la que está a la izquierda del todo (la centena); por ende ordeno primero por la unidad, luego por la decena y luego por la centena.
+
+* Complejidad: O(d*(n+k)), siendo "(n+k)" la complejidad de Counting Sort, y "d" la cantidad de digitos de cada elemento de los que queremos ordenar.
+
+* Estabilidad: Radix Sort es ESTABLE, ya que en cada momento utilizamos un algoritmo de ordenamiento auxiliar que es estable.
+
+
+
