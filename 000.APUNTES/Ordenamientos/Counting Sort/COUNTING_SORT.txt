@@ -1,26 +1,26 @@
 COUNTING SORT
 
 Elementos:
-	* ORIGINAL   = Arreglo a ordenar
-	* CANTIDADES = Arreglo de elemento-cantidad (tambien llamado FRECUENCIAS)
-	* ACU        = Arreglo de sumas acumuladas
-	* FINAL      = Arreglo final
+	* ORIGINAL    = Arreglo a ordenar (cadenas, números, elementos, etc.)
+	* FRECUENCIAS = Arreglo de elemento-cantidad (tambien llamado CANTIDADES)
+	* ACU         = Arreglo de sumas acumuladas
+	* ORDENADOS   = Arreglo final
 
 Paso 1: 
-* creamos el arreglo CANTIDADES donde el indice sera un tipo de elemento, y el dato su cantidad de apariciones en el arreglo ORIGINAL
-* creamos los arreglos ACU y FINAL
+* creamos el arreglo FRECUENCIAS donde el indice sera un tipo de elemento, y el dato su cantidad de apariciones en el arreglo ORIGINAL
+* creamos los arreglos ACU y ORDENADOS
 
 Paso 2:
-* recorremos ORIGINAL y para cada elemento, en CANTIDADES[elemento convertido a indice] sumamos 1
+* recorremos ORIGINAL y para cada elemento, en FRECUENCIAS[elemento convertido a indice] sumamos 1
 
 Paso 3:
-* recorremos CANTIDADES y, si existe posicion siguiente, guardamos en ACU[i + 1] el valor (ACU[i] + CANTIDADES[i])
+* recorremos FRECUENCIAS y, si existe posicion siguiente, guardamos en ACU[i + 1] el valor (ACU[i] + FRECUENCIAS[i])
 
 Paso 4:
 * recorremos ORIGINAL:
-	* para cada elemento guardado nos fijamos en ACU[elemento convertido a indice] en que posicion de FINAL va
-	* guardamos en esa posicion de FINAL
+	* para cada elemento guardado nos fijamos en ACU[elemento convertido a indice] en que posicion de ORDENADOS va
+	* guardamos en esa posicion de ORDENADOS
 	* sumamos 1 al numero que habia en ACU[elemento convertido a indice]
 
 Paso 5:
-* devolvemos FINAL
+* devolvemos ORDENADOS
