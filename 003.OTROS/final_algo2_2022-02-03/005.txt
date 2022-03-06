@@ -1,0 +1,75 @@
+5)
+
+Para este algoritmo asumiremos las siguientes cosas:
+
+* Arrancamos con las dos mitades del cofre entero
+* Todas las joyas del cofre son iguales (por ej. todos diamantes)
+* Siempre vamos a agarrar la misma cantidad de joyas en cada mitad/grupo
+* Peso joya verdadera >> peso joya falsa
+
+-------------------------
+
+Pseudocódigo:
+
+
+// O(1)
+function balanza(g1,g2) {...} 
+
+
+// O(1)
+function dividir_grupo_joyas_en_dos(grupo) {...}
+
+
+function buscar_joya_(g1, g2) {
+   
+   // Caso base
+   if (g1.cantidad == 1) {
+	// La joya que pese mas es la verdadera
+	return balanza(g1, g2) > 0 ? g1 : g2 
+   }
+   
+   // El grupo que pese menos es descartado automaticamente, 
+   // ya que no contiene la joya verdadera
+   if (balanza(g1, g2) > 0) {
+	g1, g2 = dividir_grupo_joyas_en_dos(g1)
+   } else {
+	g1, g2 = dividir_grupo_joyas_en_dos(g2)
+   }
+   
+   return buscar_joya_(g1, g2)
+}
+
+
+function buscar_joya(cofre) {
+      g1, g2 = dividir_grupo_joyas_en_dos(cofre)
+      
+      // Teniendo en cuenta las asunciones que hicimos, 
+      // si esto ocurre, es porque la joya no está
+      if (balanza(g1, g2) == 0) {
+         return NULL
+      }
+
+      return buscar_joya_(g1, g2)
+}
+
+
+cofre = Cofre()
+joya = buscar_joya(cofre)
+
+print( joya ? "Roba2" : "¡La joya no está! >:(" )
+
+
+-------------------------
+
+Complejidad:
+
+A = 1
+B = 2
+O(N^C) = O(1) ==>  N^C = 1  ==>  C = 0, con N la cantidad de joyas en el cofre
+
+Entonces, la complejidad es: O(log N)
+
+
+
+
+
