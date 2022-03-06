@@ -1,0 +1,32 @@
+ALGORITMO TOP-K
+
+--------------------------------------------
+
+Links de interés:
+* https://youtu.be/OxKmpidp_SE?t=2795
+* https://www.youtube.com/watch?v=Wh3A29psE_Y
+
+--------------------------------------------
+
+Ejemplo:
+
+-->> Escribir una funcion que, dado un arreglo de N cadenas y un entero positivo K, devuelva las K cadenas más largas.
+-->> (Se espera que la cantidad máxima de elementos en el heap sea de K).
+
+
+
+Es decir, ejemplo:  ["pepe", "gonzalo", "maximiliano", "oso", "adrian"], K = 2   ==>   Resultado: ["maximiliano", "gonzalo"]
+
+
+
+Existen varias formas de resolver el problema de arriba, además de las mencionadas a continuación:
+
+1RA SOLUCION --> usar heap de maximos, pero después de insertar los primeros K elementos del arreglo en el heap, a partir del elemento K+1, ¿cómo se si ese elemento merece estar dentro del heap o no? Tendría que desencolar todos los elementos para saber si el elemento K+1 del arreglo es menor, igual o mayor que el más chico del heap. Eso convierte la complejidad en O(N * log N), la misma que si utilizara directamente mergesort, por ejemplo. La idea, justamente, es que esta solución sea mejor que mergesort o quicksort.
+
+2DA SOLUCION --> surge como solución natural luego de observar los problemas de la 1ra solución. Consiste en utilizar un heap de mínimos en vez de uno de máximos. La lógica es que si el elemento K+1 del arreglo no es más grande que el mínimo del heap, NO entra al heap, con lo cual nos ahorramos todo el costo de insertar o sacar elementos del mismo, ya que chequear el tope del heap cuesta O(1). Entonces, lo que hacemos es: creamos un heap de mínimos de K elementos e insertamos las N cadenas; las que no cumplan se salen del heap, y las que cumplen entran, desplazando a los valores obsoletos. Al final del proceso se quedarán las K cadenas mas largas adentro del heap. Luego las devolvemos en orden descendente, usando una pila como invertidor auxiliar, o en orden ascendente, simplemente mostrándolas como salen del heap. La complejidad de esto es O(N * log K), ya que en el peor de los casos vamos a encolar en un heap de K elementos N veces.
+
+3RA SOLUCION --> no es definitivamente mejor que la segunda pero es mejor, y de hecho es mucho más sencilla. Básicamente, con el arreglo original, hacemos "heapify_heap_maximos(arreglo)" o "build_max_heap(arreglo)" y luego desencolamos K veces. Listo. Así de sencillo. La complejidad es O(N + K * log N), ya que heapify cuesta O(N) y luego desencolamos K veces de un heap de N elementos.
+
+
+
+La solución recomendada es la tercera:  heapify_heap_maximos(arreglo) + desencolar K veces.
