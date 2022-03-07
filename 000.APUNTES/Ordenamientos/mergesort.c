@@ -78,25 +78,22 @@ void merge(int arreglo[], size_t inicio, size_t medio, size_t fin) {
 // Es estable: SÍ
 // Espacio: O(N)
 void mergesort(int arreglo[], size_t inicio, size_t fin) {
-
-    // Si la lista tiene más de un elemento la ordenamos,
-    // ya que si contiene un solo elemento ya se encuentra ordenada.
-    if (inicio < fin) {
-        size_t medio = (inicio + fin) / 2;
-
-        // Ordenamos cada mitad de la lista por separado
-        // (Pasamos la lista por referencia)
-
-        // Mitad izquierda
-        mergesort(arreglo, inicio, medio);
-
-        // Mitad derecha
-        mergesort(arreglo, medio + 1, fin);
-
-        // Mergeamos las dos listas ordenadas para
-        // obtener la lista ordenada final.
-        merge(arreglo, inicio, medio, fin);
+    
+    // Si la lista contiene un solo elemento ya se encuentra ordenada
+    if (inicio >= fin) {
+        return;
     }
+
+    size_t medio = (inicio + fin) / 2;
+
+    // Ordenamos cada mitad de la lista por separado
+    // (Pasamos la lista por referencia)
+
+    mergesort(arreglo, inicio, medio);  // Lista mitad izquierda
+    mergesort(arreglo, medio + 1, fin); // Lista mitad derecha
+
+    // Mergeamos las dos listas ordenadas para obtener la lista ordenada final
+    merge(arreglo, inicio, medio, fin);
 }
 
 
