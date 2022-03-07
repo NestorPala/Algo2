@@ -3,7 +3,7 @@ https://www.youtube.com/watch?v=RGUAp9hT6hw
 SEGUIMIENTO 16:52 a 34:20
 COMPLEJIDAD 35:38 a 41:29
 
-Camino minimo  -->  CBellman-Ford
+Camino minimo  -->  Bellman-Ford
 https://www.youtube.com/watch?v=RGUAp9hT6hw
 SEGUIMIENTO 1:01:45 a 1:14:53
 
