@@ -52,7 +52,7 @@ def main() -> None:
     
     #---------------------------------------
 
-    # Grafo no dirigido no conexo (2 componentes conexas)
+    # Grafo no dirigido no conexo (el vértice "6" está desconectado)
     grafo_2 = Grafo(False, [str(i) for i in range(8)])
 
     grafo_2.agregar_arista("0", "3", 8)
