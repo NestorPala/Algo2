@@ -16,7 +16,7 @@ import heapq
 
 # DIJKSTRA ALGORITMO PRINCIPAL
 # (Obtiene el camino mínimo de cada vértice y la distancia mínima de cada vértice)
-# Complejidad: O(V + E log V)
+# Complejidad: O(V + E log V), con  V = vertices  y  E = aristas (edges)
 def camino_minimo_dijkstra(grafo: Grafo, origen: str) -> set:
     dist = dict()
     for v in grafo: dist[v] = math.inf  
