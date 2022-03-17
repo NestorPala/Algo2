@@ -1,0 +1,21 @@
+Abstract data types (TDAs / ADTs) in this folder:
+
+
+ABB (ES)    -->  BST (EN)
+Cola (ES)   -->  Queue* (EN)
+Hash (ES)   -->  Hash (EN)
+Heap (ES)   -->  Heap (EN)
+Lista (ES)  -->  List** (EN)
+Pila (ES)   -->  Stack (EN)
+Vector      -->  Dynamic Array (sort of)
+
+ * Linear queue
+** Singly-linked list
+
+
+--------------------------------------------
+
+ADTs in '000.APUNTES' folder:
+
+
+Grafo (ES)  -->  Graph (EN)
