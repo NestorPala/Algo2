@@ -40,7 +40,6 @@ lista_t *lista_crear(void) {
 }
 
 
-// Código reutilizado de la entrega "Cola" de Palavecino
 nodo_t* crear_nodo(void *valor, nodo_t *siguiente_nodo) {
 
     nodo_t *nodo = malloc(sizeof(nodo_t));
