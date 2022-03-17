@@ -38,16 +38,18 @@ size_t ubicar_pivote(int arreglo[], size_t inicio, size_t fin) {
 
 
 void quicksort(int arreglo[], size_t inicio, size_t fin) {
-    if (inicio < fin) {
-        size_t pivote = ubicar_pivote(arreglo, inicio, fin);
-        quicksort(arreglo, inicio, pivote - 1);
-        quicksort(arreglo, pivote + 1, fin);
+    if (inicio >= fin) { 
+        return;
     }
+
+    size_t pivote = ubicar_pivote(arreglo, inicio, fin);
+
+    quicksort(arreglo, inicio, pivote - 1);
+    quicksort(arreglo, pivote + 1, fin);
 }
 
 
 // int main() {
-
 //     int numeros[] = {32, 54, 65, 45, 3, 4, 87, 6, 57, 89, 10, 0, -12, -7, -23, -6};
 //     size_t n = 16;
     
