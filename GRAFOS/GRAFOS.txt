@@ -1,0 +1,50 @@
+GRAFOS
+(ver notas al pie de las ppt de grafos)
+
+
+
+* tienen vertices ("nodos") y aristas (relaciones)
+
+* Características:
+	dirigido (un sentido) o no dirigido (doble sentido)
+	pesado (relaciones con ponderación) o no pesado (rel. s/ pond.)
+	simple (un vertice intermedio) o compuesto (más de un vertice intermedio)
+	admite bucles (relaciones consigo mismo) o no
+
+* Representaciones
+	Matriz de incidencia
+		Orden espacio: O(V*E), donde V es la cantidad de vértices y E la cantidad de aristas
+
+		max(E) = V*(V-1) / 2  (no dirigido)
+		max(E) = V*(V-1)      (dirigido)
+
+		Consideramos que V y E son variables separadas
+
+
+	Matriz de adyacencia
+		La matriz es simétrica para grafos no dirigidos, y no simétrica para los dirigidos
+		Orden esapcio: O(n^2) (ver video de la clase)
+
+
+	Lista de adyacencia
+		Orden espacio: O(V + E), en el peor de los casos O(V^2)
+		
+		Hay 3 implementaciones prinicipales: lista de listas, diccionario de listas y diccionario de diccionarios
+
+
+---------
+
+Definiciones
+	Componente conexa:
+		grafos no dirigidos: conexa
+		grafos dirigidos: débilmente y fuertemente conexa
+
+	Grados de entrada y salida:
+		grafos no dirigidos: los dos grados son iguales
+		grafos dirigidos: es la cantidad de aristas de entrada y salida que tiene el nodo		
+
+---------
+
+Revisar tabla de órdenes de implementaciones de grafos
+Revisar caso especial de diccionarios de tuplas
+Revisar ejercicios de calcular grados de entrada y salida de los vértices

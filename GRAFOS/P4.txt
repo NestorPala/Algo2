@@ -1,0 +1,16 @@
+Camino minimo  -->  Dijkstra
+https://www.youtube.com/watch?v=RGUAp9hT6hw
+SEGUIMIENTO 16:52 a 34:20
+COMPLEJIDAD 35:38 a 41:29
+
+Camino minimo  -->  Bellman-Ford
+https://www.youtube.com/watch?v=RGUAp9hT6hw
+SEGUIMIENTO 1:01:45 a 1:14:53
+
+Árbol de tendido mínimo  -->  Prim
+https://www.youtube.com/watch?v=-DeyHLuY3DM
+SEGUIMIENTO 18:09 a 27:35
+
+Árbol de tendido mínimo  -->  Kruskal
+https://www.youtube.com/watch?v=-DeyHLuY3DM
+SEGUIMIENTO 41:07 a 53:15

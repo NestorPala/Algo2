@@ -1,0 +1,30 @@
+camino minimo
+
+
+grafos sin pesos           -->  BFS
+grafos con pesos positivos -->  Dijkstra
+grafos con pesos negativos -->  Bellman-ford
+
+---------------------------------
+Importante: un ciclo negativo es aquel en el cual la suma de los pesos de ese ciclo da < 0
+---------------------------------
+
+Dijkstra
+
+* Este algoritmo funciona con grafos dirigidos o no dirigidos, es exactamente igual
+* Este algoritmo funciona con grafos pesados y no pesados, pero en no pesados usamos BFS porque es mas rapido
+* Es un BFS modificado que usa heap de minimo
+* O(V + E log V), porque encolar y desencolar del cuesta O(log E) (lo transformamos en O(log V), y lo hacemos E veces, una por cada arista, y luego le sumamos el costo de inicializar los V nodos).
+* Si el grafo no dirigido tiene al menos una arista con peso negativo en la parte conexa el problema no tiene solución, porque el problema no tiene sentido si tenemos una arista negativa, esto aplica para cualquier algoritmo.
+* Para grafos dirigidos, caminos minimos no se puede resolver usando dijkstra si tenemos ciclos negativos
+* El elemento por el cual empiezo es con el cual quiero ver los caminos minimos a todos los demas
+* Este algoritmo se basa en la precondicion de que si algo se saca del heap, su distancia no se puede mejorar
+* Optimizacion para conseguir solo un camino minimo v->w: cortar cuando saco el vertice que estaba buscando del heap de minimos (en este caso, w)
+
+
+Bellman-ford
+
+* Sirve para lo mismo que Dijkstra, y ademas puede identificar ciclos negativos
+* Tiene una gran desventaja, cuesta mas, en concreto, O(V*E), porque por cada vertice, recorremos todas las aristas
+* Detectar un ciclo negativo: el algoritmo termina a las V iteraciones. Hacemos un V+1 chequeo. Si en ese V+1 chequeo, algun valor cambió, significa que hay distancias que no convergieron a valores finales, por que existe un ciclo negativo que continua restando esas distancias (y lo va a hacer infinitamente).
+* Orden: O(V*E)
