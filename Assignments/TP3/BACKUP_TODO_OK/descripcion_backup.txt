@@ -1,0 +1,22 @@
+TP3.zip
+
+2021-12-29 12:30
+
+7 puntos (minimo 7)
+
+llegamos hasta "clustering" (terminado, falta pasar 1 prueba de las 7)
+"lectura" no pasa las pruebas, rehacer
+cant iteraciones "comunidades": 200 (sigue fallando a veces xd)
+
+
+-----------------------------------------------------
+
+
+TP3_NO-TOCAR.zip
+
+2021-12-27 09:36
+
+7 puntos (minimo 7, o sea, esta entrega aprueba)
+
+llegamos hasta clustering (terminado, falta pasar 1 prueba de las 7)
+cant iteraciones comunidades: 100 (sigue fallando a veces xd)

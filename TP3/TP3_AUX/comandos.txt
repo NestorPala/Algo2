@@ -1,7 +1,0 @@
-listar_operaciones
-camino Argentina,Zinedine Zidane
-diametro
-rango Tokio,3
-navegacion Brasil
-conectados Argentina
-comunidad Chile

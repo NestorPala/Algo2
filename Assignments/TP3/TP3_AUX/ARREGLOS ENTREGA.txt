@@ -1,0 +1,12 @@
+ARREGLOS ENTREGA
+
+
+1) AGREGAR LO SIGUIENTE EN LA LINEA 1 DE netstats.py:
+
+#!/usr/bin/env python3
+
+
+2) CONVERTIR TODOS LOS ARCHIVOS A ENTREGAR A FORMATO "Unix (LF)" USANDO NOTEPAD++
+
+
+3) ABRIR EL ARCHIVO "entrega.mk" CON NOTEPAD++ y en las lineas 2 y 3 reemplazar los espacios del principio por tabs

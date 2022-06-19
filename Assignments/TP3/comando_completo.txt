@@ -1,0 +1,1 @@
+python3 ./netstats.py wiki-reducido-5000.tsv < comandos.txt > salida222.txt
