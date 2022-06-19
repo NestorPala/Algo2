@@ -1,0 +1,17 @@
+
+108244 - 1ER RECU ALGO 2 - EJERCICIO 3
+
+
+A)
+FALSO, porque Radix Sort depende si o si de que el algoritmo sea estable, porque si no lo fuera, 
+en la iteracion de ordenamiento correspondiente a la cifra siguiente se perdería el orden 
+relativo de los elementos conseguidos en las iteraciones anteriores.
+
+B)
+FALSO, el orden de Mergesort jamas puede ser O(1), porque para saber si el arreglo esta ordenado como minimo tengo que recorrer los n
+elementos del arreglo, con lo cual, en el mejor de los mejores de casos posibles, Mergesort costaría O(n), lo cual ya es mayor a O(1).
+
+C)
+FALSO, ¿que pasa si utilizo Radix Sort para un elemento de un solo digito? Pues ejecuto Counting Sort solo una vez, con lo
+cual, si el orden de Radix Sort es O(d*(n+k)), siendo "d" la cantidad de digitos de los elementos a ordenar, y O(n+k) el orden de C.S.,
+la complejidad ordenando elementos de un solo digito nos queda O(1 * (n+k)), o sea, O(n+k), que es igual al orden de Counting Sort.

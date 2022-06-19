@@ -1,0 +1,7 @@
+ARBOL N-ARIO
+
+* Cada nodo tiene hasta N hijos
+
+* Cada nodo tiene una lista de hijos
+
+* Se puede hacer preorder y postorden, pero inorden hay que definir qué significaría en este caso

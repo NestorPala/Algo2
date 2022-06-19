@@ -1,0 +1,11 @@
+Cuando tengamos que ver si un árbol es un AVL siempre comenzamos por las hojas.
+
+Validamos que cada nodo esté balanceado.
+
+Si todos los nodos están balanceados, el árbol está balanceado, por lo tanto es un AVL.
+
+IMPORTANTE: cuando insertemos un elemento, solo chequeamos balanceo sobre el CAMINO de inserción
+
+CUÁL ES EL NODO QUE "ROMPE"? es el primer nodo (repasando desde abajo, las hojas, hacia arriba) que no cumple con las propiedades. Lo marcamos como Z y seguimos el camino de inserción hacia abajo y marcamos las Y y X. Luego vemos qué rotación coresponde aplicar (no olvidar que hay 2 rotaciones que tienen pasos dobles)
+
+No olvidar CHEQUEAR la condición de ABB y AVL después de terminar las rotaciones, porque se pueden arrastrar errores.

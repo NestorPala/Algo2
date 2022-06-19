@@ -1,0 +1,29 @@
+hashing cerrado
+
+probing: como se resuelve una colision
+
+dos claves son sinónimos si colisionan.
+
+el probing cuadratico podría ser más rápido pero gasta más espacio y podríamos quedarnos sin lugar disponible. No se suele usar.
+-----------------------
+hashing abierto
+
+ya no se puede mejorar más.
+--------------------
+Hopscotch Hashing (inspirado en el cerrado)
+
+Usamos Hopscotch Hashing para asegurar que la busqueda y borrado son siempre O(1), porque establecemos una distancia máxima 	K de reubicación con respecto a hash(x), entonces podemos asegurar que el elemento guardado se encuentra en hash(x) y hash(x)+(K-1).
+
+Usando Hopscotch no necesitamos el estado "borrado" para una celda.
+--------------------
+Cuckoo Hashing (no se considera cerrado ni abierto)
+
+Cada clave x1 se guarda usando hash1(x1) o hash2(x1), si con hash1 no se puede guardar x1 en la posición H, el elemento x2 en H se guarda ahora en su hash2(x2), si x2 no se puede guardar en hash2(x2), corremos x3 a hash2(x3), y así sucesivamente.
+--------------------
+Hash & Displace
+
+permite busquedas en O(1)
+NO utiliza espacio adicional
+NO hay colisiones (no es un hash abierto ni cerrado)
+Necesitamos saber EXACTAMENTE la cantidad de elementos
+Necesitamos MUCHAS funciones de hashing para que el hash funcione

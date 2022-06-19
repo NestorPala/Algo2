@@ -1,0 +1,17 @@
+Valgrind (usamos memcheck)
+
+gcc -g -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -o pruebas *.c
+valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./pruebas
+
+-----------------------------------------------------------------------------------------
+
+Notas:
+- printf() aloja y libera su propia memoria (alloc, free)
+- Hay que solucionar TODOS los tipos de memory leak
+
+Errores comunes:
+- Double free
+- Invalid read
+- Invalid write
+- Conditional jump
+- Memory leak
